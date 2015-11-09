@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
@@ -18,6 +18,7 @@ import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
@@ -42,12 +43,12 @@ public class FieldResourcePost extends ResourceUpsert {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath instanceof FieldPath
+                && FieldPath.class.equals(jsonPath.getClass())
                 && HttpMethod.POST.name().equals(requestType);
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams,
+    public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams,
                                    RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
@@ -90,12 +91,12 @@ public class FieldResourcePost extends ResourceUpsert {
             .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
 
         @SuppressWarnings("unchecked")
-        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
+        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, queryParams);
 
         RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry
             .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         @SuppressWarnings("unchecked")
-        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider).findOne(castedResourceId, requestParams);
+        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider).findOne(castedResourceId, queryParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
             relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
@@ -104,11 +105,12 @@ public class FieldResourcePost extends ResourceUpsert {
             relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
         }
         MetaInformation metaInformation = getMetaInformation(resourceRepository,
-            Collections.singletonList(savedResourceWithRelations), requestParams);
+            Collections.singletonList(savedResourceWithRelations), queryParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation,
+            HttpStatus.CREATED_201);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -14,6 +14,7 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
@@ -35,6 +36,20 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(result).isTrue();
+    }
+
+    @Test
+    public void onRelationshipRequestShouldDenyIt() {
+        // GIVEN
+        JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
+        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN
+        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+
+        // THEN
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -65,7 +80,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(objectMapper), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -85,8 +100,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
+        ResourceResponse projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
 
+        // THEN
+        assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
         assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
         assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");

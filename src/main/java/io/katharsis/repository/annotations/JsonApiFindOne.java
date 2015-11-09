@@ -1,6 +1,6 @@
 package io.katharsis.repository.annotations;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 
 import java.io.Serializable;
 import java.lang.annotation.*;
@@ -14,13 +14,13 @@ import java.lang.annotation.*;
  * The requirements for the method parameters are as follows:
  * </p>
  * <ol>
- *     <li>An identifier of a resource</li>
+ *     <li>A resource identifier</li>
  * </ol>
  * <p>
  * The return value should be a resource of {@link JsonApiResourceRepository#value()} type.
  * </p>
  *
- * @see io.katharsis.repository.ResourceRepository#findOne(Serializable, RequestParams)
+ * @see io.katharsis.repository.ResourceRepository#findOne(Serializable, QueryParams)
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

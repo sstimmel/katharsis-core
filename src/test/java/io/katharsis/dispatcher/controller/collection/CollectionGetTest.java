@@ -1,16 +1,15 @@
 package io.katharsis.dispatcher.controller.collection;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.resource.RelationshipsResourcePost;
 import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.dispatcher.controller.resource.ResourcePost;
-import io.katharsis.queryParams.RequestParamsBuilder;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
@@ -24,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +67,7 @@ public class CollectionGetTest extends BaseControllerTest {
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -82,10 +82,31 @@ public class CollectionGetTest extends BaseControllerTest {
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
+    }
+
+    @Test
+    public void onGivenRequestResourceWithIdShouldSetIt() throws Exception {
+        // GIVEN
+        RequestBody requestBody = new RequestBody();
+        DataBody data = new DataBody();
+        requestBody.setData(data);
+        data.setType("tasks");
+        data.setId("3");
+
+        JsonPath taskPath = pathBuilder.buildPath("/tasks");
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN -- adding a task
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, requestBody);
+
+        // THEN
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskId).isEqualTo(3);
     }
 
     @Test
@@ -102,7 +123,7 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -121,7 +142,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -143,7 +164,8 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(objectMapper), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null,
+            newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -154,12 +176,13 @@ public class CollectionGetTest extends BaseControllerTest {
         //Given
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId );
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(RestrictedQueryParamsMembers.include.name(), "[\"includedProjects\"]");
-        RequestParams requestParams = new RequestParamsBuilder(new ObjectMapper()).buildRequestParams(queryParams);
+        Map<String, Set<String>> queryParams = new HashMap<>();
+        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
+            Collections.singleton("includedProjects"));
+        QueryParams queryParams1 = new QueryParamsBuilder().buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);
+        BaseResponse<?> response = responseGetResp.handle(jsonPath, queryParams1, null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -183,7 +206,7 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -202,7 +225,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -224,7 +247,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(objectMapper), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -235,9 +258,10 @@ public class CollectionGetTest extends BaseControllerTest {
         //Given
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId );
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(RestrictedQueryParamsMembers.include.name(), "[\"projects\"]");
-        RequestParams requestParams = new RequestParamsBuilder(new ObjectMapper()).buildRequestParams(queryParams);
+        Map<String, Set<String>> queryParams = new HashMap<>();
+        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
+            Collections.singleton("[\"projects\"]"));
+        QueryParams requestParams = new QueryParamsBuilder().buildQueryParams(queryParams);
 
         // WHEN
         BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);

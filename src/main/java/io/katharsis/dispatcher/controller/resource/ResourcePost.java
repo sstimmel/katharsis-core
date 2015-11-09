@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
@@ -14,6 +14,7 @@ import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
@@ -44,7 +45,7 @@ public class ResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams,
+    public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams,
                                    RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
@@ -68,21 +69,23 @@ public class ResourcePost extends ResourceUpsert {
         verifyTypes(HttpMethod.POST, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
         Object newResource = bodyRegistryEntry.getResourceInformation().getResourceClass().newInstance();
 
+        setId(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
-        setRelations(newResource, bodyRegistryEntry, dataBody, requestParams, parameterProvider);
+        setRelations(newResource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
         Object savedResource = resourceRepository.save(newResource);
 
         Serializable resourceId = (Serializable) PropertyUtils
             .getProperty(savedResource, bodyRegistryEntry.getResourceInformation().getIdField().getName());
 
         @SuppressWarnings("unchecked")
-        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
+        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, queryParams);
         MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
+            getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation,
+            HttpStatus.CREATED_201);
     }
 }

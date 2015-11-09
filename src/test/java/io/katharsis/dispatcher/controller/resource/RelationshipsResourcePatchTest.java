@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -16,6 +16,7 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = HttpMethod.PATCH.name();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final RequestParams REQUEST_PARAMS = new RequestParams(OBJECT_MAPPER);
+    private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     private UserToProjectRepository localUserToProjectRepository;
 
@@ -82,7 +83,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -101,7 +102,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -123,7 +124,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -146,7 +147,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a user
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newUserBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newUserBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(User.class);
@@ -165,7 +166,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -187,7 +188,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between user and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -210,7 +211,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -227,10 +228,12 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between user and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null,
+            newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
+        assertThat(projectRelationshipResponse.getHttpStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
         Project project = localUserToProjectRepository.findOneTarget(1L, "project", REQUEST_PARAMS);
         assertThat(project).isNull();
     }

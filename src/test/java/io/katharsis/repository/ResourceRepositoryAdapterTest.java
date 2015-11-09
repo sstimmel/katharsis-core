@@ -1,6 +1,7 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
@@ -9,22 +10,21 @@ import io.katharsis.resource.mock.models.Project;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Parameter;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class ResourceRepositoryAdapterTest {
-    private RequestParams requestParams;
+    private QueryParams queryParams;
     private ParametersFactory parameterProvider;
 
     @Before
     public void setUp() throws Exception {
-        requestParams = new RequestParams(null);
+        queryParams = new QueryParams();
         parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
     }
 
@@ -35,7 +35,7 @@ public class ResourceRepositoryAdapterTest {
         ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findOne(1L, requestParams);
+        sut.findOne(1L, queryParams);
     }
 
     @Test(expected = RepositoryMethodException.class)
@@ -45,7 +45,7 @@ public class ResourceRepositoryAdapterTest {
         ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findOne(1L, requestParams);
+        sut.findOne(1L, queryParams);
     }
 
     @Test
@@ -55,10 +55,10 @@ public class ResourceRepositoryAdapterTest {
         ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        Project result = sut.findOne(1L, requestParams);
+        Project result = sut.findOne(1L, queryParams);
 
         // THEN
-        verify(repo).findOne(eq(1L), eq(requestParams), eq(""));
+        verify(repo).findOne(eq(1L), eq(queryParams), eq(""));
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
     }
@@ -70,7 +70,7 @@ public class ResourceRepositoryAdapterTest {
         ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findAll(requestParams);
+        sut.findAll(queryParams);
     }
 
     @Test
@@ -80,12 +80,48 @@ public class ResourceRepositoryAdapterTest {
         ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        Iterable<Project> result = sut.findAll(requestParams);
+        Iterable<Project> result = sut.findAll(queryParams);
 
         // THEN
-        verify(repo).findAll(eq(requestParams), eq(""));
+        verify(repo).findAll(eq(queryParams), eq(""));
         assertThat(result).hasSize(1);
         assertThat(result.iterator().next()).isNotNull();
+        assertThat(result.iterator().next().getId()).isEqualTo(1L);
+    }
+
+    @Test(expected = RepositoryAnnotationNotFoundException.class)
+    public void onClassWithoutFindAllWithIdsShouldThrowException() throws Exception {
+        // GIVEN
+        ResourceRepositoryWithoutAnyMethods repo = new ResourceRepositoryWithoutAnyMethods();
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
+
+        // WHEN
+        sut.findAll(Collections.singletonList(1L), queryParams);
+    }
+
+    @Test(expected = RepositoryMethodException.class)
+    public void onClassWithInvalidFindAllWithIdsShouldThrowException() throws Exception {
+        // GIVEN
+        ResourceRepositoryWithEmptyFindAllWithIds repo = new ResourceRepositoryWithEmptyFindAllWithIds();
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
+
+        // WHEN
+        sut.findAll(Collections.singletonList(1L), queryParams);
+    }
+
+    @Test
+    public void onClassWithFindAllWithIdsShouldReturnValue() throws Exception {
+        // GIVEN
+        ResourceRepositoryWithFindAllWithIds repo = spy(ResourceRepositoryWithFindAllWithIds.class);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
+        List<Long> ids = Collections.singletonList(1L);
+
+        // WHEN
+        Iterable<Project> result = sut.findAll(ids, queryParams);
+
+        // THEN
+        verify(repo).findAll(eq(ids), eq(queryParams), eq(""));
+        assertThat(result).hasSize(1);
         assertThat(result.iterator().next().getId()).isEqualTo(1L);
     }
 
@@ -176,7 +212,7 @@ public class ResourceRepositoryAdapterTest {
     public static class ResourceRepositoryWithFindOne {
 
         @JsonApiFindOne
-        public Project findOne(Long id, RequestParams requestParams, String someString) {
+        public Project findOne(Long id, QueryParams queryParams, String someString) {
             return new Project()
                 .setId(id);
         }
@@ -186,7 +222,25 @@ public class ResourceRepositoryAdapterTest {
     public static class ResourceRepositoryWithFindAll {
 
         @JsonApiFindAll
-        public Iterable<Project> findAll(RequestParams requestParams, String s) {
+        public Iterable<Project> findAll(QueryParams queryParams, String s) {
+            return Collections.singletonList(new Project().setId(1L));
+        }
+    }
+
+    @JsonApiResourceRepository(Project.class)
+    public static class ResourceRepositoryWithEmptyFindAllWithIds {
+
+        @JsonApiFindAllWithIds
+        public Iterable<Project> findAll() {
+            return Collections.singletonList(new Project().setId(1L));
+        }
+    }
+
+    @JsonApiResourceRepository(Project.class)
+    public static class ResourceRepositoryWithFindAllWithIds {
+
+        @JsonApiFindAllWithIds
+        public Iterable<Project> findAll(Iterable<Long> id, QueryParams queryParams, String someString) {
             return Collections.singletonList(new Project().setId(1L));
         }
     }

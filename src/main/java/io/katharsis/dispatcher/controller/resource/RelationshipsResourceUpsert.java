@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
@@ -18,9 +18,7 @@ import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.*;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -71,12 +69,12 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
     @Override
     public final boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath instanceof RelationshipsPath
+                && RelationshipsPath.class.equals(jsonPath.getClass())
                 && method().name().equals(requestType);
     }
 
     @Override
-    public final BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
+    public final BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams,
                                         RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
@@ -97,7 +95,7 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
         }
         ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
-        Object resource = resourceRepository.findOne(castedResourceId, requestParams);
+        Object resource = resourceRepository.findOne(castedResourceId, queryParams);
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics
@@ -122,9 +120,11 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
         }
 
         MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(resource), requestParams);
+            getMetaInformation(resourceRepository, Collections.singletonList(resource), queryParams);
+        LinksInformation linksInformation =
+            getLinksInformation(resourceRepository, Collections.singletonList(resource), queryParams);
 
-        return new ResourceResponse(metaInformation);
+        return new ResourceResponse(metaInformation, linksInformation, HttpStatus.NO_CONTENT_204);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

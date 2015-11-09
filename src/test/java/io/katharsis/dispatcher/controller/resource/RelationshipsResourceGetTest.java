@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Task;
@@ -10,6 +10,7 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.util.Relation;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.HttpStatus;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +48,20 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
 
         // THEN
         assertThat(result).isTrue();
+    }
+
+    @Test
+    public void onFieldRequestShouldDenyIt() {
+        // GIVEN
+        JsonPath jsonPath = new ResourcePath("tasks/1/project");
+        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+
+        // WHEN
+        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+
+        // THEN
+        assertThat(result).isFalse();
     }
 
     @Test
@@ -106,5 +121,6 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
 
         // THEN
         Assert.assertNotNull(response);
+        assertThat(response.getHttpStatus()).isEqualTo(HttpStatus.OK_200);
     }
 }

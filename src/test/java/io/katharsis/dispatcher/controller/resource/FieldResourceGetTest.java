@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -33,6 +33,21 @@ public class FieldResourceGetTest extends BaseControllerTest {
     }
 
     @Test
+    public void onRelationshipRequestShouldDenyIt() {
+        // GIVEN
+        JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
+        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+        IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+
+        // WHEN
+        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+
+        // THEN
+        assertThat(result).isFalse();
+    }
+
+    @Test
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
@@ -55,7 +70,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -69,7 +84,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);

@@ -1,11 +1,14 @@
-package io.katharsis.repository;
+package io.katharsis.repository.adapter;
 
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.annotations.JsonApiDelete;
-import io.katharsis.repository.annotations.JsonApiFindAll;
-import io.katharsis.repository.annotations.JsonApiFindOne;
-import io.katharsis.repository.annotations.JsonApiSave;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.LinksRepository;
+import io.katharsis.repository.MetaRepository;
+import io.katharsis.repository.ParametersFactory;
+import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.ClassUtils;
 
 import java.io.Serializable;
@@ -14,23 +17,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public class ResourceRepositoryAdapter<T, ID extends Serializable> implements ResourceRepository<T, ID> {
-
-    private final Object implementationObject;
-    private final ParametersFactory parametersFactory;
+public class ResourceRepositoryAdapter<T, ID extends Serializable>
+    extends RepositoryAdapter<T>
+    implements ResourceRepository<T, ID> {
 
     private Method findOneMethod;
     private Method findAllMethod;
+    private Method findAllWithIds;
     private Method saveMethod;
     private Method deleteMethod;
 
     public ResourceRepositoryAdapter(Object implementationObject, ParametersFactory parametersFactory) {
-        this.implementationObject = implementationObject;
-        this.parametersFactory = parametersFactory;
+        super(implementationObject, parametersFactory);
     }
 
     @Override
-    public T findOne(ID id, RequestParams requestParams) {
+    public T findOne(ID id, QueryParams queryParams) {
         Class<JsonApiFindOne> annotationType = JsonApiFindOne.class;
         if (findOneMethod == null) {
             findOneMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
@@ -38,7 +40,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         checkIfNotNull(annotationType, findOneMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{id}, findOneMethod.getParameters(), requestParams, annotationType);
+            .buildParameters(new Object[]{id}, findOneMethod.getParameters(), queryParams, annotationType);
 
         try {
             return (T) findOneMethod.invoke(implementationObject, methodParameters);
@@ -50,7 +52,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
     }
 
     @Override
-    public Iterable<T> findAll(RequestParams requestParams) {
+    public Iterable<T> findAll(QueryParams queryParams) {
         Class<JsonApiFindAll> annotationType = JsonApiFindAll.class;
         if (findAllMethod == null) {
             findAllMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
@@ -58,10 +60,30 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         checkIfNotNull(annotationType, findAllMethod);
 
         Parameter[] parametersToResolve = findAllMethod.getParameters();
-        Object[] methodParameters = parametersFactory.buildParameters(parametersToResolve, requestParams);
+        Object[] methodParameters = parametersFactory.buildParameters(parametersToResolve, queryParams);
 
         try {
             return (Iterable<T>) findAllMethod.invoke(implementationObject, methodParameters);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
+        }
+    }
+
+    @Override
+    public Iterable<T> findAll(Iterable<ID> ids, QueryParams queryParams) {
+        Class<JsonApiFindAllWithIds> annotationType = JsonApiFindAllWithIds.class;
+        if (findAllWithIds == null) {
+            findAllWithIds = ClassUtils.findMethodWith(implementationObject, annotationType);
+        }
+        checkIfNotNull(annotationType, findAllWithIds);
+
+        Object[] methodParameters = parametersFactory
+            .buildParameters(new Object[]{ids}, findAllWithIds.getParameters(), queryParams, annotationType);
+
+        try {
+            return (Iterable<T>) findAllWithIds.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
@@ -106,13 +128,6 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw (RuntimeException)e.getCause();
-        }
-    }
-
-    private void checkIfNotNull(Class<? extends Annotation> annotationClass, Method foundMethod) {
-        if (foundMethod == null) {
-            throw new RepositoryAnnotationNotFoundException(
-                String.format("Annotation %s for class %s not found", annotationClass, implementationObject.getClass()));
         }
     }
 }

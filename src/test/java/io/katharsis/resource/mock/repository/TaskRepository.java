@@ -1,7 +1,7 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.annotations.*;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 
@@ -23,7 +23,7 @@ public class TaskRepository {
     }
 
     @JsonApiFindOne
-    public Task findOne(Long aLong, RequestParams requestParams) {
+    public Task findOne(Long aLong, QueryParams queryParams) {
         Task task = THREAD_LOCAL_REPOSITORY.get(aLong);
         if (task == null) {
             throw new ResourceNotFoundException("");
@@ -32,16 +32,22 @@ public class TaskRepository {
     }
 
     @JsonApiFindAll
-    public Iterable<Task> findAll(RequestParams requestParams) {
+    public Iterable<Task> findAll(QueryParams queryParams) {
+        return THREAD_LOCAL_REPOSITORY.values();
+    }
+
+
+    @JsonApiFindAllWithIds
+    public Iterable<Task> findAll(Iterable<Long> ids, QueryParams queryParams) {
         return THREAD_LOCAL_REPOSITORY.values()
             .stream()
-            .filter(value -> contains(value, requestParams.getIds()))
+            .filter(value -> contains(value, ids))
             .collect(Collectors.toList());
     }
 
-    private boolean contains(Task value, List<String> ids) {
-        for (String id : ids) {
-            if (value.getId().equals(Long.valueOf(id))) {
+    private boolean contains(Task value, Iterable<Long> ids) {
+        for (Long id : ids) {
+            if (value.getId().equals(id)) {
                 return true;
             }
         }
