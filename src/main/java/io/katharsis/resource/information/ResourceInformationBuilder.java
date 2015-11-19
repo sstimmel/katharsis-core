@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.stream.Collectors;
+//import java.util.stream.Collectors;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
