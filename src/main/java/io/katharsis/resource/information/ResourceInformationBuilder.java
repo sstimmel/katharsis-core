@@ -54,25 +54,41 @@ public final class ResourceInformationBuilder {
     }
 
     private List<ResourceField> getFieldResourceFields(List<Field> classFields) {
-        return classFields
-            .stream()
-            .map(field -> {
-                String name = resourceFieldNameTransformer.getName(field);
-                List<Annotation> annotations = Arrays.asList(field.getAnnotations());
-                return new ResourceField(name, field.getType(), field.getGenericType(), annotations);
-            })
-            .collect(Collectors.toList());
+//        return classFields
+//            .stream()
+//            .map(field -> {
+//                String name = resourceFieldNameTransformer.getName(field);
+//                List<Annotation> annotations = Arrays.asList(field.getAnnotations());
+//                return new ResourceField(name, field.getType(), field.getGenericType(), annotations);
+//            })
+//            .collect(Collectors.toList());
+        List<ResourceField> list = Collections.<ResourceField>emptyList();
+        for (Field field : classFields) {
+            String name = resourceFieldNameTransformer.getName(field);
+            List<Annotation> annotations = Arrays.asList(field.getAnnotations());
+            list.add(new ResourceField(name, field.getType(), field.getGenericType(), annotations));        	
+        }
+        
+        return list;
     }
 
     private List<ResourceField> getGetterResourceFields(List<Method> classGetters) {
-        return classGetters
-            .stream()
-            .map(getter -> {
-                String name = resourceFieldNameTransformer.getName(getter);
-                List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
-                return new ResourceField(name, getter.getReturnType(), getter.getGenericReturnType(), annotations);
-            })
-            .collect(Collectors.toList());
+//        return classGetters
+//            .stream()
+//            .map(getter -> {
+//                String name = resourceFieldNameTransformer.getName(getter);
+//                List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
+//                return new ResourceField(name, getter.getReturnType(), getter.getGenericReturnType(), annotations);
+//            })
+//            .collect(Collectors.toList());
+        List<ResourceField> list = Collections.<ResourceField>emptyList();
+        for (Method getter : classGetters) {
+            String name = resourceFieldNameTransformer.getName(getter);
+            List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
+            list.add(new ResourceField(name, getter.getReturnType(), getter.getGenericReturnType(), annotations));
+        }
+        
+        return list;
     }
 
     private List<ResourceField> getResourceFields(List<ResourceField> resourceClassFields, List<ResourceField> resourceGetterFields) {
@@ -90,10 +106,17 @@ public final class ResourceInformationBuilder {
             }
         }
 
-        return resourceFieldMap.values()
-            .stream()
-            .filter(field -> !field.isAnnotationPresent(JsonIgnore.class))
-            .collect(Collectors.toList());
+//        return resourceFieldMap.values()
+//            .stream()
+//            .filter(field -> !field.isAnnotationPresent(JsonIgnore.class))
+//            .collect(Collectors.toList());
+        List<ResourceField> list = Collections.<ResourceField>emptyList();
+        for (ResourceField field : resourceFieldMap.values()) {
+        	if (!field.isAnnotationPresent(JsonIgnore.class))
+        		list.add(field);
+        }
+        
+        return list;
     }
 
     private ResourceField mergeAnnotations(ResourceField fromField, ResourceField fromMethod) {
@@ -104,9 +127,14 @@ public final class ResourceInformationBuilder {
     }
 
     private <T> ResourceField getIdField(Class<T> resourceClass, List<ResourceField> classFields) {
-        List<ResourceField> idFields = classFields.stream()
-            .filter(field -> field.isAnnotationPresent(JsonApiId.class))
-            .collect(Collectors.toList());
+//        List<ResourceField> idFields = classFields.stream()
+//            .filter(field -> field.isAnnotationPresent(JsonApiId.class))
+//            .collect(Collectors.toList());
+        List<ResourceField> idFields = Collections.<ResourceField>emptyList();
+        for (ResourceField field : classFields) {
+        	if (field.isAnnotationPresent(JsonApiId.class))
+        		idFields.add(field);
+        }
 
         if (idFields.size() == 0) {
             throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
@@ -117,18 +145,34 @@ public final class ResourceInformationBuilder {
     }
 
     private Set<ResourceField> getBasicFields(List<ResourceField> classFields, ResourceField idField) {
-        return classFields.stream()
-            .filter(field -> !field.isAnnotationPresent(JsonApiToMany.class) && !field.isAnnotationPresent
-                (JsonApiToOne.class)) // get rid of relations
-            .filter(field -> !field.equals(idField))
-            .collect(Collectors.toSet());
+//        return classFields.stream()
+//            .filter(field -> !field.isAnnotationPresent(JsonApiToMany.class) && !field.isAnnotationPresent
+//                (JsonApiToOne.class)) // get rid of relations
+//            .filter(field -> !field.equals(idField))
+//            .collect(Collectors.toSet());
+        Set<ResourceField> set = Collections.emptySet();
+        for (ResourceField field : classFields) {
+        	if (!field.isAnnotationPresent(JsonApiToMany.class) && !field.isAnnotationPresent(JsonApiToOne.class)
+        			&& !field.equals(idField))
+        		set.add(field);
+        }
+        
+        return set;
     }
 
     private Set<ResourceField> getRelationshipFields(List<ResourceField> classFields, ResourceField idField) {
-        return classFields.stream()
-            .filter(field -> field.isAnnotationPresent(JsonApiToMany.class)
-                || field.isAnnotationPresent(JsonApiToOne.class)) // get only relations
-            .filter(field -> !field.equals(idField))
-            .collect(Collectors.toSet());
+//        return classFields.stream()
+//            .filter(field -> field.isAnnotationPresent(JsonApiToMany.class)
+//                || field.isAnnotationPresent(JsonApiToOne.class)) // get only relations
+//            .filter(field -> !field.equals(idField))
+//            .collect(Collectors.toSet());
+        Set<ResourceField> set = Collections.emptySet();
+        for (ResourceField field : classFields) {
+        	if ((field.isAnnotationPresent(JsonApiToMany.class) || field.isAnnotationPresent(JsonApiToOne.class))
+        			&& !field.equals(idField))
+        		set.add(field);
+        }
+        
+        return set;
     }
 }
