@@ -13,7 +13,13 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import java8.util.Optional;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * Repository entries builder for classes implementing repository interfaces.
@@ -29,8 +35,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(Reflections reflections, Class<?> resourceClass) {
-        Optional<Class<? extends ResourceRepository>> repoClass = reflections.getSubTypesOf(ResourceRepository.class)
-            .stream()
+        Optional<Class<? extends ResourceRepository>> repoClass = stream(reflections.getSubTypesOf(ResourceRepository.class))
             .filter(clazz -> {
                 Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, clazz);
                 return typeArgs[0] == resourceClass;
