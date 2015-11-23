@@ -16,6 +16,7 @@
     <url>https://github.com/katharsis-project/katharsis-core</url>
 
     <properties>
+        <streamsupport-version>1.4</streamsupport-version>
         <equalsverifier-version>1.7.2</equalsverifier-version>
         <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
     </properties>
@@ -66,6 +67,11 @@
             <version>${jackson.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.sourceforge.streamsupport</groupId>
+            <artifactId>streamsupport</artifactId>
+            <version>${streamsupport-version}</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
