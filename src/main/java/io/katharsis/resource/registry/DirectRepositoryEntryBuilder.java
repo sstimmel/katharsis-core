@@ -29,19 +29,26 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(Reflections reflections, Class<?> resourceClass) {
-        Optional<Class<? extends ResourceRepository>> repoClass = reflections.getSubTypesOf(ResourceRepository.class)
-            .stream()
-            .filter(clazz -> {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, clazz);
-                return typeArgs[0] == resourceClass;
-            })
-            .findFirst();
-        if (!repoClass.isPresent()) {
+//        Optional<Class<? extends ResourceRepository>> repoClass = reflections.getSubTypesOf(ResourceRepository.class)
+//            .stream()
+//            .filter(clazz -> {
+//                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, clazz);
+//                return typeArgs[0] == resourceClass;
+//            })
+//            .findFirst();
+        Class<? extends ResourceRepository> repoClass = null;
+        for (Class<? extends ResourceRepository> clazz : reflections.getSubTypesOf(ResourceRepository.class)) {
+        	if (TypeResolver.resolveRawArguments(ResourceRepository.class, clazz)[0] == resourceClass) {
+        		repoClass = clazz;
+        		break;
+        	}
+        }
+        if (repoClass == null) {
             return null;
         }
-        ResourceRepository<?, ?> repoInstance = jsonServiceLocator.getInstance(repoClass.get());
+        ResourceRepository<?, ?> repoInstance = jsonServiceLocator.getInstance(repoClass);
         if (repoInstance == null) {
-            throw new RepositoryInstanceNotFoundException(repoClass.get().getCanonicalName());
+            throw new RepositoryInstanceNotFoundException(repoClass.getCanonicalName());
         }
         return new DirectResourceEntry<>(repoInstance);
     }
