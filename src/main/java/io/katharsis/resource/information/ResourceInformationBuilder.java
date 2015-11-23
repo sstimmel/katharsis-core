@@ -15,7 +15,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-//import java.util.stream.Collectors;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
@@ -54,8 +55,7 @@ public final class ResourceInformationBuilder {
     }
 
     private List<ResourceField> getFieldResourceFields(List<Field> classFields) {
-        return classFields
-            .stream()
+        return stream(classFields)
             .map(field -> {
                 String name = resourceFieldNameTransformer.getName(field);
                 List<Annotation> annotations = Arrays.asList(field.getAnnotations());
@@ -65,8 +65,7 @@ public final class ResourceInformationBuilder {
     }
 
     private List<ResourceField> getGetterResourceFields(List<Method> classGetters) {
-        return classGetters
-            .stream()
+        return stream(classGetters)
             .map(getter -> {
                 String name = resourceFieldNameTransformer.getName(getter);
                 List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
@@ -90,8 +89,7 @@ public final class ResourceInformationBuilder {
             }
         }
 
-        return resourceFieldMap.values()
-            .stream()
+        return stream(resourceFieldMap.values())
             .filter(field -> !field.isAnnotationPresent(JsonIgnore.class))
             .collect(Collectors.toList());
     }
@@ -104,7 +102,7 @@ public final class ResourceInformationBuilder {
     }
 
     private <T> ResourceField getIdField(Class<T> resourceClass, List<ResourceField> classFields) {
-        List<ResourceField> idFields = classFields.stream()
+        List<ResourceField> idFields = stream(classFields)
             .filter(field -> field.isAnnotationPresent(JsonApiId.class))
             .collect(Collectors.toList());
 
@@ -117,7 +115,7 @@ public final class ResourceInformationBuilder {
     }
 
     private Set<ResourceField> getBasicFields(List<ResourceField> classFields, ResourceField idField) {
-        return classFields.stream()
+        return stream(classFields)
             .filter(field -> !field.isAnnotationPresent(JsonApiToMany.class) && !field.isAnnotationPresent
                 (JsonApiToOne.class)) // get rid of relations
             .filter(field -> !field.equals(idField))
@@ -125,7 +123,7 @@ public final class ResourceInformationBuilder {
     }
 
     private Set<ResourceField> getRelationshipFields(List<ResourceField> classFields, ResourceField idField) {
-        return classFields.stream()
+        return stream(classFields)
             .filter(field -> field.isAnnotationPresent(JsonApiToMany.class)
                 || field.isAnnotationPresent(JsonApiToOne.class)) // get only relations
             .filter(field -> !field.equals(idField))
