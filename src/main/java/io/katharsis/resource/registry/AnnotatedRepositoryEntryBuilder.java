@@ -12,8 +12,9 @@ import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java8.util.function.Predicate;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * Repository entries builder for classes annotated with repository annotations.
@@ -45,13 +46,13 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
             clazz -> resourceClass.equals(clazz.getAnnotation(JsonApiRelationshipRepository.class).source());
 
         List<Object> repositoryObjects = findRepositoryObject(reflections, classPredicate, JsonApiRelationshipRepository.class);
-        return repositoryObjects.stream()
+        return stream(repositoryObjects)
             .map(AnnotatedRelationshipEntryBuilder::new)
             .collect(Collectors.toList());
     }
 
     private List<Object> findRepositoryObject(Reflections reflections, Predicate<Class<?>> classPredicate, Class<? extends Annotation> annotation) {
-        return reflections.getTypesAnnotatedWith(annotation).stream()
+        return stream(reflections.getTypesAnnotatedWith(annotation))
             .filter(classPredicate)
             .map(clazz -> {
                 Object instance = jsonServiceLocator.getInstance(clazz);
