@@ -23,8 +23,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
+import java8.lang.Iterables;
 import java8.util.stream.StreamSupport;
-import java8.util.Spliterators;
 
 public class IncludeLookupSetter {
     private static final transient Logger logger = LoggerFactory.getLogger(IncludeLookupSetter.class);
@@ -40,7 +40,7 @@ public class IncludeLookupSetter {
             throws InvocationTargetException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
         if (resource != null && queryParams.getIncludedRelations() != null) {
             if (Iterable.class.isAssignableFrom(resource.getClass())) {
-                StreamSupport.stream(Spliterators.spliteratorUnknownSize(((Iterable<?>) resource).iterator(), 0), true)
+                StreamSupport.stream(Iterables.spliterator((Iterable<?>) resource), true)
                         .forEach((target) -> {
                             try {
                                 setIncludedElements(resourceName, target, queryParams, parameterProvider);
