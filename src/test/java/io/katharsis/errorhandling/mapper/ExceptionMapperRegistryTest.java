@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.nio.file.ClosedFileSystemException;
 import java.util.HashSet;
-import java.util.Optional;
+import java8.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;

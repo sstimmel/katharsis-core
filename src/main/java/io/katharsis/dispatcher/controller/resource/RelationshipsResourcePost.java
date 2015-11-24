@@ -9,6 +9,7 @@ import io.katharsis.utils.parser.TypeParser;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import static java8.lang.Iterables.forEach;
 
 public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
 
@@ -26,7 +27,7 @@ public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
                                           Iterable<DataBody> dataBodies, RelationshipRepository relationshipRepositoryForClass) {
         List<Serializable> parsedIds = new LinkedList<>();
 
-        dataBodies.forEach(dataBody -> {
+        forEach(dataBodies, dataBody -> {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
         });

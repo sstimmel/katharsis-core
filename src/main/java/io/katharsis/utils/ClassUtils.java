@@ -6,6 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import static java8.util.Maps.putIfAbsent;
 
 /**
  * Provides reflection methods for parsing information about a class.
@@ -30,7 +31,7 @@ public class ClassUtils {
         while (currentClass != null && currentClass != Object.class) {
             for (Field field : currentClass.getDeclaredFields()) {
                 if (!field.isSynthetic()) {
-                    result.putIfAbsent(field.getName(), field);
+                    putIfAbsent(result, field.getName(), field);
                 }
             }
             currentClass = currentClass.getSuperclass();
@@ -85,7 +86,7 @@ public class ClassUtils {
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
                 if (INSTANCE.isGetter(method)) {
-                    result.putIfAbsent(method.getName(), method);
+                    putIfAbsent(result, method.getName(), method);
                 }
             }
             currentClass = currentClass.getSuperclass();
@@ -108,7 +109,7 @@ public class ClassUtils {
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
                 if (INSTANCE.isSetter(method)) {
-                    result.putIfAbsent(method.getName(), method);
+                    putIfAbsent(result, method.getName(), method);
                 }
             }
             currentClass = currentClass.getSuperclass();

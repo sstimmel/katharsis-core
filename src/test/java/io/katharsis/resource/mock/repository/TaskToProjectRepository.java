@@ -9,6 +9,7 @@ import io.katharsis.resource.mock.repository.util.Relation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import static java8.lang.Iterables.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
 public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
@@ -35,14 +36,14 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
 
     @Override
     public void addRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-        targetIds.forEach(targetId ->
+        forEach(targetIds, targetId ->
                 THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0)
         );
     }
 
     @Override
     public void removeRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-        targetIds.forEach(targetId -> {
+        forEach(targetIds, targetId -> {
             Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.keySet().iterator();
             while (iterator.hasNext()) {
                 Relation<Task> next = iterator.next();

@@ -9,6 +9,7 @@ import org.reflections.Reflections;
 
 import java.util.LinkedList;
 import java.util.List;
+import static java8.lang.Iterables.forEach;
 
 /**
  * Contains a strategy to decide which implementation of an entry will be provided. Keep in mind that there can be a
@@ -46,7 +47,7 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
         List<RelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
             .buildRelationshipRepositories(reflections, resourceClass);
 
-        directEntries.forEach(
+        forEach(directEntries,
             directEntry -> {
                 if (!contains(targetEntries, directEntry)) {
                     targetEntries.add(directEntry);

@@ -9,7 +9,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
 
-import java.util.Optional;
+import java8.util.Optional;
 
 /**
  * A class that can be used to integrate Katharsis with external frameworks like Jersey, Spring etc. See katharsis-rs

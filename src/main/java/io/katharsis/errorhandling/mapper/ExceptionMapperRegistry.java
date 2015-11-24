@@ -1,6 +1,6 @@
 package io.katharsis.errorhandling.mapper;
 
-import java.util.Optional;
+import java8.util.Optional;
 import java.util.Set;
 
 public final class ExceptionMapperRegistry {

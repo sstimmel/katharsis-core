@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java8.lang.Iterables.forEach;
 
 /**
  * Parsers for standard Java types.
@@ -46,7 +47,7 @@ public final class StandardTypeParsers {
     }
 
     private static void addType(List<Class<?>> classes, StandardTypeParser standardTypeParser) {
-        classes.forEach((clazz) -> parsers.put(clazz, standardTypeParser));
+        forEach(classes, (clazz) -> parsers.put(clazz, standardTypeParser));
     }
 
     private static void throwException(Class clazz, String input) {

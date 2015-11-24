@@ -9,6 +9,7 @@ import io.katharsis.resource.mock.repository.util.Relation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import static java8.lang.Iterables.forEach;
 import static java8.util.stream.StreamSupport.stream;
 
 @JsonApiRelationshipRepository(source = User.class, target = Project.class)
@@ -36,14 +37,14 @@ public class UserToProjectRepository {
 
     @JsonApiAddRelations
     public void addRelations(User source, Iterable<Long> targetIds, String fieldName) {
-        targetIds.forEach(targetId ->
+        forEach(targetIds, targetId ->
                 THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0)
         );
     }
 
     @JsonApiRemoveRelations
     public void removeRelations(User source, Iterable<Long> targetIds, String fieldName) {
-        targetIds.forEach(targetId -> {
+        forEach(targetIds, targetId -> {
             Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.keySet().iterator();
             while (iterator.hasNext()) {
                 Relation<User> next = iterator.next();
