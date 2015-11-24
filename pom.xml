@@ -17,6 +17,7 @@
 
     <properties>
         <streamsupport-version>1.4</streamsupport-version>
+        <retrolambda-version>2.0.6</retrolambda-version>
         <equalsverifier-version>1.7.2</equalsverifier-version>
         <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
     </properties>
@@ -39,6 +40,23 @@
             </plugin>
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>net.orfjackal.retrolambda</groupId>
+                <artifactId>retrolambda-maven-plugin</artifactId>
+                <version>${retrolambda-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process-main</goal>
+                            <goal>process-test</goal>
+                        </goals>
+                        <configuration>
+                            <defaultMethods>true</defaultMethods>
+                            <target>1.7</target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
