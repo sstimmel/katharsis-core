@@ -6,7 +6,8 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
@@ -40,8 +41,7 @@ public class TaskRepository {
 
     @JsonApiFindAllWithIds
     public Iterable<Task> findAll(Iterable<Long> ids, QueryParams queryParams) {
-        return THREAD_LOCAL_REPOSITORY.values()
-            .stream()
+        return stream(THREAD_LOCAL_REPOSITORY.values())
             .filter(value -> contains(value, ids))
             .collect(Collectors.toList());
     }

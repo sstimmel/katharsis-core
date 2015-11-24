@@ -6,7 +6,8 @@ import io.katharsis.resource.RestrictedQueryParamsMembers;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * Builder responsible for parsing queryParams. The created {@link QueryParams} object contains several fields
@@ -68,8 +69,7 @@ public class QueryParamsBuilder {
      * @return Filtered query params
      */
     private Map<String, Set<String>> filterQueryParamsByKey(Map<String, Set<String>> queryParams, String queryKey) {
-        return queryParams.entrySet()
-            .stream()
+        return stream(queryParams.entrySet())
             .filter(p -> p.getKey()
                 .startsWith(queryKey))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

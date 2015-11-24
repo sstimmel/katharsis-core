@@ -9,6 +9,7 @@ import io.katharsis.resource.mock.repository.util.Relation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import static java8.util.stream.StreamSupport.stream;
 
 public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
 
@@ -78,8 +79,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     @Override
     public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams queryParams) {
         List<Project> projects = new LinkedList<>();
-        THREAD_LOCAL_REPOSITORY.keySet()
-            .stream()
+        stream(THREAD_LOCAL_REPOSITORY.keySet())
             .filter(relation -> relation.getSource()
                 .getId()
                 .equals(sourceId) && relation.getFieldName()

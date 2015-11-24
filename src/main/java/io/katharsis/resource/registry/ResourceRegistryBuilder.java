@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.
@@ -50,7 +51,7 @@ public class ResourceRegistryBuilder {
 
 
         Set<Class<?>> jsonApiResources = reflections.getTypesAnnotatedWith(JsonApiResource.class);
-        Set<ResourceInformation> resourceInformationSet = jsonApiResources.stream()
+        Set<ResourceInformation> resourceInformationSet = stream(jsonApiResources)
             .map(resourceInformationBuilder::build)
             .collect(Collectors.toSet());
 

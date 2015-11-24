@@ -7,7 +7,8 @@ import io.katharsis.resource.mock.models.Project;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 public class ProjectRepository implements ResourceRepository<Project, Long> {
 
@@ -38,8 +39,7 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
 
     @Override
     public Iterable<Project> findAll(Iterable<Long> ids, QueryParams queryParams) {
-        return THREAD_LOCAL_REPOSITORY.values()
-            .stream()
+        return stream(THREAD_LOCAL_REPOSITORY.values())
             .filter(value -> contains(value, ids))
             .collect(Collectors.toList());
     }

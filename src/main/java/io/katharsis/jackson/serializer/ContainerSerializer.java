@@ -23,7 +23,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * This class serializes an single resource which can be included in <i>data</i> field of JSON API response.
@@ -103,7 +104,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             writeAttributes(gen, data, resourceInformation.getAttributeFields(), includedFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Error writing basic fields: " +
-                resourceInformation.getAttributeFields().stream().map(ResourceField::getName)
+                stream(resourceInformation.getAttributeFields()).map(ResourceField::getName)
                     .collect(Collectors.toSet()));
         }
 
@@ -118,8 +119,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         if (includedFields == null || includedFields.isEmpty()) {
             return relationshipFields;
         } else {
-            return relationshipFields
-                .stream()
+            return stream(relationshipFields)
                 .filter(field -> includedFields.contains(field.getName()))
                 .collect(Collectors.toSet());
         }
@@ -140,8 +140,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         Attributes attributesObject = new Attributes();
-        attributeFields
-            .stream()
+        stream(attributeFields)
             .filter(attributeField -> isIncluded(includedFields, attributeField))
             .forEach(attributeField -> {
                 Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());

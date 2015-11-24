@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.stream.Collectors;
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * Extracts inclusions from a resource.
@@ -47,8 +48,7 @@ public class IncludedRelationshipExtractor {
     private List<?> extractDefaultIncludedFields(Object resource, BaseResponse response) {
         List<?> includedResources = getIncludedByDefaultResources(resource, 1);
 
-        return includedResources
-            .stream()
+        return stream(includedResources)
             .map(includedResource -> new Container(includedResource, response))
             .collect(Collectors.toList());
     }
