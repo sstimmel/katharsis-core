@@ -8,6 +8,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 import java.util.*;
+import java8.util.StringJoiner;
 
 /**
  * Builder responsible for parsing URL path.
