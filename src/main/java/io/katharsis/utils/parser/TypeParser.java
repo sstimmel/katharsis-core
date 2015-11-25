@@ -89,7 +89,7 @@ public class TypeParser {
     private boolean containsStringConstructor(Class<?> clazz) throws NoSuchMethodException {
         boolean result = false;
         for (Constructor constructor : clazz.getDeclaredConstructors()) {
-            if (constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0] == String.class) {
+            if (constructor.getGenericParameterTypes().length == 1 && String.class.equals(constructor.getGenericParameterTypes()[0])) {
                 result = true;
             }
         }

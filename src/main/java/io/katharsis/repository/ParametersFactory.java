@@ -5,7 +5,7 @@ import io.katharsis.repository.exception.RepositoryMethodException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 
 public class ParametersFactory {
@@ -27,16 +27,16 @@ public class ParametersFactory {
      */
     public Object[] buildParameters(Object[] firstParameters, Method method, QueryParams queryParams,
                                     Class<? extends Annotation> annotationType) {
-        Parameter[] parameters = method.getParameters();
+        Type[] parameters = method.getGenericParameterTypes();
         if (firstParameters.length > 0 && parameters.length < 1) {
             throw new RepositoryMethodException(
                 String.format("Method with %s annotation should have at least one parameter.", annotationType));
         }
-        Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
+        Type[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
         Object[] additionalParameters = new Object[parametersToResolve.length];
         for (int i = 0; i < parametersToResolve.length; i++) {
-            Parameter parameter = parametersToResolve[i];
-            if (QueryParams.class.equals(parameter.getType())) {
+            Type parameter = parametersToResolve[i];
+            if (QueryParams.class.equals(parameter)) {
                 additionalParameters[i] = queryParams;
             } else {
                 additionalParameters[i] = parameterProvider.provide(method, i + firstParameters.length);
@@ -56,12 +56,12 @@ public class ParametersFactory {
      */
     public Object[] buildParameters(Object[] firstParameters, Method method,
                                     Class<? extends Annotation> annotationType) {
-        Parameter[] parameters = method.getParameters();
+        Type[] parameters = method.getGenericParameterTypes();
         if (firstParameters.length > 0 && parameters.length < 1) {
             throw new RepositoryMethodException(
                 String.format("Method with %s annotation should have at least one parameter.", annotationType));
         }
-        Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
+        Type[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
         Object[] additionalParameters = new Object[parametersToResolve.length];
         for (int i = 0; i < parametersToResolve.length; i++) {
             additionalParameters[i] = parameterProvider.provide(method, i + firstParameters.length);
