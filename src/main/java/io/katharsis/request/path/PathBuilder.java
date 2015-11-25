@@ -153,6 +153,8 @@ public class PathBuilder {
     }
 
     private static String mergeIds(PathIds ids) {
-        return String.join(PathIds.ID_SEPERATOR, ids.getIds());
+        StringJoiner joiner = new StringJoiner(PathIds.ID_SEPERATOR);
+        for (CharSequence cs: ids.getIds()) { joiner.add(cs); }
+        return joiner.toString();
     }
 }

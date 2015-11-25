@@ -8,6 +8,7 @@ import io.katharsis.resource.RestrictedQueryParamsMembers;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java8.util.StringJoiner;
 
 /**
  * Contains a set of parameters passed along with the request.
@@ -50,8 +51,11 @@ public class QueryParams {
 
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.filter.name());
 
+            StringJoiner joiner = new StringJoiner(".");
+            for (CharSequence cs: propertyList.subList(1, propertyList.size())) { joiner.add(cs); }
+            
             String resourceType = propertyList.get(0);
-            String propertyPath = String.join(".", propertyList.subList(1, propertyList.size()));
+            String propertyPath = joiner.toString();
 
             if (temporaryFiltersMap.containsKey(resourceType)) {
                 Map<String, Set<String>> resourceParams = temporaryFiltersMap.get(resourceType);
@@ -100,8 +104,11 @@ public class QueryParams {
 
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.sort.name());
 
+            StringJoiner joiner = new StringJoiner(".");
+            for (CharSequence cs: propertyList.subList(1, propertyList.size())) { joiner.add(cs); }
+            
             String resourceType = propertyList.get(0);
-            String propertyPath = String.join(".", propertyList.subList(1, propertyList.size()));
+            String propertyPath = joiner.toString();
 
 
             if (temporarySortingMap.containsKey(resourceType)) {
