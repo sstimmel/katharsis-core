@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.registry.repository.RelationshipEntry;
+import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.resource.registry.repository.WithRelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import org.reflections.Reflections;
 
@@ -14,5 +15,5 @@ public interface RepositoryEntryBuilder {
 
     ResourceEntry<?, ?> buildResourceRepository(Reflections reflections, Class<?> resourceClass);
 
-    List<RelationshipEntry<?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass);
+    List<WithRelationshipEntry<RelationshipRepository, ?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass);
 }

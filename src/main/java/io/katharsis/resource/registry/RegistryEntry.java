@@ -1,12 +1,12 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.repository.FieldRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.*;
-import net.jodah.typetools.TypeResolver;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,20 +25,23 @@ import java.util.Objects;
 public class RegistryEntry<T> {
     private final ResourceInformation resourceInformation;
     private final ResourceEntry<T, ?> resourceEntry;
-    private final List<RelationshipEntry<T, ?>> relationshipEntries;
+    private final List<WithRelationshipEntry<RelationshipRepository, T, ?>> relationshipRepoEntries;
+    private final List<WithRelationshipEntry<FieldRepository, T, ?>> fieldRepoEntries;
     private RegistryEntry parentRegistryEntry = null;
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
-        this(resourceInformation, resourceEntry, new LinkedList<>());
+        this(resourceInformation, resourceEntry, new LinkedList<>(), new LinkedList<>());
     }
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          ResourceEntry<T, ?> resourceEntry,
-                         List<RelationshipEntry<T, ?>> relationshipEntries) {
+                         List<WithRelationshipEntry<RelationshipRepository, T, ?>> relationshipRepoEntries,
+                         List<WithRelationshipEntry<FieldRepository, T, ?>> fieldRepoEntries) {
         this.resourceInformation = resourceInformation;
         this.resourceEntry = resourceEntry;
-        this.relationshipEntries = relationshipEntries;
+        this.relationshipRepoEntries = relationshipRepoEntries;
+        this.fieldRepoEntries = fieldRepoEntries;
     }
 
     public ResourceRepository<T, ?> getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
@@ -51,27 +54,53 @@ public class RegistryEntry<T> {
         return repoInstance;
     }
 
-    public List<RelationshipEntry<T, ?>> getRelationshipEntries() {
-        return relationshipEntries;
+    public List<WithRelationshipEntry<RelationshipRepository, T, ?>> getRelationshipRepoEntries() {
+        return relationshipRepoEntries;
     }
 
     public RelationshipRepository<T, ?, ?, ?> getRelationshipRepositoryForClass(Class clazz, RepositoryMethodParameterProvider parameterProvider) {
-        RelationshipEntry<T, ?> foundRelationshipEntry = null;
-        for (RelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
-            if (clazz == relationshipEntry.getTargetAffiliation()) {
-                foundRelationshipEntry = relationshipEntry;
+        WithRelationshipEntry<RelationshipRepository, T, ?> foundWithRelationshipEntry = null;
+        for (WithRelationshipEntry<RelationshipRepository, T, ?> withRelationshipEntry : relationshipRepoEntries) {
+            if (clazz == withRelationshipEntry.getTargetAffiliation()) {
+                foundWithRelationshipEntry = withRelationshipEntry;
                 break;
             }
         }
-        if (foundRelationshipEntry == null) {
+        if (foundWithRelationshipEntry == null) {
             throw new RelationshipRepositoryNotFoundException(resourceInformation.getResourceClass(), clazz);
         }
 
         RelationshipRepository<T, ?, ?, ?> repoInstance = null;
-        if (foundRelationshipEntry instanceof DirectRelationshipEntry) {
-            repoInstance = ((DirectRelationshipEntry<T, ?>) foundRelationshipEntry).getRelationshipRepository();
-        } else if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
-            repoInstance = ((AnnotatedRelationshipEntryBuilder<T, ?>) foundRelationshipEntry).build(parameterProvider);
+        if (foundWithRelationshipEntry instanceof DirectWithRelationshipEntry) {
+            repoInstance = ((DirectWithRelationshipEntry<RelationshipRepository, T, ?>) foundWithRelationshipEntry).getRepository();
+        } else if (foundWithRelationshipEntry instanceof AnnotatedWithRelationshipEntryBuilder) {
+            repoInstance = ((AnnotatedWithRelationshipEntryBuilder<RelationshipRepository, T, ?>) foundWithRelationshipEntry).build(parameterProvider);
+        }
+
+        return repoInstance;
+    }
+
+    public List<WithRelationshipEntry<FieldRepository, T, ?>> getFieldRepoEntries() {
+        return fieldRepoEntries;
+    }
+
+    public FieldRepository<T, ?, ?, ?> getFieldRepositoryForClass(Class clazz, RepositoryMethodParameterProvider parameterProvider) {
+        WithRelationshipEntry<FieldRepository, T, ?> foundWithRelationshipEntry = null;
+        for (WithRelationshipEntry<FieldRepository, T, ?> withRelationshipEntry : fieldRepoEntries) {
+            if (clazz == withRelationshipEntry.getTargetAffiliation()) {
+                foundWithRelationshipEntry = withRelationshipEntry;
+                break;
+            }
+        }
+        if (foundWithRelationshipEntry == null) {
+            throw new RelationshipRepositoryNotFoundException(resourceInformation.getResourceClass(), clazz);
+        }
+
+        FieldRepository<T, ?, ?, ?> repoInstance = null;
+        if (foundWithRelationshipEntry instanceof DirectWithRelationshipEntry) {
+            repoInstance = ((DirectWithRelationshipEntry<FieldRepository, T, ?>) foundWithRelationshipEntry).getRepository();
+        } else if (foundWithRelationshipEntry instanceof AnnotatedWithRelationshipEntryBuilder) {
+            repoInstance = ((AnnotatedWithRelationshipEntryBuilder<FieldRepository, T, ?>) foundWithRelationshipEntry).build(parameterProvider);
         }
 
         return repoInstance;
@@ -118,12 +147,12 @@ public class RegistryEntry<T> {
         RegistryEntry<?> that = (RegistryEntry<?>) o;
         return Objects.equals(resourceInformation, that.resourceInformation) &&
             Objects.equals(resourceEntry, that.resourceEntry) &&
-            Objects.equals(relationshipEntries, that.relationshipEntries) &&
+            Objects.equals(relationshipRepoEntries, that.relationshipRepoEntries) &&
             Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceInformation, resourceEntry, relationshipEntries, parentRegistryEntry);
+        return Objects.hash(resourceInformation, resourceEntry, relationshipRepoEntries, parentRegistryEntry);
     }
 }

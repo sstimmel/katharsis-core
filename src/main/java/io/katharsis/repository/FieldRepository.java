@@ -2,7 +2,9 @@ package io.katharsis.repository;
 
 import io.katharsis.queryParams.QueryParams;
 
-public interface FieldRepository<T, T_ID, D, D_ID> {
+public interface FieldRepository<T, T_ID, D, D_ID> extends WithRelationshipRepository {
+
+    int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;
 
     D addField(T_ID resource, D field, String fieldName, QueryParams queryParams);
 

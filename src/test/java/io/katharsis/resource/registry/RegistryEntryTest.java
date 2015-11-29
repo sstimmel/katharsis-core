@@ -7,8 +7,7 @@ import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
-import io.katharsis.resource.registry.repository.DirectRelationshipEntry;
-import io.katharsis.resource.registry.repository.DirectResourceEntry;
+import io.katharsis.resource.registry.repository.DirectWithRelationshipEntry;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.Rule;
@@ -28,7 +27,7 @@ public class RegistryEntryTest {
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectRelationshipEntry<>(new TaskToProjectRepository())));
+        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())));
 
         // WHEN
         RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);
@@ -42,7 +41,7 @@ public class RegistryEntryTest {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry<>(resourceInformation, null,
-            Collections.singletonList(new DirectRelationshipEntry<>(new TaskToProjectRepository())));
+            Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())));
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);

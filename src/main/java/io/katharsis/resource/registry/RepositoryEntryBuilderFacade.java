@@ -2,9 +2,10 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.NotFoundRepository;
+import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
-import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import io.katharsis.resource.registry.repository.WithRelationshipEntry;
 import org.reflections.Reflections;
 
 import java.util.LinkedList;
@@ -39,11 +40,11 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     }
 
     @Override
-    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass) {
-        List<RelationshipEntry<?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
+    public List<WithRelationshipEntry<RelationshipRepository, ?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass) {
+        List<WithRelationshipEntry<RelationshipRepository, ?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
             .buildRelationshipRepositories(reflections, resourceClass);
-        List<RelationshipEntry<?, ?>> targetEntries = new LinkedList<>(annotationEntries);
-        List<RelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
+        List<WithRelationshipEntry<RelationshipRepository, ?, ?>> targetEntries = new LinkedList<>(annotationEntries);
+        List<WithRelationshipEntry<RelationshipRepository, ?, ?>> directEntries = directRepositoryEntryBuilder
             .buildRelationshipRepositories(reflections, resourceClass);
 
         directEntries.forEach(
@@ -57,9 +58,10 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
         return targetEntries;
     }
 
-    private boolean contains(List<RelationshipEntry<?, ?>> targetEntries, RelationshipEntry<?, ?> directEntry) {
+    private boolean contains(List<WithRelationshipEntry<RelationshipRepository, ?, ?>> targetEntries,
+                             WithRelationshipEntry<RelationshipRepository, ?, ?> directEntry) {
         boolean contains = false;
-        for (RelationshipEntry<?, ?> targetEntry : targetEntries) {
+        for (WithRelationshipEntry<?, ?, ?> targetEntry : targetEntries) {
             if (targetEntry.getTargetAffiliation().equals(directEntry.getTargetAffiliation())) {
                 contains = true;
                 break;

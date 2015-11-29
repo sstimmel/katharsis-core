@@ -4,9 +4,9 @@ import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
-import io.katharsis.resource.registry.repository.DirectRelationshipEntry;
+import io.katharsis.resource.registry.repository.DirectWithRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
-import io.katharsis.resource.registry.repository.RelationshipEntry;
+import io.katharsis.resource.registry.repository.WithRelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import net.jodah.typetools.TypeResolver;
 import org.reflections.Reflections;
@@ -47,14 +47,14 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     @Override
-    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass) {
+    public List<WithRelationshipEntry<RelationshipRepository, ?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass) {
         Set<Class<? extends RelationshipRepository>> relationshipRepositoryClasses = reflections
             .getSubTypesOf(RelationshipRepository.class);
 
         Set<Class<? extends RelationshipRepository>> relationshipRepositories =
             findRelationshipRepositories(resourceClass, relationshipRepositoryClasses);
 
-        List<RelationshipEntry<?, ?>> relationshipEntries = new LinkedList<>();
+        List<WithRelationshipEntry<RelationshipRepository, ?, ?>> relationshipEntries = new LinkedList<>();
         for (Class<? extends RelationshipRepository> relationshipRepositoryClass : relationshipRepositories) {
             RelationshipRepository relationshipRepository = jsonServiceLocator.getInstance(relationshipRepositoryClass);
             if (relationshipRepository == null) {
@@ -64,7 +64,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
             LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
                 relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
 
-            relationshipEntries.add(new DirectRelationshipEntry<>(relationshipRepository));
+            relationshipEntries.add(new DirectWithRelationshipEntry<>(relationshipRepository));
         }
         return relationshipEntries;
     }

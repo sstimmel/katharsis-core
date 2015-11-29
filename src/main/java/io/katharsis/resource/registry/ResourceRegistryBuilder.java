@@ -1,10 +1,11 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.repository.RelationshipEntry;
+import io.katharsis.resource.registry.repository.WithRelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class ResourceRegistryBuilder {
             Class<?> resourceClass = resourceInformation.getResourceClass();
 
             ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(reflections, resourceClass);
-            List<RelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
+            List<WithRelationshipEntry<RelationshipRepository, ?, ?>> relationshipEntries = repositoryEntryBuilder
             .buildRelationshipRepositories(reflections, resourceClass);
 
             registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
