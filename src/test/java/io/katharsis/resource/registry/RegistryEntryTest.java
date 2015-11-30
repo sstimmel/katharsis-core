@@ -27,7 +27,7 @@ public class RegistryEntryTest {
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())));
+        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())), null);
 
         // WHEN
         RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);
@@ -41,7 +41,7 @@ public class RegistryEntryTest {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry<>(resourceInformation, null,
-            Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())));
+            Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())), null);
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);

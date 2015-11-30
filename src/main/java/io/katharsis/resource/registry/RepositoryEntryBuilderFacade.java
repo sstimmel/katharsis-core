@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.repository.FieldRepository;
 import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
@@ -49,7 +50,7 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
 
         directEntries.forEach(
             directEntry -> {
-                if (!contains(targetEntries, directEntry)) {
+                if (!containsRelationshipRepository(targetEntries, directEntry)) {
                     targetEntries.add(directEntry);
                 }
             }
@@ -58,7 +59,7 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
         return targetEntries;
     }
 
-    private boolean contains(List<WithRelationshipEntry<RelationshipRepository, ?, ?>> targetEntries,
+    private boolean containsRelationshipRepository(List<WithRelationshipEntry<RelationshipRepository, ?, ?>> targetEntries,
                              WithRelationshipEntry<RelationshipRepository, ?, ?> directEntry) {
         boolean contains = false;
         for (WithRelationshipEntry<?, ?, ?> targetEntry : targetEntries) {
@@ -69,4 +70,36 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
         }
         return contains;
     }
+
+    @Override
+    public List<WithRelationshipEntry<FieldRepository, ?, ?>> buildFieldRepositories(Reflections reflections, Class<?> resourceClass) {
+        List<WithRelationshipEntry<FieldRepository, ?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
+            .buildFieldRepositories(reflections, resourceClass);
+        List<WithRelationshipEntry<FieldRepository, ?, ?>> targetEntries = new LinkedList<>(annotationEntries);
+        List<WithRelationshipEntry<FieldRepository, ?, ?>> directEntries = directRepositoryEntryBuilder
+            .buildFieldRepositories(reflections, resourceClass);
+
+        directEntries.forEach(
+            directEntry -> {
+                if (!containsFieldRepository(targetEntries, directEntry)) {
+                    targetEntries.add(directEntry);
+                }
+            }
+        );
+
+        return targetEntries;
+    }
+
+    private boolean containsFieldRepository(List<WithRelationshipEntry<FieldRepository, ?, ?>> targetEntries,
+                             WithRelationshipEntry<FieldRepository, ?, ?> directEntry) {
+        boolean contains = false;
+        for (WithRelationshipEntry<?, ?, ?> targetEntry : targetEntries) {
+            if (targetEntry.getTargetAffiliation().equals(directEntry.getTargetAffiliation())) {
+                contains = true;
+                break;
+            }
+        }
+        return contains;
+    }
+
 }

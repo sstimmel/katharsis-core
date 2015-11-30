@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.repository.FieldRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
@@ -62,8 +63,10 @@ public class ResourceRegistryBuilder {
             ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(reflections, resourceClass);
             List<WithRelationshipEntry<RelationshipRepository, ?, ?>> relationshipEntries = repositoryEntryBuilder
             .buildRelationshipRepositories(reflections, resourceClass);
+            List<WithRelationshipEntry<FieldRepository, ?, ?>> fieldEntries = repositoryEntryBuilder
+            .buildFieldRepositories(reflections, resourceClass);
 
-            registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
+            registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries, fieldEntries));
 
         }
 

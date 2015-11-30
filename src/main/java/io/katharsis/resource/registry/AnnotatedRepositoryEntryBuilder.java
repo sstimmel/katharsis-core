@@ -1,7 +1,9 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.repository.FieldRepository;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.annotations.JsonApiFieldRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
@@ -48,6 +50,17 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         List<Object> repositoryObjects = findRepositoryObject(reflections, classPredicate, JsonApiRelationshipRepository.class);
         return repositoryObjects.stream()
             .map(o -> new AnnotatedWithRelationshipEntryBuilder<>(o, RelationshipRepository.class))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WithRelationshipEntry<FieldRepository, ?, ?>> buildFieldRepositories(Reflections reflections, Class<?> resourceClass) {
+        Predicate<Class<?>> classPredicate =
+            clazz -> resourceClass.equals(clazz.getAnnotation(JsonApiFieldRepository.class).source());
+
+        List<Object> repositoryObjects = findRepositoryObject(reflections, classPredicate, JsonApiFieldRepository.class);
+        return repositoryObjects.stream()
+            .map(o -> new AnnotatedWithRelationshipEntryBuilder<>(o, FieldRepository.class))
             .collect(Collectors.toList());
     }
 

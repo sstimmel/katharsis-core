@@ -1,13 +1,14 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.repository.FieldRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
-import io.katharsis.resource.registry.repository.DirectWithRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
-import io.katharsis.resource.registry.repository.WithRelationshipEntry;
+import io.katharsis.resource.registry.repository.DirectWithRelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import io.katharsis.resource.registry.repository.WithRelationshipEntry;
 import net.jodah.typetools.TypeResolver;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -79,5 +80,40 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
             }
         }
         return foundRelationshipRepositories;
+    }
+
+    @Override
+    public List<WithRelationshipEntry<FieldRepository, ?, ?>> buildFieldRepositories(Reflections reflections, Class<?> resourceClass) {
+        Set<Class<? extends FieldRepository>> fieldRepositoryClasses = reflections
+            .getSubTypesOf(FieldRepository.class);
+
+        Set<Class<? extends FieldRepository>> fieldRepositories =
+            findFieldRepositories(resourceClass, fieldRepositoryClasses);
+
+        List<WithRelationshipEntry<FieldRepository, ?, ?>> relationshipEntries = new LinkedList<>();
+        for (Class<? extends FieldRepository> relationshipRepositoryClass : fieldRepositories) {
+            FieldRepository relationshipRepository = jsonServiceLocator.getInstance(relationshipRepositoryClass);
+            if (relationshipRepository == null) {
+                throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
+            }
+
+            LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
+                relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
+
+            relationshipEntries.add(new DirectWithRelationshipEntry<>(relationshipRepository));
+        }
+        return relationshipEntries;
+    }
+
+    private Set<Class<? extends FieldRepository>> findFieldRepositories(Class resourceClass,
+                                                                        Set<Class<? extends FieldRepository>> relationshipRepositoryClasses) {
+        Set<Class<? extends FieldRepository>> foundFieldRepositories = new LinkedHashSet<>(2);
+        for (Class<? extends FieldRepository> fieldRepository : relationshipRepositoryClasses) {
+            Class<?>[] typeArgs = TypeResolver.resolveRawArguments(FieldRepository.class, fieldRepository);
+            if (typeArgs[0] == resourceClass) {
+                foundFieldRepositories.add(fieldRepository);
+            }
+        }
+        return foundFieldRepositories;
     }
 }

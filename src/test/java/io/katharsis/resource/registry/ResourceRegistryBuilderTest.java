@@ -8,6 +8,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
+import io.katharsis.resource.mock.repository.TaskToProjectFieldRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,6 +50,8 @@ public class ResourceRegistryBuilderTest {
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
         List tasksRelationshipRepositories = tasksEntry.getRelationshipRepoEntries();
         Assert.assertEquals(1, tasksRelationshipRepositories.size());
+        List tasksFieldRepositories = tasksEntry.getFieldRepoEntries();
+        Assert.assertEquals(1, tasksFieldRepositories.size());
         Assert.assertEquals(TEST_MODELS_URL + "/tasks", resourceRegistry.getResourceUrl(Task.class));
 
         RegistryEntry projectsEntry = resourceRegistry.getEntry("projects");
@@ -101,6 +104,27 @@ public class ResourceRegistryBuilderTest {
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskToProjectRepository.class) {
+                    return null;
+                } else {
+                    return super.getInstance(clazz);
+                }
+            }
+        }, resourceInformationBuilder);
+
+        // THEN
+        expectedException.expect(RepositoryInstanceNotFoundException.class);
+
+        // WHEN
+        sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
+    }
+
+
+    @Test
+    public void onNoFieldRepositoryInstanceShouldThrowException() {
+        // GIVEN
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {
+            public <T> T getInstance(Class<T> clazz) {
+                if (clazz == TaskToProjectFieldRepository.class) {
                     return null;
                 } else {
                     return super.getInstance(clazz);
