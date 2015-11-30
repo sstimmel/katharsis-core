@@ -33,9 +33,7 @@ import java.io.Serializable;
  * @param <D_ID> D class id type
  */
 public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable>
-    extends WithRelationshipRepository {
-
-    int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;
+    extends WithRelationshipRepository<T, T_ID, D, D_ID> {
 
     /**
      * Set a relation defined by a field. targetId parameter can be either in a form of an object or null value,

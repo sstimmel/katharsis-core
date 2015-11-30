@@ -3,9 +3,8 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.FieldRepository;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
@@ -23,7 +22,6 @@ import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
-import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.IOException;
@@ -82,34 +80,18 @@ public class FieldResourcePost extends ResourceUpsert {
 
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
+        setId(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
-        ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
-        Object savedResource = resourceRepository.save(resource);
-        saveRelations(savedResource, relationshipRegistryEntry, dataBody, parameterProvider);
 
-        Serializable resourceId = (Serializable) PropertyUtils
-            .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
+        FieldRepository fieldRepositoryForClass = endpointRegistryEntry.getFieldRepositoryForClass(relationshipFieldClass, parameterProvider);
+        Object savedField = fieldRepositoryForClass.addField(castedResourceId, resource, relationshipField.getName(), queryParams);
 
-        @SuppressWarnings("unchecked")
-        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, queryParams);
-
-        RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry
-            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
-        @SuppressWarnings("unchecked")
-        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider).findOne(castedResourceId, queryParams);
-        if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            //noinspection unchecked
-            relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
-        } else {
-            //noinspection unchecked
-            relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
-        }
-        MetaInformation metaInformation = getMetaInformation(resourceRepository,
-            Collections.singletonList(savedResourceWithRelations), queryParams);
+        MetaInformation metaInformation = getMetaInformation(fieldRepositoryForClass,
+            Collections.singletonList(savedField), queryParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
+            getLinksInformation(fieldRepositoryForClass, Collections.singletonList(savedField), queryParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation,
+        return new ResourceResponse(savedField, jsonPath, queryParams, metaInformation, linksInformation,
             HttpStatus.CREATED_201);
     }
 

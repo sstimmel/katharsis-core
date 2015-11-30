@@ -65,7 +65,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
             LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
                 relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
 
-            relationshipEntries.add(new DirectWithRelationshipEntry<>(relationshipRepository));
+            relationshipEntries.add(new DirectWithRelationshipEntry<>(relationshipRepository, RelationshipRepository.class));
         }
         return relationshipEntries;
     }
@@ -100,7 +100,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
             LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
                 relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
 
-            relationshipEntries.add(new DirectWithRelationshipEntry<>(relationshipRepository));
+            relationshipEntries.add(new DirectWithRelationshipEntry<>(relationshipRepository, FieldRepository.class));
         }
         return relationshipEntries;
     }

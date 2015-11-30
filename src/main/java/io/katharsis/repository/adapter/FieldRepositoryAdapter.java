@@ -9,9 +9,10 @@ import io.katharsis.repository.annotations.JsonApiDeleteField;
 import io.katharsis.repository.annotations.JsonApiDeleteFields;
 import io.katharsis.utils.ClassUtils;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
-public class FieldRepositoryAdapter<T, T_ID, D, D_ID>
+public class FieldRepositoryAdapter<T, T_ID extends Serializable, D, D_ID extends Serializable>
     extends RepositoryAdapter<T>
     implements FieldRepository<T, T_ID, D, D_ID> {
 

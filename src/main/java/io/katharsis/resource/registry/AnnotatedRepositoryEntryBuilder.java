@@ -49,7 +49,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
         List<Object> repositoryObjects = findRepositoryObject(reflections, classPredicate, JsonApiRelationshipRepository.class);
         return repositoryObjects.stream()
-            .map(o -> new AnnotatedWithRelationshipEntryBuilder<>(o, RelationshipRepository.class))
+            .map(o -> new AnnotatedWithRelationshipEntryBuilder<>(o, RelationshipRepository.class, JsonApiRelationshipRepository.class))
             .collect(Collectors.toList());
     }
 
@@ -60,7 +60,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
         List<Object> repositoryObjects = findRepositoryObject(reflections, classPredicate, JsonApiFieldRepository.class);
         return repositoryObjects.stream()
-            .map(o -> new AnnotatedWithRelationshipEntryBuilder<>(o, FieldRepository.class))
+            .map(o -> new AnnotatedWithRelationshipEntryBuilder<>(o, FieldRepository.class, JsonApiFieldRepository.class))
             .collect(Collectors.toList());
     }
 

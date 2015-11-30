@@ -1,10 +1,12 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.repository.FieldRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.TaskRepository;
+import io.katharsis.resource.mock.repository.TaskToProjectFieldRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
 import io.katharsis.resource.registry.repository.DirectWithRelationshipEntry;
@@ -27,7 +29,7 @@ public class RegistryEntryTest {
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())), null);
+        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository(), RelationshipRepository.class)), null);
 
         // WHEN
         RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);
@@ -37,17 +39,44 @@ public class RegistryEntryTest {
     }
 
     @Test
+    public void onValidFieldClassShouldReturnFieldRepository() throws Exception {
+        // GIVEN
+        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), null, Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectFieldRepository(), FieldRepository.class)));
+
+        // WHEN
+        FieldRepository<Task, ?, ?, ?> repository = sut.getFieldRepositoryForClass(Project.class, null);
+
+        // THEN
+        assertThat(repository).isExactlyInstanceOf(TaskToProjectFieldRepository.class);
+    }
+
+
+    @Test
     public void onInvalidRelationshipClassShouldThrowException() throws Exception {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry<>(resourceInformation, null,
-            Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository())), null);
+            Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectRepository(), RelationshipRepository.class)), null);
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);
 
         // WHEN
         sut.getRelationshipRepositoryForClass(User.class, null);
+    }
+
+    @Test
+    public void onInvalidFieldClassShouldThrowException() throws Exception {
+        // GIVEN
+        ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
+        RegistryEntry<Task> sut = new RegistryEntry<>(resourceInformation, null, null,
+            Collections.singletonList(new DirectWithRelationshipEntry<>(new TaskToProjectFieldRepository(), FieldRepository.class)));
+
+        // THEN
+        expectedException.expect(RelationshipRepositoryNotFoundException.class);
+
+        // WHEN
+        sut.getFieldRepositoryForClass(User.class, null);
     }
 
     @Test
@@ -84,10 +113,10 @@ public class RegistryEntryTest {
         RegistryEntry blue = new RegistryEntry(new ResourceInformation(String.class, null, null, null), null);
         RegistryEntry red = new RegistryEntry(new ResourceInformation(Long.class, null, null, null), null);
         EqualsVerifier.forClass(RegistryEntry.class)
-                .withPrefabValues(RegistryEntry.class, blue, red)
-                .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
-                .usingGetClass()
-                .suppress(Warning.NONFINAL_FIELDS)
-                .verify();
+            .withPrefabValues(RegistryEntry.class, blue, red)
+            .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
+            .usingGetClass()
+            .suppress(Warning.NONFINAL_FIELDS)
+            .verify();
     }
 }
