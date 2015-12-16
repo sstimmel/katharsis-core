@@ -11,9 +11,7 @@ import io.katharsis.resource.registry.repository.ResourceEntry;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.jodah.typetools.TypeResolver;
 
@@ -21,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java8.util.Optional;
+import java8.util.stream.Collectors;
 import static java8.util.stream.StreamSupport.stream;
 
 /**
@@ -37,8 +36,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
-        Optional<Class<?>> repoClass = lookup.getResourceRepositoryClasses()
-            .stream()
+        Optional<Class<?>> repoClass = stream(lookup.getResourceRepositoryClasses())
             .filter(ResourceRepository.class::isAssignableFrom)
             .filter(clazz -> {
                 Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, clazz);
@@ -78,7 +76,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     private Set<Class<?>> findRelationshipRepositories(Class resourceClass, Set<Class<?>> relationshipRepositoryClasses) {
-    	return relationshipRepositoryClasses.stream()
+    	return stream(relationshipRepositoryClasses)
     		.filter(RelationshipRepository.class::isAssignableFrom)
     		.filter(clazz-> {
                 Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, clazz);

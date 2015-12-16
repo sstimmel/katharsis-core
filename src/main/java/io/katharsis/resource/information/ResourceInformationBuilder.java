@@ -112,7 +112,7 @@ public final class ResourceInformationBuilder {
     }
 
     private boolean hasDiscardedField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
-        return resourceClassFields.stream()
+        return stream(resourceClassFields)
             .filter(resourceFieldWrapper -> fieldWrapper.getOriginalName()
                     .equals(resourceFieldWrapper.getOriginalName()))
             .findFirst()

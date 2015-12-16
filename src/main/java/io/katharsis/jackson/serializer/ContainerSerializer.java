@@ -98,8 +98,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private Set<ResourceField> getRelationshipFields(String resourceType, ResourceInformation resourceInformation, TypedParams<IncludedFieldsParams> includedFields) {
         Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 
-        return relationshipFields
-            .stream()
+        return stream(relationshipFields)
             .filter(field -> isIncluded(resourceType, includedFields, field))
             .collect(Collectors.toSet());
     }

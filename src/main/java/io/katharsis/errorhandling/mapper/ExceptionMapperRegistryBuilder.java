@@ -5,6 +5,8 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java8.util.stream.StreamSupport.stream;
+
 public final class ExceptionMapperRegistryBuilder {
     private final Set<ExceptionMapperType> exceptionMappers = new HashSet<>();
 
@@ -19,7 +21,7 @@ public final class ExceptionMapperRegistryBuilder {
     
     public ExceptionMapperRegistry build(ExceptionMapperLookup exceptionMapperLookup) throws IllegalAccessException, InstantiationException {
     	addKatharsisDefaultMappers();
-    	exceptionMapperLookup.getExceptionMappers().stream().forEach(this::registerExceptionMapper);
+    	stream(exceptionMapperLookup.getExceptionMappers()).forEach(this::registerExceptionMapper);
     	return new ExceptionMapperRegistry(exceptionMappers);
     }
 

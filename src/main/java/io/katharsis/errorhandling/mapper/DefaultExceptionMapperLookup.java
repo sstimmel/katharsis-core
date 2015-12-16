@@ -3,9 +3,11 @@ package io.katharsis.errorhandling.mapper;
 import io.katharsis.resource.exception.init.InvalidResourceException;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
+
+import java8.util.stream.Collectors;
+import static java8.util.stream.StreamSupport.stream;
 
 /**
  * Exception mapper lookup which scans the classpath for exception mappers which
@@ -29,7 +31,7 @@ public class DefaultExceptionMapperLookup implements ExceptionMapperLookup {
 		}
 		Set<Class<?>> exceptionMapperClasses = reflections.getTypesAnnotatedWith(ExceptionMapperProvider.class);
 
-		return exceptionMapperClasses.stream().map((exceptionMapperClazz) -> {
+		return stream(exceptionMapperClasses).map((exceptionMapperClazz) -> {
 			if (!JsonApiExceptionMapper.class.isAssignableFrom(exceptionMapperClazz)) {
 				throw new InvalidResourceException(exceptionMapperClazz.getCanonicalName() + " is not an implementation of JsonApiExceptionMapper");
 			}

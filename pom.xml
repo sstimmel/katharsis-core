@@ -20,9 +20,23 @@
         <url>https://github.com/katharsis-project/katharsis-core/issues</url>
     </issueManagement>
 
+    <distributionManagement>
+      <repository>
+        <id>lt00asq00000000</id>
+        <name>lt00asq00000000</name>
+        <url>http://lt00asq00000000.opr.statefarm.org/artifactory/apps-releases-local</url>
+      </repository>
+      <snapshotRepository>
+        <id>lt00asq00000000</id>
+        <name>lt00asq00000000</name>
+        <url>http://lt00asq00000000.opr.statefarm.org/artifactory/apps-snapshots-local</url>
+      </snapshotRepository>
+    </distributionManagement>
+
     <properties>
         <streamsupport-version>1.4</streamsupport-version>
         <retrolambda-version>2.0.6</retrolambda-version>
+        <assertj.version>2.2.0</assertj.version>
         <equalsverifier-version>1.7.2</equalsverifier-version>
         <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
     </properties>
@@ -58,6 +72,23 @@
                         <Export-Package>io.katharsis.dispatcher.*,io.katharsis.errorhandling.*,io.katharsis.jackson.*,io.katharsis.locator.*,io.katharsis.queryParams.*,io.katharsis.repository.*,io.katharsis.request.*,io.katharsis.resource.*,io.katharsis.response.*,io.katharsis.utils.*</Export-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.orfjackal.retrolambda</groupId>
+                <artifactId>retrolambda-maven-plugin</artifactId>
+                <version>${retrolambda-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process-main</goal>
+                            <goal>process-test</goal>
+                        </goals>
+                        <configuration>
+                            <defaultMethods>true</defaultMethods>
+                            <target>1.7</target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static java8.lang.Iterables.forEach;
 
 public class FieldRepositoryAdapterTest {
 
@@ -99,7 +100,7 @@ public class FieldRepositoryAdapterTest {
         // THEN
         verify(repo).addFields(eq(1L), eq(entities), eq("project"), eq(queryParams), eq(""));
         assertThat(result).isNotNull();
-        result.forEach(project -> assertThat(project.getId()).isEqualTo(1L));
+        forEach(result, project -> assertThat(project.getId()).isEqualTo(1L));
         
     }
 
