@@ -1,6 +1,7 @@
 package io.katharsis.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
@@ -137,6 +138,44 @@ public class ResourceInformationBuilderTest {
             .hasSize(0);
     }
 
+    @Test
+    public void shouldHaveNoAttributesInfoForTransientField() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredTransientAttributeResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(0);
+    }
+
+    @Test
+    public void shouldHaveNoAttributesInfoForStaticField() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticAttributeResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(0);
+    }
+
+    @Test
+    public void shouldHaveNoAttributesInfoForStaticMEthod() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticGetterResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(0);
+    }
+
+    @Test
+    public void shouldHaveJsonPropertyNameAttributeInfoForAttributeWithJsonProperty() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(AttributeWithJsonPropertyResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(1)
+            .extracting("name")
+            .containsOnlyOnce("my-property");
+    }
+
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -215,6 +254,55 @@ public class ResourceInformationBuilderTest {
         @JsonApiToOne
         private String getField() {
             return null;
+        }
+    }
+
+    @JsonApiResource(type = "ignoredAttribute")
+    private static class IgnoredStaticAttributeResource {
+        @JsonApiId
+        private Long id;
+
+        public static String attribute;
+    }
+
+    @JsonApiResource(type = "ignoredAttribute")
+    private static class IgnoredTransientAttributeResource {
+
+        @JsonApiId
+        private Long id;
+
+        public transient int attribute;
+
+        public int getAttribute() {
+            return attribute;
+        }
+
+    }
+
+    @JsonApiResource(type = "ignoredAttribute")
+    private static class IgnoredStaticGetterResource {
+        @JsonApiId
+        private Long id;
+
+        public static int getAttribute() {
+            return 0;
+        }
+    }
+
+    @JsonApiResource(type = "attributeWithJsonProperty")
+    private static class AttributeWithJsonPropertyResource {
+        @JsonApiId
+        private Long id;
+
+        @JsonProperty("my-property")
+        private String property;
+
+        public String getProperty() {
+            return property;
+        }
+
+        public void setProperty(String property) {
+            this.property = property;
         }
     }
 }
