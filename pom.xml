@@ -20,19 +20,6 @@
         <url>https://github.com/katharsis-project/katharsis-core/issues</url>
     </issueManagement>
 
-    <distributionManagement>
-      <repository>
-        <id>lt00asq00000000</id>
-        <name>lt00asq00000000</name>
-        <url>http://lt00asq00000000.opr.statefarm.org/artifactory/apps-releases-local</url>
-      </repository>
-      <snapshotRepository>
-        <id>lt00asq00000000</id>
-        <name>lt00asq00000000</name>
-        <url>http://lt00asq00000000.opr.statefarm.org/artifactory/apps-snapshots-local</url>
-      </snapshotRepository>
-    </distributionManagement>
-
     <properties>
         <streamsupport-version>1.4</streamsupport-version>
         <retrolambda-version>2.0.6</retrolambda-version>
