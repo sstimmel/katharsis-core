@@ -33,6 +33,17 @@ public class IncludeLookupSetter {
         this.resourceRegistry = resourceRegistry;
     }
 
+    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
+                                                          String resourceName) {
+        IncludedRelationsParams includedRelationsParams = null;
+        for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams().entrySet()) {
+            if (resourceName.equals(entry.getKey())) {
+                includedRelationsParams = entry.getValue();
+            }
+        }
+        return includedRelationsParams;
+    }
+
     public void setIncludedElements(String resourceName, Object repositoryResource, QueryParams queryParams,
                                     RepositoryMethodParameterProvider parameterProvider) {
         Object resource;
@@ -48,7 +59,7 @@ public class IncludeLookupSetter {
                 }
             } else {
                 IncludedRelationsParams includedRelationsParams = findInclusions(queryParams.getIncludedRelations(),
-                    resourceName);
+                        resourceName);
                 if (includedRelationsParams != null) {
                     for (Inclusion inclusion : includedRelationsParams.getParams()) {
                         List<String> pathList = inclusion.getPathList();
@@ -61,21 +72,10 @@ public class IncludeLookupSetter {
         }
     }
 
-    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams, String
-        resourceName) {
-        IncludedRelationsParams includedRelationsParams = null;
-        for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
-            .entrySet()) {
-            if (resourceName.equals(entry.getKey())) {
-                includedRelationsParams = entry.getValue();
-            }
-        }
-        return includedRelationsParams;
-    }
-
-    private void getElements(Object resource, List<String> pathList, QueryParams queryParams,
-                             RepositoryMethodParameterProvider parameterProvider) {
+    void getElements(Object resource, List<String> pathList, QueryParams queryParams,
+                     RepositoryMethodParameterProvider parameterProvider) {
         if (!pathList.isEmpty()) {
+            // resolve field
             Field field = ClassUtils.findClassField(resource.getClass(), pathList.get(0));
             if (field == null) {
                 logger.warn("Error loading relationship, couldn't find field " + pathList.get(0));
@@ -105,8 +105,8 @@ public class IncludeLookupSetter {
     }
 
     @SuppressWarnings("unchecked")
-    private Object loadRelationship(Object root, Field relationshipField, QueryParams queryParams,
-                                    RepositoryMethodParameterProvider parameterProvider) {
+    Object loadRelationship(Object root, Field relationshipField, QueryParams queryParams,
+                            RepositoryMethodParameterProvider parameterProvider) {
         Class<?> resourceClass = getClassFromField(relationshipField);
         RegistryEntry<?> rootEntry = resourceRegistry.getEntry(root.getClass());
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceClass);
@@ -123,7 +123,7 @@ public class IncludeLookupSetter {
 
         try {
             RelationshipRepositoryAdapter relationshipRepositoryForClass = rootEntry
-                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+                    .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
             if (relationshipRepositoryForClass != null) {
                 JsonApiResponse response;
                 if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
@@ -140,7 +140,7 @@ public class IncludeLookupSetter {
         return null;
     }
 
-    private Class<?> getClassFromField(Field relationshipField) {
+    Class<?> getClassFromField(Field relationshipField) {
         Class<?> resourceClass;
         if (Iterable.class.isAssignableFrom(relationshipField.getType())) {
             ParameterizedType stringListType = (ParameterizedType) relationshipField.getGenericType();

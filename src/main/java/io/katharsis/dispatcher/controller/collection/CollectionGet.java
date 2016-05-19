@@ -7,7 +7,6 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -18,6 +17,8 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
+
+import static io.katharsis.dispatcher.controller.Utils.checkResourceExists;
 
 public class CollectionGet extends ResourceIncludeField {
 
@@ -38,25 +39,39 @@ public class CollectionGet extends ResourceIncludeField {
     @Override
     @SuppressWarnings("unchecked")
     public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
-        parameterProvider, RequestBody requestBody) {
+            parameterProvider, RequestBody requestBody) {
+
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
-        }
-        JsonApiResponse response;
+        checkResourceExists(registryEntry, resourceName);
+
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
-        if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            response = resourceRepository.findAll(queryParams);
-        } else {
-            Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
-                .getResourceInformation().getIdField().getType();
-            Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
-                idType);
-            response = resourceRepository.findAll(parsedIds, queryParams);
-        }
+        Iterable<? extends Serializable> parsedIds = parseResourceIds(jsonPath, registryEntry);
+        JsonApiResponse response = collectionResponse(resourceRepository, queryParams, parsedIds);
+
         includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
 
         return new CollectionResponseContext(response, jsonPath, queryParams);
     }
+
+    private JsonApiResponse collectionResponse(ResourceRepositoryAdapter resourceRepository, QueryParams queryParams, Iterable<? extends Serializable> parsedIds) {
+        JsonApiResponse response;
+        if (parsedIds == null) {
+            response = resourceRepository.findAll(queryParams);
+        } else {
+            response = resourceRepository.findAll(parsedIds, queryParams);
+        }
+        return response;
+    }
+
+    private Iterable<? extends Serializable> parseResourceIds(JsonPath jsonPath, RegistryEntry registryEntry) {
+        if (jsonPath.doesNotHaveIds()) {
+            return null;
+        }
+
+        Class<? extends Serializable> idType = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation().getIdField().getType();
+        return typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(), idType);
+    }
+
 }

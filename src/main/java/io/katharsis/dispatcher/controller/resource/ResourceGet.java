@@ -7,7 +7,6 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -19,6 +18,8 @@ import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 
+import static io.katharsis.dispatcher.controller.Utils.checkResourceExists;
+
 public class ResourceGet extends ResourceIncludeField {
 
     public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
@@ -27,7 +28,7 @@ public class ResourceGet extends ResourceIncludeField {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Checks if requested resource method is acceptable - is a GET request for a resource.
      */
     @Override
@@ -39,30 +40,35 @@ public class ResourceGet extends ResourceIncludeField {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Passes the request to controller method.
      */
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
-        parameterProvider, RequestBody requestBody) {
+    public BaseResponseContext handle(JsonPath jsonPath,
+                                      QueryParams queryParams,
+                                      RepositoryMethodParameterProvider parameterProvider,
+                                      RequestBody requestBody) {
+
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
-        }
-        String id = resourceIds.getIds().get(0);
+        checkResourceExists(registryEntry, resourceName);
 
-        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
-        Serializable castedId = typeParser.parse(id, idClass);
+        Serializable castedId = parseId(registryEntry, resourceIds.getIds().get(0));
+
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
         JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
         includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
 
         return new ResourceResponseContext(response, jsonPath, queryParams);
+    }
+
+    private Serializable parseId(RegistryEntry registryEntry, String id) {
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
+        return typeParser.parse(id, idClass);
     }
 }

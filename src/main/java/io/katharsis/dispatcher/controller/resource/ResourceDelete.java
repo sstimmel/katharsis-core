@@ -2,15 +2,15 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -28,7 +28,7 @@ public class ResourceDelete extends BaseController {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Checks if requested resource method is acceptable - is a DELETE request for a resource.
      */
     @Override
@@ -40,25 +40,28 @@ public class ResourceDelete extends BaseController {
 
     @Override
     public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
-                                         RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+                                      RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
-        PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        if (registryEntry == null) {
-            //TODO: Add JsonPath toString and provide to exception?
-            throw new ResourceNotFoundException(resourceName);
-        }
-        for (String id : resourceIds.getIds()) {
-            @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                    .getResourceInformation()
-                    .getIdField()
-                    .getType();
-            Serializable castedId = typeParser.parse(id, idClass);
-            //noinspection unchecked
-            registryEntry.getResourceRepository(parameterProvider).delete(castedId, queryParams);
+        Utils.checkResourceExists(registryEntry, resourceName);
+
+        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository(parameterProvider);
+
+        for (Serializable id : parseResourceIds(registryEntry, jsonPath)) {
+            repository.delete(id, queryParams);
         }
 
         //TODO: Avoid nulls - use optional
         return null;
+    }
+
+    private Iterable<? extends Serializable> parseResourceIds(RegistryEntry registryEntry, JsonPath jsonPath) {
+        if (jsonPath.doesNotHaveIds()) {
+            return null;
+        }
+
+        Class<? extends Serializable> idType = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation().getIdField().getType();
+        return typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(), idType);
     }
 }
