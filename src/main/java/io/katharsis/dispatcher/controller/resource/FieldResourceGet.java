@@ -61,13 +61,13 @@ public class FieldResourceGet extends ResourceIncludeField {
             JsonApiResponse response = relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, queryParams);
 
-            includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+            includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, parameterProvider);
             target = new CollectionResponseContext(response, jsonPath, queryParams);
         } else {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findOneTarget(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+            includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, parameterProvider);
             target = new ResourceResponseContext(response, jsonPath, queryParams);
         }
 
@@ -78,5 +78,5 @@ public class FieldResourceGet extends ResourceIncludeField {
         String resourceId = resourceIds.getIds().get(0);
         return parseId(registryEntry, resourceId);
     }
-    
+
 }

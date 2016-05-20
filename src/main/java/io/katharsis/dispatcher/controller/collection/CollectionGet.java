@@ -49,7 +49,7 @@ public class CollectionGet extends ResourceIncludeField {
         Iterable<? extends Serializable> parsedIds = parseResourceIds(registryEntry, jsonPath);
         JsonApiResponse response = collectionResponse(resourceRepository, queryParams, parsedIds);
 
-        includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, parameterProvider);
 
         return new CollectionResponseContext(response, jsonPath, queryParams);
     }

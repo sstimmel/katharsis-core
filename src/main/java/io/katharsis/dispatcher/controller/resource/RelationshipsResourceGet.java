@@ -67,7 +67,8 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+            //TODO: ieugen: which registry entry to use: resource or relationship?
+            includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, parameterProvider);
 
             List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, relationshipFieldEntry, response);
             response.setEntity(dataList);
@@ -76,7 +77,8 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findOneTarget(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+            //TODO: ieugen: which registry entry to use: resource or relationship?
+            includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, parameterProvider);
 
             if (response.getEntity() != null) {
                 LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, relationshipFieldEntry, response);

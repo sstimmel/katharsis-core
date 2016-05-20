@@ -59,7 +59,7 @@ public class ResourceGet extends ResourceIncludeField {
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
         JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
-        includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, parameterProvider);
 
         return new ResourceResponseContext(response, jsonPath, queryParams);
     }
