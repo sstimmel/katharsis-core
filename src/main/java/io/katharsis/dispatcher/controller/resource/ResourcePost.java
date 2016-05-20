@@ -50,7 +50,7 @@ public class ResourcePost extends ResourceUpsert {
         verifyTypes(HttpMethod.POST, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
         Object newResource = ClassUtils.newInstance(bodyRegistryEntry.getResourceInformation().getResourceClass());
 
-        setId(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
+        setId(dataBody, newResource, bodyRegistryEntry);
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         setRelations(newResource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);

@@ -60,8 +60,11 @@ public class ResourceDelete extends BaseController {
             return null;
         }
 
-        Class<? extends Serializable> idType = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation().getIdField().getType();
-        return typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(), idType);
+        return parseIds(registryEntry, (Iterable<String>) jsonPath.getIds().getIds());
+    }
+
+    @Override
+    public TypeParser getTypeParser() {
+        return typeParser;
     }
 }

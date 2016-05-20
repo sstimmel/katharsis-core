@@ -1,6 +1,8 @@
 package io.katharsis.dispatcher.controller;
 
+import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 
 public class Utils {
@@ -14,6 +16,12 @@ public class Utils {
     public static void checkResourceExists(RegistryEntry registryEntry, String resourceName) {
         if (registryEntry == null) {
             throw new ResourceNotFoundException(resourceName);
+        }
+    }
+
+    public static void checkResourceFieldExists(ResourceField relationshipField, String resourceName){
+        if (relationshipField == null) {
+            throw new ResourceFieldNotFoundException(resourceName);
         }
     }
 

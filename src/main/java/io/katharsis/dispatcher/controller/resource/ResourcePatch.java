@@ -59,12 +59,4 @@ public class ResourcePatch extends ResourceUpsert {
         return new ResourceResponseContext(response, jsonPath, queryParams);
     }
 
-    private Serializable parseId(RegistryEntry registryEntry, String id) {
-        @SuppressWarnings("unchecked")
-        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
-        return typeParser.parse(id, idClass);
-    }
 }

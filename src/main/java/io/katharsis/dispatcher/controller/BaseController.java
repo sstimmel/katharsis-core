@@ -8,6 +8,9 @@ import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
+import io.katharsis.utils.parser.TypeParser;
+
+import java.io.Serializable;
 
 /**
  * Represents a controller contract. There can be many kinds of requests that can be send to the framework. The
@@ -26,6 +29,8 @@ public abstract class BaseController {
      */
     public abstract boolean isAcceptable(JsonPath jsonPath, String requestType);
 
+    public abstract TypeParser getTypeParser();
+
     /**
      * Passes the request to controller method.
      *
@@ -36,17 +41,17 @@ public abstract class BaseController {
      * @return BaseResponseContext object
      */
     public abstract BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
-        parameterProvider, RequestBody requestBody);
+            parameterProvider, RequestBody requestBody);
 
 
     protected void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,
-                             RegistryEntry bodyRegistryEntry) {
+                               RegistryEntry bodyRegistryEntry) {
         if (endpointRegistryEntry.equals(bodyRegistryEntry)) {
             return;
         }
         if (bodyRegistryEntry == null || !bodyRegistryEntry.isParent(endpointRegistryEntry)) {
             String message = String.format("Inconsistent type definition between path and body: body type: " +
-                "%s, request type: %s", methodType, resourceEndpointName);
+                    "%s, request type: %s", methodType, resourceEndpointName);
             throw new RequestBodyException(methodType, resourceEndpointName, message);
         }
     }
@@ -58,4 +63,20 @@ public abstract class BaseController {
             return responseOrResource;
         }
     }
+
+    protected Serializable parseId(RegistryEntry registryEntry, String id) {
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
+        return getTypeParser().parse(id, idClass);
+    }
+
+    protected Iterable<? extends Serializable> parseIds(RegistryEntry registryEntry, Iterable<String> ids) {
+        Class<? extends Serializable> idType = (Class<? extends Serializable>) registryEntry.getResourceInformation()
+                .getIdField().getType();
+
+        return getTypeParser().parse(ids, idType);
+    }
+
 }

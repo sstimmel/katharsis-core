@@ -18,4 +18,9 @@ public abstract class ResourceIncludeField extends BaseController {
         this.typeParser = typeParser;
         this.includeFieldSetter = fieldSetter;
     }
+
+    @Override
+    public TypeParser getTypeParser() {
+        return typeParser;
+    }
 }

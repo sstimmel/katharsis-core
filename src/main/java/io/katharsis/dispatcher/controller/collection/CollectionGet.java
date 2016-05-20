@@ -46,7 +46,7 @@ public class CollectionGet extends ResourceIncludeField {
         checkResourceExists(registryEntry, resourceName);
 
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
-        Iterable<? extends Serializable> parsedIds = parseResourceIds(jsonPath, registryEntry);
+        Iterable<? extends Serializable> parsedIds = parseResourceIds(registryEntry, jsonPath);
         JsonApiResponse response = collectionResponse(resourceRepository, queryParams, parsedIds);
 
         includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
@@ -64,7 +64,8 @@ public class CollectionGet extends ResourceIncludeField {
         return response;
     }
 
-    private Iterable<? extends Serializable> parseResourceIds(JsonPath jsonPath, RegistryEntry registryEntry) {
+    //TODO: ieugen we could reason better about this if we JSonPath had a richer API
+    private Iterable<? extends Serializable> parseResourceIds(RegistryEntry registryEntry, JsonPath jsonPath) {
         if (jsonPath.doesNotHaveIds()) {
             return null;
         }

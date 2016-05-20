@@ -12,8 +12,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Locale;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeLookupSetterTest {
@@ -39,12 +38,12 @@ public class IncludeLookupSetterTest {
         Field field = ClassUtils.findClassField(TestClass.class, "simpleString");
         Class<?> clazz = sut.getClassFromField(field);
 
-        assertThat(clazz.equals(String.class), is(true));
+        assertThat(clazz.equals(String.class)).isTrue();
 
         field = ClassUtils.findClassField(TestClass.class, "localeCollection");
         clazz = sut.getClassFromField(field);
 
-        assertThat(clazz.equals(Locale.class), is(true));
+        assertThat(clazz.equals(Locale.class)).isTrue();
 
     }
 
