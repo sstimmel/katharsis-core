@@ -2,6 +2,7 @@ package io.katharsis.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.request.path.JsonPath;
 
 /**
@@ -15,6 +16,8 @@ public interface BaseResponseContext {
     JsonApiResponse getResponse();
 
     JsonPath getJsonPath();
+
+    JsonApiPath getPath();
 
     QueryParams getQueryParams();
 }

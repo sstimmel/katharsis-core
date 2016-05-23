@@ -1,6 +1,7 @@
 package io.katharsis.errorhandling;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
@@ -19,6 +20,10 @@ public final class ErrorResponse implements BaseResponseContext {
         this.httpStatus = httpStatus;
     }
 
+    public static ErrorResponseBuilder builder() {
+        return new ErrorResponseBuilder();
+    }
+
     @Override
     public int getHttpStatus() {
         return httpStatus;
@@ -27,7 +32,7 @@ public final class ErrorResponse implements BaseResponseContext {
     @Override
     public JsonApiResponse getResponse() {
         return new JsonApiResponse()
-            .setEntity(data);
+                .setEntity(data);
     }
 
     @Override
@@ -36,12 +41,13 @@ public final class ErrorResponse implements BaseResponseContext {
     }
 
     @Override
-    public QueryParams getQueryParams() {
-        return null;
+    public JsonApiPath getPath() {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
-    public static ErrorResponseBuilder builder() {
-        return new ErrorResponseBuilder();
+    @Override
+    public QueryParams getQueryParams() {
+        return null;
     }
 
     @Override

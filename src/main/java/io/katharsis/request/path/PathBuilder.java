@@ -27,6 +27,56 @@ public class PathBuilder {
         this.resourceRegistry = resourceRegistry;
     }
 
+    private static PathIds createPathIds(String idsString) {
+        List<String> pathIds = Arrays.asList(idsString.split(PathIds.ID_SEPERATOR));
+        return new PathIds(pathIds);
+    }
+
+    private static String[] splitPath(String path) {
+        if (path.startsWith(SEPARATOR)) {
+            path = path.substring(1);
+        }
+        if (path.endsWith(SEPARATOR)) {
+            path = path.substring(0, path.length());
+        }
+        return path.split(SEPARATOR);
+    }
+
+    /**
+     * Creates a path using the provided JsonPath structure.
+     *
+     * @param jsonPath JsonPath structure to be parsed
+     * @return String representing structure provided in the input
+     */
+    public static String buildPath(JsonPath jsonPath) {
+        List<String> urlParts = new LinkedList<>();
+
+        JsonPath currentJsonPath = jsonPath;
+        String pathPart;
+        do {
+            if (currentJsonPath instanceof RelationshipsPath) {
+                pathPart = RELATIONSHIP_MARK + SEPARATOR + currentJsonPath.getElementName();
+            } else if (currentJsonPath instanceof FieldPath) {
+                pathPart = currentJsonPath.getElementName();
+            } else {
+                pathPart = currentJsonPath.getElementName();
+                if (currentJsonPath.getIds() != null) {
+                    pathPart += SEPARATOR + mergeIds(currentJsonPath.getIds());
+                }
+            }
+            urlParts.add(pathPart);
+
+            currentJsonPath = currentJsonPath.getParentResource();
+        } while (currentJsonPath != null);
+        Collections.reverse(urlParts);
+
+        return SEPARATOR + StringUtils.join(SEPARATOR, urlParts) + SEPARATOR;
+    }
+
+    private static String mergeIds(PathIds ids) {
+        return StringUtils.join(PathIds.ID_SEPERATOR, ids.getIds());
+    }
+
     /**
      * Parses path provided by the application. The path provided cannot contain neither hostname nor protocol. It
      * can start or end with slash e.g. <i>/tasks/1/</i> or <i>tasks/1</i>.
@@ -104,55 +154,5 @@ public class PathBuilder {
         }
         //TODO: Throw different exception? element name can be null..
         throw new ResourceFieldNotFoundException(elementName);
-    }
-
-    private static PathIds createPathIds(String idsString) {
-        List<String> pathIds = Arrays.asList(idsString.split(PathIds.ID_SEPERATOR));
-        return new PathIds(pathIds);
-    }
-
-    private static String[] splitPath(String path) {
-        if (path.startsWith(SEPARATOR)) {
-            path = path.substring(1);
-        }
-        if (path.endsWith(SEPARATOR)) {
-            path = path.substring(0, path.length());
-        }
-        return path.split(SEPARATOR);
-    }
-
-    /**
-     * Creates a path using the provided JsonPath structure.
-     *
-     * @param jsonPath JsonPath structure to be parsed
-     * @return String representing structure provided in the input
-     */
-    public static String buildPath(JsonPath jsonPath) {
-        List<String> urlParts = new LinkedList<>();
-
-        JsonPath currentJsonPath = jsonPath;
-        String pathPart;
-        do {
-            if (currentJsonPath instanceof RelationshipsPath) {
-                pathPart = RELATIONSHIP_MARK + SEPARATOR + currentJsonPath.getElementName();
-            } else if (currentJsonPath instanceof FieldPath) {
-                pathPart = currentJsonPath.getElementName();
-            } else {
-                pathPart = currentJsonPath.getElementName();
-                if (currentJsonPath.getIds() != null) {
-                    pathPart += SEPARATOR + mergeIds(currentJsonPath.getIds());
-                }
-            }
-            urlParts.add(pathPart);
-
-            currentJsonPath = currentJsonPath.getParentResource();
-        } while (currentJsonPath != null);
-        Collections.reverse(urlParts);
-
-        return SEPARATOR + StringUtils.join(SEPARATOR, urlParts) + SEPARATOR;
-    }
-
-    private static String mergeIds(PathIds ids) {
-        return StringUtils.join(PathIds.ID_SEPERATOR, ids.getIds());
     }
 }

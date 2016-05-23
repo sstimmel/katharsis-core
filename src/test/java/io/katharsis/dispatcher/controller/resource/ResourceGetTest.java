@@ -35,7 +35,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
     @Before
     public void before() {
-       this.prepare();
+        this.prepare();
 
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
@@ -49,14 +49,16 @@ public class ResourceGetTest extends BaseControllerTest {
         data.setAttributes(attributes);
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper,
+                queryParamsBuilder);
     }
 
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        ResourceGet sut = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter,
+                queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -69,7 +71,8 @@ public class ResourceGetTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
-        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        ResourceGet sut = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter,
+                queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -91,18 +94,20 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper,
+                queryParamsBuilder);
+        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
 
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        ResourceGet sut = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter,
+                queryParamsBuilder);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -112,14 +117,15 @@ public class ResourceGetTest extends BaseControllerTest {
     public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/task-with-lookup/1");
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter,
+                queryParamsBuilder);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[task-with-lookup]",
-            new HashSet<>(Arrays.asList("project", "projectNull", "projectOverridden", "projectOverriddenNull")));
+                new HashSet<>(Arrays.asList("project", "projectNull", "projectOverridden", "projectOverriddenNull")));
         QueryParams queryParamsObject = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponseContext response = responseGetResp.handle(jsonPath, queryParamsObject, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, queryParamsObject, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -142,10 +148,11 @@ public class ResourceGetTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper,
+                queryParamsBuilder);
 
         // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -164,7 +171,7 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -183,10 +190,11 @@ public class ResourceGetTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser,
+                queryParamsBuilder);
 
         // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -195,20 +203,21 @@ public class ResourceGetTest extends BaseControllerTest {
         assertThat(project.getId()).isEqualTo(projectId);
 
         //Given
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId );
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
+        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter
+                , queryParamsBuilder);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
-            Collections.singleton("[project]"));
+                Collections.singleton("[project]"));
         QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponseContext response = responseGetResp.handle(jsonPath, requestParams, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, requestParams, null);
 
         // THEN
         Assert.assertNotNull(response);
         assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task)(taskResponse.getResponse().getEntity())).getProject()).isNull();
+        assertThat(((Task) (taskResponse.getResponse().getEntity())).getProject()).isNull();
     }
 
 }

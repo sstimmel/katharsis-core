@@ -2,7 +2,9 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
@@ -22,8 +24,12 @@ import static io.katharsis.dispatcher.controller.Utils.checkResourceExists;
 
 public class ResourceGet extends ResourceIncludeField {
 
-    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry, typeParser, fieldSetter);
+    public ResourceGet(ResourceRegistry resourceRegistry,
+                       RepositoryMethodParameterProvider parameterProvider,
+                       TypeParser typeParser,
+                       IncludeLookupSetter fieldSetter,
+                       QueryParamsBuilder paramsBuilder) {
+        super(resourceRegistry, parameterProvider, typeParser, fieldSetter, paramsBuilder);
     }
 
     /**
@@ -38,6 +44,11 @@ public class ResourceGet extends ResourceIncludeField {
                 && HttpMethod.GET.name().equals(requestType);
     }
 
+    @Override
+    public boolean isAcceptable(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
     /**
      * {@inheritDoc}
      * <p>
@@ -46,7 +57,6 @@ public class ResourceGet extends ResourceIncludeField {
     @Override
     public BaseResponseContext handle(JsonPath jsonPath,
                                       QueryParams queryParams,
-                                      RepositoryMethodParameterProvider parameterProvider,
                                       RequestBody requestBody) {
 
         String resourceName = jsonPath.getElementName();
@@ -56,12 +66,17 @@ public class ResourceGet extends ResourceIncludeField {
 
         Serializable castedId = parseId(registryEntry, resourceIds.getIds().get(0));
 
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(getParameterProvider());
         @SuppressWarnings("unchecked")
         JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
-        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, parameterProvider);
+        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, getParameterProvider());
 
         return new ResourceResponseContext(response, jsonPath, queryParams);
+    }
+
+    @Override
+    public BaseResponseContext handle(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 }

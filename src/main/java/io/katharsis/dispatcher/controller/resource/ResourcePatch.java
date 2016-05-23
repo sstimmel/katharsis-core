@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -21,8 +23,12 @@ import java.io.Serializable;
 
 public class ResourcePatch extends ResourceUpsert {
 
-    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
-        super(resourceRegistry, typeParser, objectMapper);
+    public ResourcePatch(ResourceRegistry resourceRegistry,
+                         RepositoryMethodParameterProvider parameterProvider,
+                         TypeParser typeParser,
+                         @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper,
+                         QueryParamsBuilder paramsBuilder) {
+        super(resourceRegistry, parameterProvider, typeParser, objectMapper, paramsBuilder);
     }
 
     @Override
@@ -33,8 +39,13 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
+    public boolean isAcceptable(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
-                                      RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+                                      RequestBody requestBody) {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -47,16 +58,21 @@ public class ResourcePatch extends ResourceUpsert {
         String idString = jsonPath.getIds().getIds().get(0);
         Serializable resourceId = parseId(endpointRegistryEntry, idString);
 
-        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
+        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(getParameterProvider());
         @SuppressWarnings("unchecked")
         Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
 
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
+        setRelations(resource, bodyRegistryEntry, dataBody, queryParams, getParameterProvider());
         JsonApiResponse response = resourceRepository.save(resource, queryParams);
 
         return new ResourceResponseContext(response, jsonPath, queryParams);
+    }
+
+    @Override
+    public BaseResponseContext handle(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
 }

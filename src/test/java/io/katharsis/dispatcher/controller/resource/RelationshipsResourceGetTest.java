@@ -32,7 +32,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -46,7 +46,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -60,7 +60,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -74,10 +74,10 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/relationships/project");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
+        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -87,11 +87,11 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
     public void onGivenRequestLinkResourceGetShouldReturnDataField() throws Exception {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/relationships/project");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
         new TaskToProjectRepository().setRelation(new Task().setId(1L), 42L, "project");
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
+        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -105,10 +105,10 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/users/1/relationships/assignedProjects");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
+        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null);
 
         // THEN
         Assert.assertNotNull(response);

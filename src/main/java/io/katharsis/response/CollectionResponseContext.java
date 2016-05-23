@@ -1,6 +1,7 @@
 package io.katharsis.response;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.request.path.JsonPath;
 
 import java.util.Objects;
@@ -19,12 +20,17 @@ import java.util.Objects;
 public class CollectionResponseContext implements BaseResponseContext {
 
     private JsonApiResponse response;
-
     private JsonPath jsonPath;
-
+    private JsonApiPath path;
     private QueryParams queryParams;
 
     public CollectionResponseContext() {
+    }
+
+    public CollectionResponseContext(JsonApiResponse response, JsonApiPath path, QueryParams queryParams) {
+        this.response = response;
+        this.path = path;
+        this.queryParams = queryParams;
     }
 
     public CollectionResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams) {
@@ -46,6 +52,11 @@ public class CollectionResponseContext implements BaseResponseContext {
     @Override
     public JsonPath getJsonPath() {
         return jsonPath;
+    }
+
+    @Override
+    public JsonApiPath getPath() {
+        return path;
     }
 
     @Override

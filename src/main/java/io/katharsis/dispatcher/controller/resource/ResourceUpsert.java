@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
@@ -29,14 +30,23 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class ResourceUpsert extends BaseController {
+
     final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
     private final ObjectMapper objectMapper;
+    private final RepositoryMethodParameterProvider parameterProvider;
+    private final QueryParamsBuilder paramsBuilder;
 
-    public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+    public ResourceUpsert(ResourceRegistry resourceRegistry,
+                          RepositoryMethodParameterProvider parameterProvider,
+                          TypeParser typeParser,
+                          ObjectMapper objectMapper,
+                          QueryParamsBuilder paramsBuilder) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
+        this.parameterProvider = parameterProvider;
+        this.paramsBuilder = paramsBuilder;
     }
 
     private static boolean allTypesTheSame(Iterable<LinkageData> linkages) {
@@ -240,6 +250,11 @@ public abstract class ResourceUpsert extends BaseController {
         return typeParser;
     }
 
+    @Override
+    public RepositoryMethodParameterProvider getParameterProvider() {
+        return parameterProvider;
+    }
+
     protected DataBody dataBody(RequestBody requestBody, String resourceEndpointName, HttpMethod httpMethod) {
 
         if (requestBody == null) {
@@ -254,5 +269,10 @@ public abstract class ResourceUpsert extends BaseController {
             throw new RequestBodyException(httpMethod, resourceEndpointName, "No data field in the body.");
         }
         return dataBody;
+    }
+
+    @Override
+    public QueryParamsBuilder getQueryParamsBuilder() {
+        return paramsBuilder;
     }
 }

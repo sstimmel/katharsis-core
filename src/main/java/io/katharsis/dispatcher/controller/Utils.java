@@ -13,13 +13,14 @@ public class Utils {
      * @param registryEntry
      * @param resourceName
      */
-    public static void checkResourceExists(RegistryEntry registryEntry, String resourceName) {
+    public static RegistryEntry checkResourceExists(RegistryEntry registryEntry, String resourceName) {
         if (registryEntry == null) {
             throw new ResourceNotFoundException(resourceName);
         }
+        return registryEntry;
     }
 
-    public static void checkResourceFieldExists(ResourceField relationshipField, String resourceName){
+    public static void checkResourceFieldExists(ResourceField relationshipField, String resourceName) {
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(resourceName);
         }

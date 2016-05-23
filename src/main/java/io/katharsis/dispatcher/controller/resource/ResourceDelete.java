@@ -4,7 +4,9 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
@@ -20,10 +22,17 @@ public class ResourceDelete extends BaseController {
 
     private final ResourceRegistry resourceRegistry;
     private final TypeParser typeParser;
+    private final RepositoryMethodParameterProvider parameterProvider;
+    private final QueryParamsBuilder queryParamsBuilder;
 
-    public ResourceDelete(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    public ResourceDelete(ResourceRegistry resourceRegistry,
+                          RepositoryMethodParameterProvider parameterProvider,
+                          TypeParser typeParser,
+                          QueryParamsBuilder paramsBuilder) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
+        this.parameterProvider = parameterProvider;
+        this.queryParamsBuilder = paramsBuilder;
     }
 
     /**
@@ -39,13 +48,17 @@ public class ResourceDelete extends BaseController {
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
-                                      RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public boolean isAcceptable(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         Utils.checkResourceExists(registryEntry, resourceName);
 
-        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository(parameterProvider);
+        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository(getParameterProvider());
 
         for (Serializable id : parseResourceIds(registryEntry, jsonPath)) {
             repository.delete(id, queryParams);
@@ -53,6 +66,11 @@ public class ResourceDelete extends BaseController {
 
         //TODO: Avoid nulls - use optional
         return null;
+    }
+
+    @Override
+    public BaseResponseContext handle(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     private Iterable<? extends Serializable> parseResourceIds(RegistryEntry registryEntry, JsonPath jsonPath) {
@@ -66,5 +84,15 @@ public class ResourceDelete extends BaseController {
     @Override
     public TypeParser getTypeParser() {
         return typeParser;
+    }
+
+    @Override
+    public QueryParamsBuilder getQueryParamsBuilder() {
+        return queryParamsBuilder;
+    }
+
+    @Override
+    public RepositoryMethodParameterProvider getParameterProvider() {
+        return parameterProvider;
     }
 }

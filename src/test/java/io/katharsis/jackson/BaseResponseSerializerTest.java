@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
@@ -247,6 +248,11 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
             @Override
             public JsonPath getJsonPath() {
+                return null;
+            }
+
+            @Override
+            public JsonApiPath getPath() {
                 return null;
             }
 

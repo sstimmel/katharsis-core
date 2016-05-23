@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
@@ -17,6 +19,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
 import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
@@ -32,9 +35,13 @@ import java.util.Collections;
  */
 public class FieldResourcePost extends ResourceUpsert {
 
-    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings
-            ("SameParameterValue") ObjectMapper objectMapper) {
-        super(resourceRegistry, typeParser, objectMapper);
+    public FieldResourcePost(ResourceRegistry resourceRegistry,
+                             RepositoryMethodParameterProvider parameterProvider,
+                             TypeParser typeParser,
+                             @SuppressWarnings
+            ("SameParameterValue") ObjectMapper objectMapper,
+                             QueryParamsBuilder paramsBuilder) {
+        super(resourceRegistry, parameterProvider, typeParser, objectMapper, paramsBuilder);
     }
 
     @Override
@@ -46,8 +53,12 @@ public class FieldResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
-                                          RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public boolean isAcceptable(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public ResourceResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) {
         String resourceEndpointName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -76,9 +87,9 @@ public class FieldResourcePost extends ResourceUpsert {
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
-        ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
+        ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository(getParameterProvider());
         JsonApiResponse savedResourceResponse = resourceRepository.save(resource, queryParams);
-        saveRelations(queryParams, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, parameterProvider);
+        saveRelations(queryParams, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, getParameterProvider());
 
         Serializable resourceId = (Serializable) PropertyUtils
                 .getProperty(extractResource(savedResourceResponse), relationshipRegistryEntry.getResourceInformation()
@@ -86,10 +97,10 @@ public class FieldResourcePost extends ResourceUpsert {
                         .getUnderlyingName());
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = endpointRegistryEntry
-                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+                .getRelationshipRepositoryForClass(relationshipFieldClass, getParameterProvider());
 
         @SuppressWarnings("unchecked")
-        JsonApiResponse parent = endpointRegistryEntry.getResourceRepository(parameterProvider)
+        JsonApiResponse parent = endpointRegistryEntry.getResourceRepository(getParameterProvider())
                 .findOne(castedResourceId, queryParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
@@ -100,6 +111,11 @@ public class FieldResourcePost extends ResourceUpsert {
             relationshipRepositoryForClass.setRelation(parent.getEntity(), resourceId, jsonPath.getElementName(), queryParams);
         }
         return new ResourceResponseContext(savedResourceResponse, jsonPath, queryParams, HttpStatus.CREATED_201);
+    }
+
+    @Override
+    public BaseResponseContext handle(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

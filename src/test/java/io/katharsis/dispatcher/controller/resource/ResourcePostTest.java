@@ -36,7 +36,7 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -49,7 +49,7 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -68,13 +68,13 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // THEN
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        sut.handle(projectPath, new QueryParams(), newProjectBody);
     }
 
     @Test
@@ -85,25 +85,25 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.setData(data);
         data.setType("fridges");
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new QueryParams(), null, newProjectBody);
+        sut.handle(new ResourcePath("fridges"), new QueryParams(), newProjectBody);
     }
 
     @Test
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // THEN
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new QueryParams(), null, null);
+        sut.handle(new ResourcePath("fridges"), new QueryParams(), null);
     }
 
     @Test
@@ -114,16 +114,16 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.setData(data);
         data.setType("projects");
         ObjectNode attributes = objectMapper.createObjectNode()
-            .put("name", "sample project");
+                .put("name", "sample project");
         attributes.putObject("data")
-            .put("data", "asd");
+                .put("data", "asd");
         data.setAttributes(attributes);
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -148,7 +148,7 @@ public class ResourcePostTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParams(), null, newTaskBody);
+        ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParams(), newTaskBody);
 
         // THEN
         assertThat(taskResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -172,10 +172,10 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -193,12 +193,12 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "some user"));
         data.setRelationships(new ResourceRelationships());
         data.getRelationships().setAdditionalProperty("assignedProjects", Collections.singletonList(new LinkageData("projects",
-            projectId.toString())));
+                projectId.toString())));
 
         JsonPath taskPath = pathBuilder.buildPath("/users");
 
         // WHEN
-        ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParams(), null, newUserBody);
+        ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParams(), newUserBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(User.class);
@@ -218,15 +218,15 @@ public class ResourcePostTest extends BaseControllerTest {
         newMemorandumBody.setData(data);
         data.setType("memoranda");
         ObjectNode attributes = objectMapper.createObjectNode()
-            .put("title", "sample title")
-            .put("body", "sample body");
+                .put("title", "sample title")
+                .put("body", "sample body");
         data.setAttributes(attributes);
 
         JsonPath projectPath = pathBuilder.buildPath("/documents");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        ResourceResponseContext memorandumResponse = sut.handle(projectPath, new QueryParams(), null, newMemorandumBody);
+        ResourceResponseContext memorandumResponse = sut.handle(projectPath, new QueryParams(), newMemorandumBody);
 
         // THEN
         assertThat(memorandumResponse.getResponse().getEntity()).isExactlyInstanceOf(Memorandum.class);
@@ -246,10 +246,10 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -266,7 +266,7 @@ public class ResourcePostTest extends BaseControllerTest {
         pojoData.setType("pojo");
         JsonNode put = objectMapper.createObjectNode().put("value", "hello");
         JsonNode attributes = objectMapper.createObjectNode()
-            .set("other-pojo", put);
+                .set("other-pojo", put);
         pojoData.setAttributes(attributes);
         ResourceRelationships relationships = new ResourceRelationships();
         relationships.setAdditionalProperty("some-project", new LinkageData("projects", Long.toString(projectId)));
@@ -276,7 +276,7 @@ public class ResourcePostTest extends BaseControllerTest {
         JsonPath pojoPath = pathBuilder.buildPath("/pojo");
 
         // WHEN
-        ResourceResponseContext pojoResponse = sut.handle(pojoPath, new QueryParams(), null, pojoBody);
+        ResourceResponseContext pojoResponse = sut.handle(pojoPath, new QueryParams(), pojoBody);
 
         // THEN
         assertThat(pojoResponse.getResponse().getEntity()).isExactlyInstanceOf(Pojo.class);

@@ -1,4 +1,4 @@
-package io.katharsis.dispatcher.registry;
+package io.katharsis.dispatcher;
 
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 

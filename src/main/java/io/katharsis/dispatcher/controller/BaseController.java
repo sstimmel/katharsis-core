@@ -1,7 +1,9 @@
 package io.katharsis.dispatcher.controller;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.exception.RequestBodyException;
@@ -29,20 +31,25 @@ public abstract class BaseController {
      */
     public abstract boolean isAcceptable(JsonPath jsonPath, String requestType);
 
+    public abstract boolean isAcceptable(Request request);
+
     public abstract TypeParser getTypeParser();
+
+    public abstract QueryParamsBuilder getQueryParamsBuilder();
+
+    public abstract RepositoryMethodParameterProvider getParameterProvider();
 
     /**
      * Passes the request to controller method.
      *
-     * @param jsonPath          Requested resource path
-     * @param parameterProvider repository method parameter provider
-     * @param queryParams       Params specifying request
-     * @param requestBody       Top-level JSON object from method's body of the request passed as {@link RequestBody}
+     * @param jsonPath    Requested resource path
+     * @param queryParams Params specifying request
+     * @param requestBody Top-level JSON object from method's body of the request passed as {@link RequestBody}
      * @return BaseResponseContext object
      */
-    public abstract BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
-            parameterProvider, RequestBody requestBody);
+    public abstract BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody);
 
+    public abstract BaseResponseContext handle(Request request);
 
     protected void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,
                                RegistryEntry bodyRegistryEntry) {

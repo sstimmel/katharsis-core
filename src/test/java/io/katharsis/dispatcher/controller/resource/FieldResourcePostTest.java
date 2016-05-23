@@ -28,7 +28,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -42,7 +42,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -56,7 +56,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -76,10 +76,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -96,10 +96,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/project");
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -125,10 +125,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -145,10 +145,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/projects");
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);

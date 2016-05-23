@@ -46,7 +46,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -60,7 +60,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -80,10 +80,10 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, OBJECT_MAPPER, queryParamsBuilder);
 
         // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -102,7 +102,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -121,10 +121,10 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -144,10 +144,10 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/users");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, OBJECT_MAPPER, queryParamsBuilder);
 
         // WHEN -- adding a user
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newUserBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newUserBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(User.class);
@@ -166,7 +166,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -185,10 +185,10 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/users/" + userId + "/relationships/assignedProjects");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN -- adding a relation between user and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath,new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -208,10 +208,10 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, OBJECT_MAPPER, queryParamsBuilder);
 
         // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -224,12 +224,12 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         RequestBody newTaskToProjectBody = new RequestBody();
         newTaskToProjectBody.setData(null);
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/"+ taskId +"/relationships/project");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN -- adding a relation between user and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null,
-            newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(),
+                newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN

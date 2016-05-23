@@ -20,7 +20,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser);
+        ResourceDelete sut = new ResourceDelete(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -34,7 +34,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser);
+        ResourceDelete sut = new ResourceDelete(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -48,10 +48,10 @@ public class ResourceDeleteTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
-        ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser);
+        ResourceDelete sut = new ResourceDelete(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null);
 
         // THEN
         assertThat(response).isNull();
