@@ -5,7 +5,6 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -36,12 +35,11 @@ import java.util.Collections;
 public class FieldResourcePost extends ResourceUpsert {
 
     public FieldResourcePost(ResourceRegistry resourceRegistry,
-                             RepositoryMethodParameterProvider parameterProvider,
                              TypeParser typeParser,
                              @SuppressWarnings
-            ("SameParameterValue") ObjectMapper objectMapper,
+                                     ("SameParameterValue") ObjectMapper objectMapper,
                              QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, objectMapper, paramsBuilder);
+        super(resourceRegistry, typeParser, objectMapper, paramsBuilder);
     }
 
     @Override
@@ -87,9 +85,9 @@ public class FieldResourcePost extends ResourceUpsert {
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
-        ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository(getParameterProvider());
+        ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository();
         JsonApiResponse savedResourceResponse = resourceRepository.save(resource, queryParams);
-        saveRelations(queryParams, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, getParameterProvider());
+        saveRelations(queryParams, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody);
 
         Serializable resourceId = (Serializable) PropertyUtils
                 .getProperty(extractResource(savedResourceResponse), relationshipRegistryEntry.getResourceInformation()
@@ -97,10 +95,10 @@ public class FieldResourcePost extends ResourceUpsert {
                         .getUnderlyingName());
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = endpointRegistryEntry
-                .getRelationshipRepositoryForClass(relationshipFieldClass, getParameterProvider());
+                .getRelationshipRepositoryForClass(relationshipFieldClass);
 
         @SuppressWarnings("unchecked")
-        JsonApiResponse parent = endpointRegistryEntry.getResourceRepository(getParameterProvider())
+        JsonApiResponse parent = endpointRegistryEntry.getResourceRepository()
                 .findOne(castedResourceId, queryParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked

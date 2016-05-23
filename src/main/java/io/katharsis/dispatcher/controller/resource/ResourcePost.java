@@ -5,7 +5,6 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -24,11 +23,10 @@ import io.katharsis.utils.parser.TypeParser;
 public class ResourcePost extends ResourceUpsert {
 
     public ResourcePost(ResourceRegistry resourceRegistry,
-                        RepositoryMethodParameterProvider parameterProvider,
                         TypeParser typeParser,
                         ObjectMapper objectMapper,
                         QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, objectMapper, paramsBuilder);
+        super(resourceRegistry, typeParser, objectMapper, paramsBuilder);
     }
 
     /**
@@ -64,8 +62,8 @@ public class ResourcePost extends ResourceUpsert {
 
         setId(dataBody, newResource, bodyRegistryEntry);
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
-        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(getParameterProvider());
-        setRelations(newResource, bodyRegistryEntry, dataBody, queryParams, getParameterProvider());
+        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository();
+        setRelations(newResource, bodyRegistryEntry, dataBody, queryParams);
         JsonApiResponse response = resourceRepository.save(newResource, queryParams);
 
         return new ResourceResponseContext(response, jsonPath, queryParams, HttpStatus.CREATED_201);

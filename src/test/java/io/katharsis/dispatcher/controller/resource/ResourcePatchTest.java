@@ -26,7 +26,7 @@ public class ResourcePatchTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -39,7 +39,7 @@ public class ResourcePatchTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -51,7 +51,7 @@ public class ResourcePatchTest extends BaseControllerTest {
     @Test
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
-        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -73,7 +73,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
         ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
@@ -87,7 +87,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode()
                 .put("name", "task updated"));
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), taskPatch);
@@ -111,7 +111,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
         ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
@@ -125,7 +125,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode()
                 .put("name", "task updated"));
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         BaseResponseContext response = null;
@@ -153,7 +153,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         JsonPath documentsPath = pathBuilder.buildPath("/documents");
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         ResourceResponseContext taskResponse = resourcePost.handle(documentsPath, new QueryParams(), memorandumBody);
@@ -174,7 +174,7 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("title", "new title")
                 .put("body", "new body"));
         JsonPath documentPath = pathBuilder.buildPath("/documents/" + memorandumId);
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         BaseResponseContext memorandumResponse = sut.handle(documentPath, new QueryParams(), memorandumBody);
@@ -200,7 +200,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
         ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
@@ -217,7 +217,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.getRelationships()
                 .setAdditionalProperty("project", null);
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
         BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), taskPatch);

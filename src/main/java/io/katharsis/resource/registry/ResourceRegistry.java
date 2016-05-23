@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResourceRegistry {
+
     private final Map<Class, RegistryEntry> resources = new HashMap<>();
     private final String serviceUrl;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
@@ -22,9 +23,10 @@ public class ResourceRegistry {
 
     /**
      * Adds a new resource definition to a registry.
-     * @param resource class of a resource
+     *
+     * @param resource      class of a resource
      * @param registryEntry resource information
-     * @param <T> type of a resource
+     * @param <T>           type of a resource
      */
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
@@ -53,8 +55,8 @@ public class ResourceRegistry {
      * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
      *
      * @param clazz resource type
-     * @throws ResourceNotFoundInitializationException if resource is not found
      * @return registry entry
+     * @throws ResourceNotFoundInitializationException if resource is not found
      */
     public RegistryEntry getEntry(Class clazz) {
         Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
@@ -101,6 +103,7 @@ public class ResourceRegistry {
 
     /**
      * Get a list of all registered resources by Katharsis.
+     *
      * @return resources
      */
     public Map<Class, RegistryEntry> getResources() {

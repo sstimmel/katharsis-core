@@ -25,11 +25,10 @@ import static io.katharsis.dispatcher.controller.Utils.checkResourceExists;
 public class ResourceGet extends ResourceIncludeField {
 
     public ResourceGet(ResourceRegistry resourceRegistry,
-                       RepositoryMethodParameterProvider parameterProvider,
                        TypeParser typeParser,
                        IncludeLookupSetter fieldSetter,
                        QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, fieldSetter, paramsBuilder);
+        super(resourceRegistry, typeParser, fieldSetter, paramsBuilder);
     }
 
     /**
@@ -66,10 +65,10 @@ public class ResourceGet extends ResourceIncludeField {
 
         Serializable castedId = parseId(registryEntry, resourceIds.getIds().get(0));
 
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(getParameterProvider());
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
         @SuppressWarnings("unchecked")
         JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
-        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, getParameterProvider());
+        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams);
 
         return new ResourceResponseContext(response, jsonPath, queryParams);
     }

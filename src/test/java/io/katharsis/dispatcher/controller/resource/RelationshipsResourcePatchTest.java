@@ -46,7 +46,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, parameterProvider, typeParser,
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
 
         // WHEN
@@ -61,7 +61,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, parameterProvider, typeParser,
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
 
         // WHEN
@@ -82,7 +82,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, OBJECT_MAPPER, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, queryParamsBuilder);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
@@ -123,7 +123,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, parameterProvider, typeParser,
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
 
         // WHEN -- adding a relation between task and project
@@ -147,7 +147,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/users");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, OBJECT_MAPPER,
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER,
                 queryParamsBuilder);
 
         // WHEN -- adding a user
@@ -189,7 +189,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/users/" + userId + "/relationships/assignedProjects");
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, parameterProvider, typeParser,
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
 
         // WHEN -- adding a relation between user and project
@@ -213,7 +213,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, OBJECT_MAPPER,
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER,
                 queryParamsBuilder);
 
         // WHEN -- adding a task
@@ -231,7 +231,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         newTaskToProjectBody.setData(null);
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, parameterProvider, typeParser,
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
 
         // WHEN -- adding a relation between user and project

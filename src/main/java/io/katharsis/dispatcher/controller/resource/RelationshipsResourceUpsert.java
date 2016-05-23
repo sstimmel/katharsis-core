@@ -5,7 +5,6 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -32,16 +31,13 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
 
     final TypeParser typeParser;
     private final ResourceRegistry resourceRegistry;
-    private final RepositoryMethodParameterProvider parameterProvider;
     private final QueryParamsBuilder paramsBuilder;
 
     RelationshipsResourceUpsert(ResourceRegistry resourceRegistry,
-                                RepositoryMethodParameterProvider parameterProvider,
                                 TypeParser typeParser,
                                 QueryParamsBuilder paramsBuilder) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
-        this.parameterProvider = parameterProvider;
         this.paramsBuilder = paramsBuilder;
     }
 
@@ -102,7 +98,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(getParameterProvider());
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
         @SuppressWarnings("unchecked")
         JsonApiResponse response = resourceRepository.findOne(castedResourceId, queryParams);
         Object resource = extractResource(response);
@@ -115,7 +111,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
 
         @SuppressWarnings("unchecked")
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-                .getRelationshipRepositoryForClass(relationshipFieldClass, getParameterProvider());
+                .getRelationshipRepositoryForClass(relationshipFieldClass);
 
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             if (!requestBody.isMultiple()) {
@@ -150,11 +146,6 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
     @Override
     public TypeParser getTypeParser() {
         return typeParser;
-    }
-
-    @Override
-    public RepositoryMethodParameterProvider getParameterProvider() {
-        return parameterProvider;
     }
 
     @Override

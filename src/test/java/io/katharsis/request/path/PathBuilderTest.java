@@ -1,6 +1,7 @@
 package io.katharsis.request.path;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -33,7 +34,7 @@ public class PathBuilderTest {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-            resourceInformationBuilder);
+            resourceInformationBuilder, new NewInstanceRepositoryMethodParameterProvider());
         ResourceRegistry resourceRegistry = registryBuilder
             .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 

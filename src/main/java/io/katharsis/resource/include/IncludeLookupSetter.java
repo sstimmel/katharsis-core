@@ -4,7 +4,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.field.ResourceField;
@@ -47,15 +46,14 @@ public class IncludeLookupSetter {
     public void setIncludedElements(RegistryEntry registryEntry,
                                     String resourceName,
                                     Object repositoryResource,
-                                    QueryParams queryParams,
-                                    RepositoryMethodParameterProvider parameterProvider) {
+                                    QueryParams queryParams) {
 
         Object resource = resolveResource(repositoryResource);
 
         if (resourceHasIncludedResources(queryParams, resource)) {
             if (isCollectionResource(resource)) {
                 for (Object target : (Iterable<?>) resource) {
-                    setIncludedElements(registryEntry, resourceName, target, queryParams, parameterProvider);
+                    setIncludedElements(registryEntry, resourceName, target, queryParams);
                 }
             } else {
                 IncludedRelationsParams includedRelationsParams = findInclusions(queryParams.getIncludedRelations(),
@@ -65,7 +63,7 @@ public class IncludeLookupSetter {
                     for (Inclusion inclusion : includedRelationsParams.getParams()) {
                         List<String> pathList = inclusion.getPathList();
                         if (!pathList.isEmpty()) {
-                            getElements(registryEntry, resource, pathList, queryParams, parameterProvider);
+                            getElements(registryEntry, resource, pathList, queryParams);
                         }
                     }
                 }
@@ -73,8 +71,7 @@ public class IncludeLookupSetter {
         }
     }
 
-    void getElements(RegistryEntry registryEntry, Object resource, List<String> pathList, QueryParams queryParams,
-                     RepositoryMethodParameterProvider parameterProvider) {
+    void getElements(RegistryEntry registryEntry, Object resource, List<String> pathList, QueryParams queryParams) {
         if (!pathList.isEmpty()) {
             // resolve field
             String underlyingFieldName = underlyingFieldName(registryEntry, pathList);
@@ -87,7 +84,7 @@ public class IncludeLookupSetter {
             Object property = PropertyUtils.getProperty(resource, field.getName());
             //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
             if (shouldWeLoadRelationship(field, property)) {
-                property = loadRelationship(resource, field, queryParams, parameterProvider);
+                property = loadRelationship(resource, field, queryParams);
                 PropertyUtils.setProperty(resource, field.getName(), property);
             }
 
@@ -96,11 +93,11 @@ public class IncludeLookupSetter {
                 if (isCollectionResource(property)) {
                     for (Object o : ((Iterable) property)) {
                         //noinspection unchecked
-                        getElements(registryEntry, o, subPathList, queryParams, parameterProvider);
+                        getElements(registryEntry, o, subPathList, queryParams);
                     }
                 } else {
                     //noinspection unchecked
-                    getElements(registryEntry, property, subPathList, queryParams, parameterProvider);
+                    getElements(registryEntry, property, subPathList, queryParams);
                 }
             }
         }
@@ -159,8 +156,7 @@ public class IncludeLookupSetter {
     }
 
     @SuppressWarnings("unchecked")
-    Object loadRelationship(Object root, Field relationshipField, QueryParams queryParams,
-                            RepositoryMethodParameterProvider parameterProvider) {
+    Object loadRelationship(Object root, Field relationshipField, QueryParams queryParams) {
         Class<?> resourceClass = getClassFromField(relationshipField);
         RegistryEntry<?> rootEntry = resourceRegistry.getEntry(root.getClass());
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceClass);
@@ -177,7 +173,7 @@ public class IncludeLookupSetter {
 
         try {
             RelationshipRepositoryAdapter relationshipRepositoryForClass = rootEntry
-                    .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+                    .getRelationshipRepositoryForClass(relationshipFieldClass);
             if (relationshipRepositoryForClass != null) {
                 JsonApiResponse response;
                 if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {

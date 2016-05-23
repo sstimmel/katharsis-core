@@ -27,26 +27,31 @@ import java.util.Objects;
  * @param <T> resource type
  */
 public class RegistryEntry<T> {
+
     private final ResourceInformation resourceInformation;
     private final ResourceEntry<T, ?> resourceEntry;
     private final List<ResponseRelationshipEntry<T, ?>> relationshipEntries;
+    private final RepositoryMethodParameterProvider parameterProvider;
     private RegistryEntry parentRegistryEntry = null;
 
     public RegistryEntry(ResourceInformation resourceInformation,
-                         @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
-        this(resourceInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>());
+                         @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry,
+                         RepositoryMethodParameterProvider parameterProvider) {
+        this(resourceInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>(), parameterProvider);
     }
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          ResourceEntry<T, ?> resourceEntry,
-                         List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
+                         List<ResponseRelationshipEntry<T, ?>> relationshipEntries,
+                         RepositoryMethodParameterProvider parameterProvider) {
         this.resourceInformation = resourceInformation;
         this.resourceEntry = resourceEntry;
         this.relationshipEntries = relationshipEntries;
+        this.parameterProvider = parameterProvider;
     }
 
     @SuppressWarnings("unchecked")
-    public ResourceRepositoryAdapter getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
+    public ResourceRepositoryAdapter getResourceRepository() {
         Object repoInstance = null;
         if (resourceEntry instanceof DirectResponseResourceEntry) {
             repoInstance = ((DirectResponseResourceEntry<T, ?>) resourceEntry).getResourceRepository();
@@ -61,8 +66,7 @@ public class RegistryEntry<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz,
-                                                                                     RepositoryMethodParameterProvider parameterProvider) {
+    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz) {
         ResponseRelationshipEntry<T, ?> foundRelationshipEntry = null;
         for (ResponseRelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
             if (clazz == relationshipEntry.getTargetAffiliation()) {
@@ -75,16 +79,20 @@ public class RegistryEntry<T> {
         }
 
         Object repoInstance;
-         if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
+        if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
             repoInstance = ((AnnotatedRelationshipEntryBuilder<T, ?>) foundRelationshipEntry).build(parameterProvider);
         } else {
-             repoInstance = ((DirectResponseRelationshipEntry<T, ?>) foundRelationshipEntry).getRepositoryInstanceBuilder();
-         }
+            repoInstance = ((DirectResponseRelationshipEntry<T, ?>) foundRelationshipEntry).getRepositoryInstanceBuilder();
+        }
         return new RelationshipRepositoryAdapter(repoInstance);
     }
 
     public ResourceInformation getResourceInformation() {
         return resourceInformation;
+    }
+
+    public RepositoryMethodParameterProvider getParameterProvider() {
+        return parameterProvider;
     }
 
     public RegistryEntry getParentRegistryEntry() {
@@ -127,9 +135,9 @@ public class RegistryEntry<T> {
         }
         RegistryEntry<?> that = (RegistryEntry<?>) o;
         return Objects.equals(resourceInformation, that.resourceInformation) &&
-            Objects.equals(resourceEntry, that.resourceEntry) &&
-            Objects.equals(relationshipEntries, that.relationshipEntries) &&
-            Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
+                Objects.equals(resourceEntry, that.resourceEntry) &&
+                Objects.equals(relationshipEntries, that.relationshipEntries) &&
+                Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
     }
 
     @Override

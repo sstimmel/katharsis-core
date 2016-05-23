@@ -4,7 +4,6 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -30,11 +29,10 @@ import java.util.List;
 public class RelationshipsResourceGet extends ResourceIncludeField {
 
     public RelationshipsResourceGet(ResourceRegistry resourceRegistry,
-                                    RepositoryMethodParameterProvider parameterProvider,
                                     TypeParser typeParser,
                                     IncludeLookupSetter fieldSetter,
                                     QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, fieldSetter, paramsBuilder);
+        super(resourceRegistry, typeParser, fieldSetter, paramsBuilder);
     }
 
     @Override
@@ -67,7 +65,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
                 .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-                .getRelationshipRepositoryForClass(relationshipFieldClass, getParameterProvider());
+                .getRelationshipRepositoryForClass(relationshipFieldClass);
 
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
 
@@ -78,7 +76,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
             JsonApiResponse response = relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, queryParams);
 
-            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams, getParameterProvider());
+            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams);
 
             List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, relationshipFieldEntry, response);
             response.setEntity(dataList);
@@ -87,7 +85,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findOneTarget(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams, getParameterProvider());
+            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams);
 
             if (response.getEntity() != null) {
                 LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, relationshipFieldEntry, response);

@@ -5,7 +5,6 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
 import io.katharsis.request.dto.RequestBody;
@@ -34,18 +33,15 @@ public abstract class ResourceUpsert extends BaseController {
     final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
     private final ObjectMapper objectMapper;
-    private final RepositoryMethodParameterProvider parameterProvider;
     private final QueryParamsBuilder paramsBuilder;
 
     public ResourceUpsert(ResourceRegistry resourceRegistry,
-                          RepositoryMethodParameterProvider parameterProvider,
                           TypeParser typeParser,
                           ObjectMapper objectMapper,
                           QueryParamsBuilder paramsBuilder) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
-        this.parameterProvider = parameterProvider;
         this.paramsBuilder = paramsBuilder;
     }
 
@@ -80,8 +76,7 @@ public abstract class ResourceUpsert extends BaseController {
         }
     }
 
-    protected void saveRelations(QueryParams queryParams, Object savedResource, RegistryEntry registryEntry, DataBody dataBody,
-                                 RepositoryMethodParameterProvider parameterProvider) {
+    protected void saveRelations(QueryParams queryParams, Object savedResource, RegistryEntry registryEntry, DataBody dataBody) {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships()
                     .getAdditionalProperties();
@@ -90,11 +85,11 @@ public abstract class ResourceUpsert extends BaseController {
                         .getClass())) {
                     //noinspection unchecked
                     saveRelationsField(queryParams, savedResource, registryEntry, (Map.Entry) property, registryEntry
-                            .getResourceInformation(), parameterProvider);
+                            .getResourceInformation());
                 } else {
                     //noinspection unchecked
                     saveRelationField(queryParams, savedResource, registryEntry, (Map.Entry) property, registryEntry
-                            .getResourceInformation(), parameterProvider);
+                            .getResourceInformation());
                 }
 
             }
@@ -103,8 +98,7 @@ public abstract class ResourceUpsert extends BaseController {
 
     private void saveRelationsField(QueryParams queryParams, Object savedResource, RegistryEntry registryEntry,
                                     Map.Entry<String, Iterable<LinkageData>> property,
-                                    ResourceInformation resourceInformation,
-                                    RepositoryMethodParameterProvider parameterProvider) {
+                                    ResourceInformation resourceInformation) {
         if (!allTypesTheSame(property.getValue())) {
             throw new ResourceException("Not all types are the same for linkage: " + property.getKey());
         }
@@ -122,7 +116,7 @@ public abstract class ResourceUpsert extends BaseController {
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation()
                 .getResourceClass();
         RelationshipRepositoryAdapter relationshipRepository = registryEntry
-                .getRelationshipRepositoryForClass(relationshipClass, parameterProvider);
+                .getRelationshipRepositoryForClass(relationshipClass);
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
         relationshipRepository.setRelations(savedResource, castedRelationIds,
@@ -137,8 +131,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     private void saveRelationField(QueryParams queryParams, Object savedResource, RegistryEntry registryEntry,
-                                   Map.Entry<String, LinkageData> property, ResourceInformation resourceInformation,
-                                   RepositoryMethodParameterProvider parameterProvider) {
+                                   Map.Entry<String, LinkageData> property, ResourceInformation resourceInformation) {
 
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
         Serializable castedRelationshipId = parseId(relationRegistryEntry, property.getValue().getId());
@@ -146,7 +139,7 @@ public abstract class ResourceUpsert extends BaseController {
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
 
         RelationshipRepositoryAdapter relationshipRepository = registryEntry
-                .getRelationshipRepositoryForClass(relationshipClass, parameterProvider);
+                .getRelationshipRepositoryForClass(relationshipClass);
 
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
@@ -182,8 +175,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     protected void setRelations(Object newResource, RegistryEntry registryEntry, DataBody dataBody, QueryParams
-            queryParams,
-                                RepositoryMethodParameterProvider parameterProvider) {
+            queryParams) {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships()
                     .getAdditionalProperties();
@@ -191,10 +183,10 @@ public abstract class ResourceUpsert extends BaseController {
                 if (property.getValue() != null && Iterable.class.isAssignableFrom(property.getValue()
                         .getClass())) {
                     //noinspection unchecked
-                    setRelationsField(newResource, registryEntry, (Map.Entry) property, queryParams, parameterProvider);
+                    setRelationsField(newResource, registryEntry, (Map.Entry) property, queryParams);
                 } else {
                     //noinspection unchecked
-                    setRelationField(newResource, registryEntry, (Map.Entry) property, queryParams, parameterProvider);
+                    setRelationField(newResource, registryEntry, (Map.Entry) property, queryParams);
                 }
 
             }
@@ -202,8 +194,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     private void setRelationsField(Object newResource, RegistryEntry registryEntry,
-                                   Map.Entry<String, Iterable<LinkageData>> property, QueryParams queryParams,
-                                   RepositoryMethodParameterProvider parameterProvider) {
+                                   Map.Entry<String, Iterable<LinkageData>> property, QueryParams queryParams) {
         String propertyName = property.getKey();
         ResourceField relationshipField = registryEntry.getResourceInformation()
                 .findRelationshipFieldByName(propertyName);
@@ -214,7 +205,7 @@ public abstract class ResourceUpsert extends BaseController {
         List relationships = new LinkedList<>();
         for (LinkageData linkageData : property.getValue()) {
             Serializable castedRelationshipId = parseId(entry, linkageData.getId());
-            Object relationObject = entry.getResourceRepository(parameterProvider)
+            Object relationObject = entry.getResourceRepository()
                     .findOne(castedRelationshipId, queryParams)
                     .getEntity();
             relationships.add(relationObject);
@@ -223,8 +214,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     private void setRelationField(Object newResource, RegistryEntry registryEntry,
-                                  Map.Entry<String, LinkageData> property, QueryParams queryParams,
-                                  RepositoryMethodParameterProvider parameterProvider) {
+                                  Map.Entry<String, LinkageData> property, QueryParams queryParams) {
 
         ResourceField relationshipFieldByName = registryEntry.getResourceInformation()
                 .findRelationshipFieldByName(property.getKey());
@@ -235,7 +225,7 @@ public abstract class ResourceUpsert extends BaseController {
 
             Serializable castedRelationshipId = parseId(entry, property.getValue().getId());
 
-            relationObject = entry.getResourceRepository(parameterProvider)
+            relationObject = entry.getResourceRepository()
                     .findOne(castedRelationshipId, queryParams)
                     .getEntity();
         } else {
@@ -248,11 +238,6 @@ public abstract class ResourceUpsert extends BaseController {
     @Override
     public TypeParser getTypeParser() {
         return typeParser;
-    }
-
-    @Override
-    public RepositoryMethodParameterProvider getParameterProvider() {
-        return parameterProvider;
     }
 
     protected DataBody dataBody(RequestBody requestBody, String resourceEndpointName, HttpMethod httpMethod) {

@@ -2,7 +2,9 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.RepositoryInstanceBuilder;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Document;
 import io.katharsis.resource.mock.models.Memorandum;
@@ -32,15 +34,20 @@ public class RegistryEntryTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    RepositoryMethodParameterProvider provider = new NewInstanceRepositoryMethodParameterProvider();
+
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(
-            new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
-            Collections.singletonList(new DirectResponseRelationshipEntry<>(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
+
+        RepositoryInstanceBuilder repos = new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class);
+        RepositoryInstanceBuilder annotatedRepos = new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class);
+
+        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(annotatedRepos),
+                Collections.singletonList(new DirectResponseRelationshipEntry<>(repos)), provider);
 
         // WHEN
-        RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);
+        RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class);
 
         // THEN
         assertThat(relationshipRepository).isExactlyInstanceOf(RelationshipRepositoryAdapter.class);
@@ -51,23 +58,24 @@ public class RegistryEntryTest {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry(resourceInformation, null,
-            Collections.singletonList(new DirectResponseRelationshipEntry<>(
-                new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
+                Collections.singletonList(new DirectResponseRelationshipEntry<>(
+                        new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))),
+                provider);
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);
 
         // WHEN
-        sut.getRelationshipRepositoryForClass(User.class, null);
+        sut.getRelationshipRepositoryForClass(User.class);
     }
 
     @Test
     public void onValidParentShouldReturnTrue() throws Exception {
         // GIVEN
-        RegistryEntry<Thing> thing = new RegistryEntry<>(new ResourceInformation(Thing.class, null, null, null), null);
-        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null);
+        RegistryEntry<Thing> thing = new RegistryEntry<>(new ResourceInformation(Thing.class, null, null, null), null, provider);
+        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null, provider);
         document.setParentRegistryEntry(thing);
-        RegistryEntry<Memorandum> memorandum = new RegistryEntry<>(new ResourceInformation(Memorandum.class, null, null, null), null);
+        RegistryEntry<Memorandum> memorandum = new RegistryEntry<>(new ResourceInformation(Memorandum.class, null, null, null), null, provider);
         memorandum.setParentRegistryEntry(document);
 
         // WHEN
@@ -80,8 +88,11 @@ public class RegistryEntryTest {
     @Test
     public void onInvalidParentShouldReturnFalse() throws Exception {
         // GIVEN
-        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null);
-        RegistryEntry<Task> task = new RegistryEntry<>(new ResourceInformation(Task.class, null, null, null), null);
+        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null,
+                new NewInstanceRepositoryMethodParameterProvider());
+
+        RegistryEntry<Task> task = new RegistryEntry<>(new ResourceInformation(Task.class, null, null, null), null,
+                new NewInstanceRepositoryMethodParameterProvider());
 
         // WHEN
         boolean result = document.isParent(task);
@@ -92,8 +103,8 @@ public class RegistryEntryTest {
 
     @Test
     public void equalsContract() throws NoSuchFieldException {
-        RegistryEntry blue = new RegistryEntry(new ResourceInformation(String.class, null, null, null), null);
-        RegistryEntry red = new RegistryEntry(new ResourceInformation(Long.class, null, null, null), null);
+        RegistryEntry blue = new RegistryEntry(new ResourceInformation(String.class, null, null, null), null, provider);
+        RegistryEntry red = new RegistryEntry(new ResourceInformation(Long.class, null, null, null), null, provider);
         EqualsVerifier.forClass(RegistryEntry.class)
                 .withPrefabValues(RegistryEntry.class, blue, red)
                 .withPrefabValues(ResourceInformation.class, new ResourceInformation(String.class, null, null, null), new ResourceInformation(Long.class, null, null, null))

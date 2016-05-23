@@ -5,7 +5,6 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -22,16 +21,13 @@ public class ResourceDelete extends BaseController {
 
     private final ResourceRegistry resourceRegistry;
     private final TypeParser typeParser;
-    private final RepositoryMethodParameterProvider parameterProvider;
     private final QueryParamsBuilder queryParamsBuilder;
 
     public ResourceDelete(ResourceRegistry resourceRegistry,
-                          RepositoryMethodParameterProvider parameterProvider,
                           TypeParser typeParser,
                           QueryParamsBuilder paramsBuilder) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
-        this.parameterProvider = parameterProvider;
         this.queryParamsBuilder = paramsBuilder;
     }
 
@@ -58,7 +54,7 @@ public class ResourceDelete extends BaseController {
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         Utils.checkResourceExists(registryEntry, resourceName);
 
-        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository(getParameterProvider());
+        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository();
 
         for (Serializable id : parseResourceIds(registryEntry, jsonPath)) {
             repository.delete(id, queryParams);
@@ -91,8 +87,4 @@ public class ResourceDelete extends BaseController {
         return queryParamsBuilder;
     }
 
-    @Override
-    public RepositoryMethodParameterProvider getParameterProvider() {
-        return parameterProvider;
-    }
 }

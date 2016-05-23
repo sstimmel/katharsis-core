@@ -24,11 +24,10 @@ import java.io.Serializable;
 public class ResourcePatch extends ResourceUpsert {
 
     public ResourcePatch(ResourceRegistry resourceRegistry,
-                         RepositoryMethodParameterProvider parameterProvider,
                          TypeParser typeParser,
                          @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper,
                          QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, objectMapper, paramsBuilder);
+        super(resourceRegistry, typeParser, objectMapper, paramsBuilder);
     }
 
     @Override
@@ -58,13 +57,13 @@ public class ResourcePatch extends ResourceUpsert {
         String idString = jsonPath.getIds().getIds().get(0);
         Serializable resourceId = parseId(endpointRegistryEntry, idString);
 
-        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(getParameterProvider());
+        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository();
         @SuppressWarnings("unchecked")
         Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
 
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, queryParams, getParameterProvider());
+        setRelations(resource, bodyRegistryEntry, dataBody, queryParams);
         JsonApiResponse response = resourceRepository.save(resource, queryParams);
 
         return new ResourceResponseContext(response, jsonPath, queryParams);

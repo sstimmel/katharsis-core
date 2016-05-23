@@ -19,10 +19,9 @@ import java.util.List;
 public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
 
     public RelationshipsResourcePost(ResourceRegistry resourceRegistry,
-                                     RepositoryMethodParameterProvider parameterProvider,
                                      TypeParser typeParser,
                                      QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, paramsBuilder);
+        super(resourceRegistry, typeParser, paramsBuilder);
     }
 
     @Override

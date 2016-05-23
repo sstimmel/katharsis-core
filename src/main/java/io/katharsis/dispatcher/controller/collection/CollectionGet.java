@@ -4,7 +4,6 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonApiPath;
@@ -26,11 +25,10 @@ import static io.katharsis.dispatcher.controller.Utils.checkResourceExists;
 public class CollectionGet extends ResourceIncludeField {
 
     public CollectionGet(ResourceRegistry resourceRegistry,
-                         RepositoryMethodParameterProvider parameterProvider,
                          TypeParser typeParser,
                          IncludeLookupSetter fieldSetter,
                          QueryParamsBuilder queryParamsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, fieldSetter, queryParamsBuilder);
+        super(resourceRegistry, typeParser, fieldSetter, queryParamsBuilder);
     }
 
     /**
@@ -55,11 +53,11 @@ public class CollectionGet extends ResourceIncludeField {
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         checkResourceExists(registryEntry, resourceName);
 
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(getParameterProvider());
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
         Iterable<? extends Serializable> parsedIds = parseResourceIds(registryEntry, jsonPath);
         JsonApiResponse response = collectionResponse(resourceRepository, queryParams, parsedIds);
 
-        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams, getParameterProvider());
+        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams);
 
         return new CollectionResponseContext(response, jsonPath, queryParams);
     }
@@ -72,8 +70,7 @@ public class CollectionGet extends ResourceIncludeField {
         checkResourceExists(registryEntry, path.getResource());
 
         QueryParams queryParams = getQueryParamsBuilder().parseQuery(request.getUrl());
-
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(getParameterProvider());
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
 
         Iterable<? extends Serializable> parsedIds = request.getPath().getIds().get();
         JsonApiResponse response;
@@ -83,7 +80,7 @@ public class CollectionGet extends ResourceIncludeField {
             response = resourceRepository.findAll(parsedIds, queryParams);
         }
 
-        includeFieldSetter.setIncludedElements(registryEntry, path.getResource(), response, queryParams, getParameterProvider());
+        includeFieldSetter.setIncludedElements(registryEntry, path.getResource(), response, queryParams);
 
         return new CollectionResponseContext(response, path, queryParams);
     }

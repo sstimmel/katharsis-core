@@ -63,30 +63,29 @@ public class RequestDispatcher {
 
         IncludeLookupSetter includeLookupSetter = new IncludeLookupSetter(resourceRegistry);
 
-        this.collectionGet = new CollectionGet(resourceRegistry, parameterProvider, typeParser,
-                includeLookupSetter, queryParamsBuilder);
+        this.collectionGet = new CollectionGet(resourceRegistry, typeParser, includeLookupSetter, queryParamsBuilder);
 
-        this.resourceGet = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeLookupSetter,
+        this.resourceGet = new ResourceGet(resourceRegistry, typeParser, includeLookupSetter,
                 queryParamsBuilder);
-        this.resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, mapper,
+        this.resourcePost = new ResourcePost(resourceRegistry, typeParser, mapper,
                 queryParamsBuilder);
-        this.resourcePatch = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, mapper,
+        this.resourcePatch = new ResourcePatch(resourceRegistry, typeParser, mapper,
                 queryParamsBuilder);
-        this.resourceDelete = new ResourceDelete(resourceRegistry, parameterProvider, typeParser,
+        this.resourceDelete = new ResourceDelete(resourceRegistry, typeParser,
                 queryParamsBuilder);
 
-        this.relationshipsResourceGet = new RelationshipsResourceGet(resourceRegistry, parameterProvider,
+        this.relationshipsResourceGet = new RelationshipsResourceGet(resourceRegistry,
                 typeParser, includeLookupSetter, queryParamsBuilder);
-        this.relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser,
+        this.relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser,
                 queryParamsBuilder);
-        this.relationshipsResourcePatch = new RelationshipsResourcePatch(resourceRegistry, parameterProvider, typeParser,
+        this.relationshipsResourcePatch = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
-        this.relationshipsResourceDelete = new RelationshipsResourceDelete(resourceRegistry, parameterProvider,
-                typeParser,queryParamsBuilder);
+        this.relationshipsResourceDelete = new RelationshipsResourceDelete(resourceRegistry,
+                typeParser, queryParamsBuilder);
 
-        this.fieldResourcePost = new FieldResourcePost(resourceRegistry, parameterProvider, typeParser, mapper,
+        this.fieldResourcePost = new FieldResourcePost(resourceRegistry, typeParser, mapper,
                 queryParamsBuilder);
-        this.fieldResourceGet = new FieldResourceGet(resourceRegistry, parameterProvider, typeParser, includeLookupSetter,
+        this.fieldResourceGet = new FieldResourceGet(resourceRegistry, typeParser, includeLookupSetter,
                 queryParamsBuilder);
     }
 

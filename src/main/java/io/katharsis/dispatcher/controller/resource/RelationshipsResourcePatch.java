@@ -3,7 +3,6 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -19,10 +18,9 @@ import java.util.List;
 public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
 
     public RelationshipsResourcePatch(ResourceRegistry resourceRegistry,
-                                      RepositoryMethodParameterProvider parameterProvider,
                                       TypeParser typeParser,
                                       QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, parameterProvider, typeParser, paramsBuilder);
+        super(resourceRegistry, typeParser, paramsBuilder);
     }
 
     @Override

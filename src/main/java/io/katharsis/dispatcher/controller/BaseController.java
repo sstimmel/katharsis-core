@@ -2,7 +2,6 @@ package io.katharsis.dispatcher.controller;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -36,8 +35,6 @@ public abstract class BaseController {
     public abstract TypeParser getTypeParser();
 
     public abstract QueryParamsBuilder getQueryParamsBuilder();
-
-    public abstract RepositoryMethodParameterProvider getParameterProvider();
 
     /**
      * Passes the request to controller method.

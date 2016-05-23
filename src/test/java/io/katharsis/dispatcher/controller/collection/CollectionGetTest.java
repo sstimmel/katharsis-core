@@ -36,7 +36,7 @@ public class CollectionGetTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        CollectionGet sut = new CollectionGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -49,7 +49,7 @@ public class CollectionGetTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
-        CollectionGet sut = new CollectionGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -63,7 +63,7 @@ public class CollectionGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        CollectionGet sut = new CollectionGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
         BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null);
@@ -77,7 +77,7 @@ public class CollectionGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1,2");
-        CollectionGet sut = new CollectionGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
         BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null);
@@ -97,7 +97,7 @@ public class CollectionGetTest extends BaseControllerTest {
         data.setId(Long.toString(taskId));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), requestBody);
@@ -119,7 +119,7 @@ public class CollectionGetTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
@@ -160,7 +160,7 @@ public class CollectionGetTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/includedProjects");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder);
 
         // WHEN -- adding a relation between task and project
         BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(),
@@ -174,7 +174,7 @@ public class CollectionGetTest extends BaseControllerTest {
 
         //Given
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
+        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
                 Collections.singleton("includedProjects"));
@@ -202,7 +202,7 @@ public class CollectionGetTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
@@ -243,7 +243,7 @@ public class CollectionGetTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/projects");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, parameterProvider, typeParser, queryParamsBuilder);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder);
 
         // WHEN -- adding a relation between task and project
         BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), newTaskToProjectBody);
@@ -256,7 +256,7 @@ public class CollectionGetTest extends BaseControllerTest {
 
         //Given
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter, queryParamsBuilder);
+        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
                 Collections.singleton("[projects]"));
