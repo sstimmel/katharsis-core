@@ -1,8 +1,11 @@
 package io.katharsis.request.path;
 
 
+import io.katharsis.errorhandling.GenericKatharsisException;
 import io.katharsis.utils.java.Optional;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,19 +29,23 @@ public class JsonApiPath {
     private Optional<Set<String>> ids;
     private Optional<String> relationship;
     private Optional<String> field;
+    private Optional<String> query;
 
-    private JsonApiPath(String resource, Set<String> ids, String relationship, String field) {
-        this(resource, Optional.ofNullable(ids), Optional.ofNullable(relationship), Optional.ofNullable(field));
+    private JsonApiPath(String resource, Set<String> ids, String relationship, String field, String query) {
+        this(resource, Optional.ofNullable(ids), Optional.ofNullable(relationship),
+                Optional.ofNullable(field), Optional.ofNullable(query));
     }
 
     private JsonApiPath(String resource,
                         Optional<Set<String>> ids,
                         Optional<String> relationship,
-                        Optional<String> field) {
+                        Optional<String> field,
+                        Optional<String> query) {
         this.resource = resource;
         this.ids = ids;
         this.relationship = relationship;
         this.field = field;
+        this.query = query;
     }
 
     private static String[] splitPath(String path) {
@@ -51,8 +58,57 @@ public class JsonApiPath {
         return path.split(SEPARATOR);
     }
 
+    /**
+     * Parses JSON path from URL.
+     *
+     * @param path
+     * @return
+     */
     public static JsonApiPath parsePath(URL path) {
-        return parsePath(path, "/");
+        return parsePathFromStringUrl(path, "/");
+    }
+
+    public static JsonApiPath parsePathFromStringUrl(String url) {
+        return parsePathFromStringUrl(url, "/");
+    }
+
+    /**
+     * Parses the path by converting to URL and extracting the path.
+     * <p>
+     * URL must be absolute.
+     *
+     * @param url
+     * @return
+     */
+    public static JsonApiPath parsePathFromStringUrl(String url, String apiMountPath) {
+        try {
+            return parsePathFromStringUrl(URI.create(url).toURL(), apiMountPath);
+        } catch (MalformedURLException e) {
+            throw new GenericKatharsisException("Invalid url " + url);
+        }
+    }
+
+
+    /**
+     * Parses the given path. Expects just the JSON API specific path, without the API mount path..
+     *
+     * @param requestPath
+     * @return
+     */
+    protected static JsonApiPath parsePath(String requestPath, String requestQuery) {
+        String[] pathParts = splitPath(requestPath.toString());
+
+        validatePath(pathParts);
+
+        String resource = parseResource(pathParts);
+
+        Optional<Set<String>> ids = parseIds(pathParts);
+        Optional<String> relationship = relationship(pathParts);
+        Optional<String> field = parseField(pathParts);
+        Optional<String> query = parseQuery(requestQuery);
+
+        return new JsonApiPath(resource, ids, relationship, field, query);
+
     }
 
     /**
@@ -63,19 +119,13 @@ public class JsonApiPath {
      * @return doubly-linked list which represents path given at the input
      */
 
-    public static JsonApiPath parsePath(URL path, String apiMountPath) {
-        Path relativePath = Paths.get(apiMountPath).relativize(Paths.get(path.getPath()));
-        String[] pathParts = splitPath(relativePath.toString());
+    public static JsonApiPath parsePathFromStringUrl(URL path, String apiMountPath) {
+        Path requestPath = Paths.get(apiMountPath).relativize(Paths.get(path.getPath()));
+        return parsePath(requestPath.toString(), path.getQuery());
+    }
 
-        validatePath(pathParts);
-
-        String resource = parseResource(pathParts);
-
-        Optional<Set<String>> ids = parseIds(pathParts);
-        Optional<String> relationship = relationship(pathParts);
-        Optional<String> field = parseField(pathParts);
-
-        return new JsonApiPath(resource, ids, relationship, field);
+    private static Optional<String> parseQuery(String query) {
+        return Optional.ofNullable(query);
     }
 
     private static void validatePath(String[] pathParts) {
@@ -165,5 +215,9 @@ public class JsonApiPath {
 
     public Optional<String> getField() {
         return field;
+    }
+
+    public Optional<String> getQuery() {
+        return query;
     }
 }

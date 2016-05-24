@@ -6,7 +6,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
 import io.katharsis.request.path.JsonApiPath;
-import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -44,7 +43,7 @@ public class CollectionGet extends ResourceIncludeField {
         RegistryEntry registryEntry = resourceRegistry.getEntry(path.getResource());
         checkResourceExists(registryEntry, path.getResource());
 
-        QueryParams queryParams = getQueryParamsBuilder().parseQuery(request.getUrl());
+        QueryParams queryParams = getQueryParamsBuilder().parseQuery(request.getQuery());
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(request.getParameterProvider());
 
         JsonApiResponse response;
@@ -58,17 +57,6 @@ public class CollectionGet extends ResourceIncludeField {
         includeFieldSetter.setIncludedElements(registryEntry, path.getResource(), response, queryParams);
 
         return new CollectionResponseContext(response, path, queryParams);
-    }
-
-    //TODO: ieugen we could reason better about this if we JSonPath had a richer API
-    private Iterable<? extends Serializable> parseResourceIds(RegistryEntry registryEntry, JsonPath jsonPath) {
-        if (jsonPath.doesNotHaveIds()) {
-            return null;
-        }
-
-        Class<? extends Serializable> idType = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation().getIdField().getType();
-        return typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(), idType);
     }
 
 }

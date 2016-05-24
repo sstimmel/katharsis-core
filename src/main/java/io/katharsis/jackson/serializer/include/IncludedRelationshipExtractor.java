@@ -3,7 +3,6 @@ package io.katharsis.jackson.serializer.include;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
-import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
@@ -18,7 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Extracts inclusions from a resource.
@@ -31,7 +35,20 @@ public class IncludedRelationshipExtractor {
         this.resourceRegistry = resourceRegistry;
     }
 
-    public  Map<ResourceDigest, Container> extractIncludedResources(Object resource, BaseResponseContext response) {
+    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
+                                                          String resourceName) {
+        if (queryParams != null && queryParams.getParams() != null) {
+            for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
+                    .entrySet()) {
+                if (resourceName.equals(entry.getKey())) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public Map<ResourceDigest, Container> extractIncludedResources(Object resource, BaseResponseContext response) {
         Map<ResourceDigest, Container> includedResources = new HashMap<>();
         //noinspection unchecked
         includedResources.putAll(extractDefaultIncludedFields(resource, response));
@@ -45,7 +62,7 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private  Map<ResourceDigest, Container> extractDefaultIncludedFields(Object resource, BaseResponseContext response) {
+    private Map<ResourceDigest, Container> extractDefaultIncludedFields(Object resource, BaseResponseContext response) {
         List<?> includedResources = getIncludedByDefaultResources(resource, 1);
         Map<ResourceDigest, Container> includedResourceContainers = new HashMap<>(includedResources.size());
         for (Object includedResource : includedResources) {
@@ -55,7 +72,6 @@ public class IncludedRelationshipExtractor {
 
         return includedResourceContainers;
     }
-
 
     private List<?> getIncludedByDefaultResources(Object resource, int recurrenceLevel) {
         int recurrenceLevelCounter = recurrenceLevel;
@@ -96,12 +112,11 @@ public class IncludedRelationshipExtractor {
     }
 
     private Map<ResourceDigest, Container> extractIncludedRelationships(Object resource, BaseResponseContext response)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Map<ResourceDigest, Container> includedResources = new HashMap<>();
         TypedParams<IncludedRelationsParams> includedRelations = response.getQueryParams()
-            .getIncludedRelations();
-        String elementName = response.getJsonPath()
-            .getElementName();
+                .getIncludedRelations();
+        String elementName = response.getPath().getResource();
         IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
         if (includedRelationsParams != null) {
             for (Inclusion inclusion : includedRelationsParams.getParams()) {
@@ -112,36 +127,23 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
-                                                   String resourceName) {
-        if (queryParams != null && queryParams.getParams() != null) {
-            for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
-                .entrySet()) {
-                if (resourceName.equals(entry.getKey())) {
-                    return entry.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
     private Map<ResourceDigest, Container> extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponseContext response)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<String> pathList = inclusion.getPathList();
         if (resource == null || pathList.isEmpty()) {
             return Collections.emptyMap();
         }
-        if (!(response.getJsonPath() instanceof ResourcePath)) { // the first property name is the resource itself
-            pathList = pathList.subList(1, pathList.size());
-            if (pathList.isEmpty()) {
-                return Collections.emptyMap();
-            }
-        }
+//        if (!(response.getJsonPath() instanceof ResourcePath)) { // the first property name is the resource itself
+//            pathList = pathList.subList(1, pathList.size());
+//            if (pathList.isEmpty()) {
+//                return Collections.emptyMap();
+//            }
+//        }
         return getElements(resource, pathList, response);
     }
 
     private Map<ResourceDigest, Container> getElements(Object resource, List<String> pathList, BaseResponseContext response)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Map<ResourceDigest, Container> elements = new HashMap<>();
 
         String fieldName = getRelationshipName(pathList.get(0), resource.getClass());

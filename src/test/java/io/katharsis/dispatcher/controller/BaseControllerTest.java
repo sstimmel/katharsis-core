@@ -8,7 +8,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -26,7 +25,6 @@ public abstract class BaseControllerTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     protected ObjectMapper objectMapper;
-    protected PathBuilder pathBuilder;
     protected ResourceRegistry resourceRegistry;
     protected TypeParser typeParser;
     protected IncludeLookupSetter includeFieldSetter;
@@ -41,7 +39,6 @@ public abstract class BaseControllerTest {
                 resourceInformationBuilder);
         resourceRegistry = registryBuilder
                 .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
-        pathBuilder = new PathBuilder(resourceRegistry);
         typeParser = new TypeParser();
         includeFieldSetter = new IncludeLookupSetter(resourceRegistry);
         objectMapper = new ObjectMapper();

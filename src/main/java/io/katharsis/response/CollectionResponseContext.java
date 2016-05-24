@@ -2,7 +2,6 @@ package io.katharsis.response;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonApiPath;
-import io.katharsis.request.path.JsonPath;
 
 import java.util.Objects;
 
@@ -20,7 +19,6 @@ import java.util.Objects;
 public class CollectionResponseContext implements BaseResponseContext {
 
     private JsonApiResponse response;
-    private JsonPath jsonPath;
     private JsonApiPath path;
     private QueryParams queryParams;
 
@@ -33,12 +31,6 @@ public class CollectionResponseContext implements BaseResponseContext {
         this.queryParams = queryParams;
     }
 
-    public CollectionResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams) {
-        this.response = response;
-        this.jsonPath = jsonPath;
-        this.queryParams = queryParams;
-    }
-
     @Override
     public JsonApiResponse getResponse() {
         return response;
@@ -47,11 +39,6 @@ public class CollectionResponseContext implements BaseResponseContext {
     @Override
     public int getHttpStatus() {
         return HttpStatus.OK_200;
-    }
-
-    @Override
-    public JsonPath getJsonPath() {
-        return jsonPath;
     }
 
     @Override

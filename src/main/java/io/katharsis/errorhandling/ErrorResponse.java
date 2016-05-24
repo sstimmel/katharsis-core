@@ -2,7 +2,6 @@ package io.katharsis.errorhandling;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonApiPath;
-import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
 
@@ -36,13 +35,9 @@ public final class ErrorResponse implements BaseResponseContext {
     }
 
     @Override
-    public JsonPath getJsonPath() {
-        return null;
-    }
-
-    @Override
     public JsonApiPath getPath() {
-        throw new UnsupportedOperationException("Not implemented");
+        return null;
+//        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

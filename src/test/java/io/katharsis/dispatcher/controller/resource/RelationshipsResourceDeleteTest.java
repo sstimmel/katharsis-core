@@ -5,27 +5,10 @@ import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.Request;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceRelationships;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.User;
-import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.HttpStatus;
-import io.katharsis.response.ResourceResponseContext;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
-
+import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -36,9 +19,9 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
     private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     @Test
-    public void onValidRequestShouldAcceptIt()  {
+    public void onValidRequestShouldAcceptIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/1/relationships/project", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/relationships/project"), REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser, queryParamsBuilder);
@@ -51,9 +34,9 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
     }
 
     @Test
-    public void onNonRelationRequestShouldDenyIt()  {
+    public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks"), REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser, queryParamsBuilder);

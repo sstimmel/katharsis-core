@@ -2,33 +2,14 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceRelationships;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.resource.RestrictedQueryParamsMembers;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.TaskWithLookup;
-import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.ResourceResponseContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
 
 public class ResourceGetTest extends BaseControllerTest {
 
@@ -56,7 +37,7 @@ public class ResourceGetTest extends BaseControllerTest {
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/"), REQUEST_TYPE, null, parameterProvider);
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter,
                 queryParamsBuilder);
 
@@ -70,7 +51,7 @@ public class ResourceGetTest extends BaseControllerTest {
     @Test
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/2", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/2"), REQUEST_TYPE, null, parameterProvider);
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter,
                 queryParamsBuilder);
 

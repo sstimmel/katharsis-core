@@ -1,32 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.LinkageData;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceRelationships;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.mock.models.Memorandum;
-import io.katharsis.resource.mock.models.OtherPojo;
-import io.katharsis.resource.mock.models.Pojo;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.ProjectData;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.User;
-import io.katharsis.resource.mock.repository.TaskRepository;
-import io.katharsis.response.HttpStatus;
-import io.katharsis.response.ResourceResponseContext;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourcePostTest extends BaseControllerTest {
 

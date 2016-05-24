@@ -3,8 +3,7 @@ package io.katharsis.jackson;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.resource.mock.models.OtherPojo;
 import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Project;
@@ -95,8 +94,8 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(
-            Collections.singletonMap("fields[projects]", Collections.singleton("name")));
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/projects");
+                Collections.singletonMap("fields[projects]", Collections.singleton("name")));
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
 
         // WHEN
         String result = sut.writeValueAsString(new Container(project, new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
@@ -117,8 +116,8 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(
-            Collections.singletonMap("fields[tasks]", Collections.singleton("project")));
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+                Collections.singletonMap("fields[tasks]", Collections.singleton("project")));
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
 
         // WHEN
         String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
@@ -139,12 +138,12 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(
-            Collections.singletonMap("fields[projects]", Collections.singleton("name")));
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+                Collections.singletonMap("fields[projects]", Collections.singleton("name")));
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
 
         // WHEN
         String result = sut.writeValueAsString(new Container(task,
-            new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
+                new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
 
         // THEN
         assertThatJson(result).node("relationships.project").isAbsent();
@@ -156,15 +155,15 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         // GIVEN
         Pojo pojo = new Pojo();
         pojo.setOtherPojo(new OtherPojo()
-            .setValue("some value"));
+                .setValue("some value"));
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/pojo");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/pojo");
 
         // WHEN
         String result = sut.writeValueAsString(new Container(pojo,
-            new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
+                new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
 
         // THEN
         assertThatJson(result).node("attributes.other-pojo.value").isEqualTo("some value");
@@ -180,11 +179,11 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
 
         // WHEN
         String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(
-            new JsonApiResponse(), jsonPath, queryParams)));
+                new JsonApiResponse(), jsonPath, queryParams)));
 
         // THEN
         assertThatJson(result).node("meta.name").isEqualTo("value");
@@ -200,11 +199,11 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
 
         // WHEN
         String result = sut.writeValueAsString(new Container(task,
-            new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
+                new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
 
         // THEN
         assertThatJson(result).node("links.name").isEqualTo("value");
@@ -214,15 +213,15 @@ public class ContainerSerializerTest extends BaseSerializerTest {
     public void onNoLinksInformationShouldSerializeWithDefaultLinks() throws Exception {
         // GIVEN
         Project project = new Project()
-            .setId(1L);
+                .setId(1L);
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/projects");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
 
         // WHEN
         String result = sut.writeValueAsString(new Container(project,
-            new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
+                new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
 
         // THEN
         assertThatJson(result).node("links.self").isEqualTo("https://service.local/projects/1");

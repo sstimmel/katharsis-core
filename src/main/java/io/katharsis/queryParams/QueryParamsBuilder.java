@@ -3,9 +3,9 @@ package io.katharsis.queryParams;
 import io.katharsis.errorhandling.exception.KatharsisException;
 import io.katharsis.errorhandling.exception.QueryParseException;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.utils.java.Optional;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -36,13 +36,12 @@ public class QueryParamsBuilder {
     /**
      * Code adapted from http://stackoverflow.com/questions/13592236/parse-a-uri-string-into-name-value-collection
      *
-     * @param url
      * @return
      * @throws UnsupportedEncodingException
      */
-    public static Map<String, Set<String>> splitQuery(URL url) throws UnsupportedEncodingException {
+    public static Map<String, Set<String>> splitQuery(Optional<String> query) throws UnsupportedEncodingException {
         final Map<String, Set<String>> query_pairs = new LinkedHashMap<>();
-        final String[] pairs = extractQueryKeyValuePairs(url);
+        final String[] pairs = extractQueryKeyValuePairs(query);
         for (String pair : pairs) {
             final int idx = pair.indexOf("=");
             final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), "UTF-8") : pair;
@@ -55,9 +54,8 @@ public class QueryParamsBuilder {
         return query_pairs;
     }
 
-    private static String[] extractQueryKeyValuePairs(URL url) {
-        final String query = url.getQuery() == null ? "" : url.getQuery();
-        return query.split("&");
+    private static String[] extractQueryKeyValuePairs(Optional<String> query) {
+        return query.isPresent() ? query.get().split("&") : new String[]{};
     }
 
     /**
@@ -87,15 +85,14 @@ public class QueryParamsBuilder {
     /**
      * Decodes passed query parameters
      *
-     * @param url The URL instance
      * @return QueryParams containing filtered query params grouped by JSON:API standard
      * @throws ParametersDeserializationException thrown when unsupported input format is detected
      */
-    public QueryParams parseQuery(URL url) throws KatharsisException {
+    public QueryParams parseQuery(Optional<String> query) throws KatharsisException {
         try {
-            return buildQueryParams(splitQuery(url));
+            return buildQueryParams(splitQuery(query));
         } catch (UnsupportedEncodingException e) {
-            throw new QueryParseException(String.format("Could not parse query %s. %s", url.toString(), e.getMessage()));
+            throw new QueryParseException(String.format("Could not parse query %s. %s", query, e.getMessage()));
         }
     }
 

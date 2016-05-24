@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -19,7 +20,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/1/project", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/project"), REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
@@ -36,7 +37,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
     @Test
     public void onRelationshipRequestShouldDenyIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/1/relationships/project", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/relationships/project"), REQUEST_TYPE, null, parameterProvider);
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
@@ -51,7 +52,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
     @Test
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks"), REQUEST_TYPE, null, parameterProvider);
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter
@@ -68,7 +69,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
     @Ignore
     public void onGivenRequestFieldResourceGetShouldHandleIt() throws Exception {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/1/project", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/project"), REQUEST_TYPE, null, parameterProvider);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter,
                 queryParamsBuilder);
 
@@ -83,7 +84,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
     @Ignore
     public void onGivenRequestFieldResourcesGetShouldHandleIt() throws Exception {
         // GIVEN
-        Request request = new Request("http://domain.local/users/1/assignedProjects", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/users/1/assignedProjects"), REQUEST_TYPE, null, parameterProvider);
 
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter,
                 queryParamsBuilder);

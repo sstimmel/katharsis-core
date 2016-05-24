@@ -6,15 +6,16 @@ import io.katharsis.response.BaseResponseContext;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
+
 public class CollectionGetTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = "GET";
 
-
     @Test
     public void onGivenRequestCollectionGetShouldAcceptIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/"), REQUEST_TYPE, null, parameterProvider);
 
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
@@ -28,7 +29,7 @@ public class CollectionGetTest extends BaseControllerTest {
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/2", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/2"), REQUEST_TYPE, null, parameterProvider);
 
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
@@ -43,7 +44,7 @@ public class CollectionGetTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldHandleIt() {
         // GIVEN
 
-        Request request = new Request("http://domain.local/tasks/", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/"), REQUEST_TYPE, null, parameterProvider);
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
         // WHEN
@@ -56,7 +57,7 @@ public class CollectionGetTest extends BaseControllerTest {
     @Test
     public void onGivenRequestCollectionWithIdsGetShouldHandleIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/1,2", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1,2"), REQUEST_TYPE, null, parameterProvider);
 
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 

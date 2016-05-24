@@ -1,20 +1,8 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.HttpStatus;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
-
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RelationshipsResourceGetTest extends BaseControllerTest {
 

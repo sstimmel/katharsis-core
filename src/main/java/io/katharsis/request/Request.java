@@ -18,36 +18,26 @@ import java.net.URL;
  */
 public class Request {
 
-    private final URL url;
     private final HttpMethod method;
     private final JsonApiPath path;
     private final Optional<InputStream> body;
 
     private final RepositoryMethodParameterProvider parameterProvider;
 
-    public Request(String uri, String method, InputStream body, RepositoryMethodParameterProvider parameterProvider) {
-        this(parseURL(uri), method, body, parameterProvider);
-    }
-
-    public Request(URL url, String method, InputStream body, RepositoryMethodParameterProvider parameterProvider) {
-        this.url = url;
-        this.path = JsonApiPath.parsePath(url);
+    public Request(JsonApiPath path, String method, InputStream body, RepositoryMethodParameterProvider parameterProvider) {
+        this.path = path;
         this.method = HttpMethod.parse(method);
-
         this.body = Optional.ofNullable(body);
         this.parameterProvider = parameterProvider;
     }
 
     private static URL parseURL(String uri) throws GenericKatharsisException {
         try {
+
             return URI.create(uri).toURL();
         } catch (MalformedURLException e) {
             throw new GenericKatharsisException("Invalid URL " + e.getMessage());
         }
-    }
-
-    public URL getUrl() {
-        return url;
     }
 
     public JsonApiPath getPath() {
@@ -63,7 +53,7 @@ public class Request {
     }
 
     public Optional<String> getQuery() {
-        return Optional.ofNullable(url.getQuery());
+        return path.getQuery();
     }
 
 

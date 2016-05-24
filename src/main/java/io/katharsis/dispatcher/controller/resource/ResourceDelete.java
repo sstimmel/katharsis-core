@@ -5,13 +5,9 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
 import io.katharsis.request.path.JsonApiPath;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
 
 public class ResourceDelete extends BaseController {
 
@@ -81,14 +77,6 @@ public class ResourceDelete extends BaseController {
 
 //        //TODO: Avoid nulls - use optional
         return null;
-    }
-
-    private Iterable<? extends Serializable> parseResourceIds(RegistryEntry registryEntry, JsonPath jsonPath) {
-        if (jsonPath.doesNotHaveIds()) {
-            return null;
-        }
-
-        return parseIds(registryEntry, (Iterable<String>) jsonPath.getIds().getIds());
     }
 
     @Override

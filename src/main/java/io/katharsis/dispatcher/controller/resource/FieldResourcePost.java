@@ -3,7 +3,6 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
-import io.katharsis.request.path.PathIds;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
@@ -93,9 +92,9 @@ public class FieldResourcePost extends ResourceUpsert {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
-        String resourceId = resourceIds.getIds().get(0);
-        return parseId(registryEntry, resourceId);
-    }
+//    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+//        String resourceId = resourceIds.getIds().get(0);
+//        return parseId(registryEntry, resourceId);
+//    }
 
 }

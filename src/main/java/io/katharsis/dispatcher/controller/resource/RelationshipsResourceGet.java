@@ -1,25 +1,13 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.dispatcher.controller.Utils;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathIds;
-import io.katharsis.request.path.RelationshipsPath;
-import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.CollectionResponseContext;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinkageContainer;
-import io.katharsis.response.ResourceResponseContext;
-import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -120,9 +108,9 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
         return dataList;
     }
 
-    private Serializable parseResourceId(RegistryEntry<?> registryEntry, PathIds resourceIds) {
-        String resourceId = resourceIds.getIds().get(0);
-        return parseId(registryEntry, resourceId);
-    }
+//    private Serializable parseResourceId(RegistryEntry<?> registryEntry, PathIds resourceIds) {
+//        String resourceId = resourceIds.getIds().get(0);
+//        return parseId(registryEntry, resourceId);
+//    }
 
 }

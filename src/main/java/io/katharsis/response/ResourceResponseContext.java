@@ -2,7 +2,6 @@ package io.katharsis.response;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonApiPath;
-import io.katharsis.request.path.JsonPath;
 
 import java.util.Objects;
 
@@ -24,7 +23,6 @@ public class ResourceResponseContext implements BaseResponseContext {
      */
     private JsonApiResponse response;
 
-    private JsonPath jsonPath;
     private JsonApiPath path;
 
     private QueryParams queryParams;
@@ -35,13 +33,13 @@ public class ResourceResponseContext implements BaseResponseContext {
         this(response, null, null, httpStatus);
     }
 
-    public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams) {
+    public ResourceResponseContext(JsonApiResponse response, JsonApiPath jsonPath, QueryParams queryParams) {
         this(response, jsonPath, queryParams, HttpStatus.OK_200);
     }
 
-    public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams, int httpStatus) {
+    public ResourceResponseContext(JsonApiResponse response, JsonApiPath path, QueryParams queryParams, int httpStatus) {
         this.response = response;
-        this.jsonPath = jsonPath;
+        this.path = path;
         this.queryParams = queryParams;
         this.httpStatus = httpStatus;
     }
@@ -54,11 +52,6 @@ public class ResourceResponseContext implements BaseResponseContext {
     @Override
     public JsonApiResponse getResponse() {
         return response;
-    }
-
-    @Override
-    public JsonPath getJsonPath() {
-        return jsonPath;
     }
 
     @Override

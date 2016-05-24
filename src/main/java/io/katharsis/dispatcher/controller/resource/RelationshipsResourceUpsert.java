@@ -7,7 +7,6 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.PathIds;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -134,10 +133,10 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
         }
     }
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
-        String resourceId = resourceIds.getIds().get(0);
-        return parseId(registryEntry, resourceId);
-    }
+//    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+//        String resourceId = resourceIds.getIds().get(0);
+//        return parseId(registryEntry, resourceId);
+//    }
 
     @Override
     public TypeParser getTypeParser() {

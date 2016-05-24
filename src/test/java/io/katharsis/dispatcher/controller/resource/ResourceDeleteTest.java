@@ -7,6 +7,7 @@ import io.katharsis.response.BaseResponseContext;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -17,7 +18,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/1", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1"), REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser, queryParamsBuilder);
@@ -34,7 +35,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
     ///TODO: ieugen: the logic has changed, we check if param name is relation lower in the code
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
-        Request request = new Request("http://domain.local/tasks/1/relationships/project", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/relationships/project"), REQUEST_TYPE, null, parameterProvider);
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser, queryParamsBuilder);
 
@@ -49,7 +50,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldHandleIt() throws Exception {
         // GIVEN
 
-        Request request = new Request("http://domain.local/tasks/1", REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1"), REQUEST_TYPE, null, parameterProvider);
         ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser, queryParamsBuilder);
 
         // WHEN
