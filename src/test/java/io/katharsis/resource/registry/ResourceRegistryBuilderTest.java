@@ -42,7 +42,7 @@ public class ResourceRegistryBuilderTest {
     public void onValidPackageShouldBuildRegistry() {
         // GIVEN
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-                resourceInformationBuilder, provider);
+                resourceInformationBuilder);
 
         // WHEN
         ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -51,7 +51,7 @@ public class ResourceRegistryBuilderTest {
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
         Assert.assertNotNull(tasksEntry);
         Assert.assertEquals("id", tasksEntry.getResourceInformation().getIdField().getUnderlyingName());
-        Assert.assertNotNull(tasksEntry.getResourceRepository());
+        Assert.assertNotNull(tasksEntry.getResourceRepository(provider));
         List tasksRelationshipRepositories = tasksEntry.getRelationshipEntries();
         Assert.assertEquals(1, tasksRelationshipRepositories.size());
         Assert.assertEquals(TEST_MODELS_URL + "/tasks", resourceRegistry.getResourceUrl(Task.class));
@@ -59,7 +59,7 @@ public class ResourceRegistryBuilderTest {
         RegistryEntry projectsEntry = resourceRegistry.getEntry("projects");
         Assert.assertNotNull(projectsEntry);
         Assert.assertEquals("id", projectsEntry.getResourceInformation().getIdField().getUnderlyingName());
-        Assert.assertNotNull(tasksEntry.getResourceRepository());
+        Assert.assertNotNull(tasksEntry.getResourceRepository(provider));
         List ProjectRelationshipRepositories = projectsEntry.getRelationshipEntries();
         Assert.assertEquals(0, ProjectRelationshipRepositories.size());
         Assert.assertEquals(TEST_MODELS_URL + "/projects", resourceRegistry.getResourceUrl(Project.class));
@@ -69,7 +69,7 @@ public class ResourceRegistryBuilderTest {
     public void onValidPackagesShouldBuildRegistry() {
         // GIVEN
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-                resourceInformationBuilder, provider);
+                resourceInformationBuilder);
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
         // WHEN
@@ -91,7 +91,7 @@ public class ResourceRegistryBuilderTest {
                     return super.getInstance(clazz);
                 }
             }
-        }, resourceInformationBuilder, provider);
+        }, resourceInformationBuilder);
 
         // THEN
         expectedException.expect(RepositoryInstanceNotFoundException.class);
@@ -104,7 +104,7 @@ public class ResourceRegistryBuilderTest {
     public void onNoRepositoryShouldCreateNotFoundRepository() {
         // GIVEN
         ResourceRegistryBuilder sut =
-                new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder, provider);
+                new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
 
         // WHEN
         ResourceRegistry result = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -113,8 +113,8 @@ public class ResourceRegistryBuilderTest {
         RegistryEntry entry = result.getEntry(ResourceWithoutRepository.class);
 
         assertThat(entry.getResourceInformation().getResourceClass()).isEqualTo(ResourceWithoutRepository.class);
-        assertThat(entry.getResourceRepository()).isExactlyInstanceOf(ResourceRepositoryAdapter.class);
-        assertThat(entry.getRelationshipRepositoryForClass(Project.class))
+        assertThat(entry.getResourceRepository(provider)).isExactlyInstanceOf(ResourceRepositoryAdapter.class);
+        assertThat(entry.getRelationshipRepositoryForClass(Project.class, provider))
                 .isExactlyInstanceOf(RelationshipRepositoryAdapter.class);
     }
 
@@ -122,7 +122,7 @@ public class ResourceRegistryBuilderTest {
     public void onInheritedResourcesShouldAddInformationToEntry() {
         // GIVEN
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-                resourceInformationBuilder, provider);
+                resourceInformationBuilder);
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
         // WHEN
@@ -140,7 +140,7 @@ public class ResourceRegistryBuilderTest {
     public void onNonInheritedResourcesShouldNotAddInformationToEntry() {
         // GIVEN
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-                resourceInformationBuilder, provider);
+                resourceInformationBuilder);
 
         // WHEN
         ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);

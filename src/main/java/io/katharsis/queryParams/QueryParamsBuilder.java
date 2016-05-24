@@ -42,7 +42,7 @@ public class QueryParamsBuilder {
      */
     public static Map<String, Set<String>> splitQuery(URL url) throws UnsupportedEncodingException {
         final Map<String, Set<String>> query_pairs = new LinkedHashMap<>();
-        final String[] pairs = url.getQuery().split("&");
+        final String[] pairs = extractQueryKeyValuePairs(url);
         for (String pair : pairs) {
             final int idx = pair.indexOf("=");
             final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), "UTF-8") : pair;
@@ -53,6 +53,11 @@ public class QueryParamsBuilder {
             query_pairs.get(key).add(value);
         }
         return query_pairs;
+    }
+
+    private static String[] extractQueryKeyValuePairs(URL url) {
+        final String query = url.getQuery() == null ? "" : url.getQuery();
+        return query.split("&");
     }
 
     /**

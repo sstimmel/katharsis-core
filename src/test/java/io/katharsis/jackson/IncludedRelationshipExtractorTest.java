@@ -44,7 +44,7 @@ public class IncludedRelationshipExtractorTest {
             new ResourceFieldNameTransformer());
 
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-            resourceInformationBuilder, new NewInstanceRepositoryMethodParameterProvider());
+            resourceInformationBuilder);
 
         String resourceSearchPackage = String.format("%s,%s", ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
             "io.katharsis.jackson.mock");

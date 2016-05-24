@@ -22,13 +22,10 @@ public class ResourceRegistryBuilder {
 
     private final ResourceInformationBuilder resourceInformationBuilder;
     private final RepositoryEntryBuilderFacade repositoryEntryBuilder;
-    private final RepositoryMethodParameterProvider parameterProvider;
 
     public ResourceRegistryBuilder(JsonServiceLocator jsonServiceLocator,
-                                   ResourceInformationBuilder resourceInformationBuilder,
-                                   RepositoryMethodParameterProvider parameterProvider) {
+                                   ResourceInformationBuilder resourceInformationBuilder) {
         this.resourceInformationBuilder = resourceInformationBuilder;
-        this.parameterProvider = parameterProvider;
         this.repositoryEntryBuilder = new RepositoryEntryBuilderFacade(jsonServiceLocator);
     }
 
@@ -69,7 +66,7 @@ public class ResourceRegistryBuilder {
                     .buildRelationshipRepositories(resourceLookup, resourceClass);
             LOGGER.info("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
 
-            registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries, parameterProvider));
+            registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
 
         }
 

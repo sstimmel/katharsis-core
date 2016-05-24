@@ -14,13 +14,8 @@ import io.katharsis.dispatcher.controller.resource.ResourcePatch;
 import io.katharsis.dispatcher.controller.resource.ResourcePost;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
@@ -34,7 +29,6 @@ import io.katharsis.utils.parser.TypeParser;
 public class RequestDispatcher {
 
     private final ExceptionMapperRegistry exceptionMapperRegistry;
-    private final QueryParamsBuilder queryParamsBuilder;
 
     private CollectionGet collectionGet;
 
@@ -53,13 +47,11 @@ public class RequestDispatcher {
 
 
     public RequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry,
-                             RepositoryMethodParameterProvider parameterProvider,
                              ResourceRegistry resourceRegistry,
                              TypeParser typeParser,
                              ObjectMapper mapper,
                              QueryParamsBuilder queryParamsBuilder) {
         this.exceptionMapperRegistry = exceptionMapperRegistry;
-        this.queryParamsBuilder = queryParamsBuilder;
 
         IncludeLookupSetter includeLookupSetter = new IncludeLookupSetter(resourceRegistry);
 
@@ -92,47 +84,9 @@ public class RequestDispatcher {
     /**
      * Dispatch the request from a client
      *
-     * @param jsonPath    built {@link JsonPath} instance which represents the URI sent in the request
-     * @param requestType type of the request e.g. POST, GET, PATCH
-     * @param queryParams built object containing query parameters of the request
-     * @param requestBody deserialized body of the client request
+     * @param request - the request we need to process
      * @return the response form the Katharsis
      */
-    public BaseResponseContext dispatchRequest(JsonPath jsonPath,
-                                               String requestType,
-                                               QueryParams queryParams,
-                                               @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
-
-        try {
-
-            /**
-             * Extract informations from the request. Based on those we can route the request.
-             *
-             * Filter first by HTTP method.
-             * After that, we can need to determine if we are in one of the situations:
-             * - collection - when we have no ID on the path
-             * - multiple elements - many ID's
-             * - individual element - we have one ID
-             * - relationship - we have ID and a relationship
-             * - field - we have ID and a field name
-             *
-             * No extra processing needs to be done - body parsing, etc.
-             */
-
-            return handleRequest(jsonPath, requestType, queryParams, requestBody);
-
-        } catch (Exception e) {
-            Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
-            if (exceptionMapper.isPresent()) {
-                //noinspection unchecked
-                return exceptionMapper.get()
-                        .toErrorResponse(e);
-            } else {
-                throw e;
-            }
-        }
-    }
-
     public BaseResponseContext dispatchRequest(Request request) {
 
         try {
@@ -238,92 +192,4 @@ public class RequestDispatcher {
         throw new IllegalStateException("Illegal state while processing" + request);
     }
 
-    protected BaseResponseContext handleRequest(JsonPath jsonPath,
-                                                String requestType,
-                                                QueryParams queryParams,
-                                                RequestBody requestBody) {
-        switch (requestType.toLowerCase()) {
-            case "get":
-                return handleGet(jsonPath, requestType, queryParams, requestBody);
-            case "post":
-                return handlePost(jsonPath, requestType, queryParams, requestBody);
-            case "patch":
-                return handlePatch(jsonPath, requestType, queryParams, requestBody);
-            case "delete":
-                return handleDelete(jsonPath, requestType, queryParams, requestBody);
-            default:
-                throw new MethodNotFoundException(PathBuilder.buildPath(jsonPath), requestType);
-        }
-    }
-
-    protected BaseResponseContext handleGet(JsonPath jsonPath,
-                                            String requestType,
-                                            QueryParams queryParams,
-                                            RequestBody requestBody) {
-        if (collectionGet.isAcceptable(jsonPath, requestType)) {
-            return collectionGet.handle(jsonPath, queryParams, requestBody);
-        }
-
-        if (resourceGet.isAcceptable(jsonPath, requestType)) {
-            return resourceGet.handle(jsonPath, queryParams, requestBody);
-        }
-
-        if (fieldResourceGet.isAcceptable(jsonPath, requestType)) {
-            return fieldResourceGet.handle(jsonPath, queryParams, requestBody);
-        }
-
-        if (relationshipsResourceGet.isAcceptable(jsonPath, requestType)) {
-            return relationshipsResourceGet.handle(jsonPath, queryParams, requestBody);
-        }
-
-        throw new IllegalStateException("Invalid state handling GET" + PathBuilder.buildPath(jsonPath));
-    }
-
-
-    protected BaseResponseContext handlePost(JsonPath jsonPath,
-                                             String requestType,
-                                             QueryParams queryParams,
-                                             RequestBody requestBody) {
-        if (resourcePost.isAcceptable(jsonPath, requestType)) {
-            return resourcePost.handle(jsonPath, queryParams, requestBody);
-        }
-
-        if (fieldResourcePost.isAcceptable(jsonPath, requestType)) {
-            return fieldResourcePost.handle(jsonPath, queryParams, requestBody);
-        }
-
-        if (relationshipsResourcePost.isAcceptable(jsonPath, requestType)) {
-            return relationshipsResourcePost.handle(jsonPath, queryParams, requestBody);
-        }
-        throw new IllegalStateException("Illegal state while processing POST" + PathBuilder.buildPath(jsonPath));
-    }
-
-    protected BaseResponseContext handlePatch(JsonPath jsonPath,
-                                              String requestType,
-                                              QueryParams queryParams,
-                                              RequestBody requestBody) {
-        if (resourcePatch.isAcceptable(jsonPath, requestType)) {
-            return resourcePatch.handle(jsonPath, queryParams, requestBody);
-        }
-
-        if (relationshipsResourcePatch.isAcceptable(jsonPath, requestType)) {
-            return relationshipsResourcePatch.handle(jsonPath, queryParams, requestBody);
-        }
-        throw new IllegalStateException("Illegal state while processing PATCH" + PathBuilder.buildPath(jsonPath));
-    }
-
-    protected BaseResponseContext handleDelete(JsonPath jsonPath,
-                                               String requestType,
-                                               QueryParams queryParams,
-                                               RequestBody requestBody) {
-
-        if (resourceDelete.isAcceptable(jsonPath, requestType)) {
-            return resourceDelete.handle(jsonPath, queryParams, requestBody);
-        }
-
-        if (relationshipsResourceDelete.isAcceptable(jsonPath, requestType)) {
-            return relationshipsResourceDelete.handle(jsonPath, queryParams, requestBody);
-        }
-        throw new IllegalStateException("Illegal state while processing DELETE" + PathBuilder.buildPath(jsonPath));
-    }
 }

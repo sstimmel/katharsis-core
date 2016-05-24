@@ -116,7 +116,7 @@ public abstract class ResourceUpsert extends BaseController {
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation()
                 .getResourceClass();
         RelationshipRepositoryAdapter relationshipRepository = registryEntry
-                .getRelationshipRepositoryForClass(relationshipClass);
+                .getRelationshipRepositoryForClass(relationshipClass, null);
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
         relationshipRepository.setRelations(savedResource, castedRelationIds,
@@ -139,7 +139,7 @@ public abstract class ResourceUpsert extends BaseController {
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
 
         RelationshipRepositoryAdapter relationshipRepository = registryEntry
-                .getRelationshipRepositoryForClass(relationshipClass);
+                .getRelationshipRepositoryForClass(relationshipClass, null);
 
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
@@ -205,7 +205,7 @@ public abstract class ResourceUpsert extends BaseController {
         List relationships = new LinkedList<>();
         for (LinkageData linkageData : property.getValue()) {
             Serializable castedRelationshipId = parseId(entry, linkageData.getId());
-            Object relationObject = entry.getResourceRepository()
+            Object relationObject = entry.getResourceRepository(null)
                     .findOne(castedRelationshipId, queryParams)
                     .getEntity();
             relationships.add(relationObject);
@@ -225,7 +225,7 @@ public abstract class ResourceUpsert extends BaseController {
 
             Serializable castedRelationshipId = parseId(entry, property.getValue().getId());
 
-            relationObject = entry.getResourceRepository()
+            relationObject = entry.getResourceRepository(null)
                     .findOne(castedRelationshipId, queryParams)
                     .getEntity();
         } else {

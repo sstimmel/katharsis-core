@@ -44,10 +44,10 @@ public class RegistryEntryTest {
         RepositoryInstanceBuilder annotatedRepos = new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class);
 
         RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(annotatedRepos),
-                Collections.singletonList(new DirectResponseRelationshipEntry<>(repos)), provider);
+                Collections.singletonList(new DirectResponseRelationshipEntry<>(repos)));
 
         // WHEN
-        RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class);
+        RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, provider);
 
         // THEN
         assertThat(relationshipRepository).isExactlyInstanceOf(RelationshipRepositoryAdapter.class);
@@ -59,23 +59,22 @@ public class RegistryEntryTest {
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry(resourceInformation, null,
                 Collections.singletonList(new DirectResponseRelationshipEntry<>(
-                        new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))),
-                provider);
+                        new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);
 
         // WHEN
-        sut.getRelationshipRepositoryForClass(User.class);
+        sut.getRelationshipRepositoryForClass(User.class, provider);
     }
 
     @Test
     public void onValidParentShouldReturnTrue() throws Exception {
         // GIVEN
-        RegistryEntry<Thing> thing = new RegistryEntry<>(new ResourceInformation(Thing.class, null, null, null), null, provider);
-        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null, provider);
+        RegistryEntry<Thing> thing = new RegistryEntry<>(new ResourceInformation(Thing.class, null, null, null), null);
+        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null);
         document.setParentRegistryEntry(thing);
-        RegistryEntry<Memorandum> memorandum = new RegistryEntry<>(new ResourceInformation(Memorandum.class, null, null, null), null, provider);
+        RegistryEntry<Memorandum> memorandum = new RegistryEntry<>(new ResourceInformation(Memorandum.class, null, null, null), null);
         memorandum.setParentRegistryEntry(document);
 
         // WHEN
@@ -88,11 +87,9 @@ public class RegistryEntryTest {
     @Test
     public void onInvalidParentShouldReturnFalse() throws Exception {
         // GIVEN
-        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null,
-                new NewInstanceRepositoryMethodParameterProvider());
+        RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null);
 
-        RegistryEntry<Task> task = new RegistryEntry<>(new ResourceInformation(Task.class, null, null, null), null,
-                new NewInstanceRepositoryMethodParameterProvider());
+        RegistryEntry<Task> task = new RegistryEntry<>(new ResourceInformation(Task.class, null, null, null), null);
 
         // WHEN
         boolean result = document.isParent(task);
@@ -103,8 +100,8 @@ public class RegistryEntryTest {
 
     @Test
     public void equalsContract() throws NoSuchFieldException {
-        RegistryEntry blue = new RegistryEntry(new ResourceInformation(String.class, null, null, null), null, provider);
-        RegistryEntry red = new RegistryEntry(new ResourceInformation(Long.class, null, null, null), null, provider);
+        RegistryEntry blue = new RegistryEntry(new ResourceInformation(String.class, null, null, null), null);
+        RegistryEntry red = new RegistryEntry(new ResourceInformation(Long.class, null, null, null), null);
         EqualsVerifier.forClass(RegistryEntry.class)
                 .withPrefabValues(RegistryEntry.class, blue, red)
                 .withPrefabValues(ResourceInformation.class, new ResourceInformation(String.class, null, null, null), new ResourceInformation(Long.class, null, null, null))

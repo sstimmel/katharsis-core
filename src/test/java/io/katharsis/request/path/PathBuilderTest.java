@@ -34,7 +34,7 @@ public class PathBuilderTest {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-            resourceInformationBuilder, new NewInstanceRepositoryMethodParameterProvider());
+            resourceInformationBuilder);
         ResourceRegistry resourceRegistry = registryBuilder
             .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 

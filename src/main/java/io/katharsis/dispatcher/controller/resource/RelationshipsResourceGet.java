@@ -36,71 +36,65 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
     }
 
     @Override
-    public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-        return !jsonPath.isCollection()
-                && jsonPath instanceof RelationshipsPath
-                && HttpMethod.GET.name().equals(requestType);
-    }
-
-    @Override
     public boolean isAcceptable(Request request) {
+        //        return !jsonPath.isCollection()
+//                && jsonPath instanceof RelationshipsPath
+//                && HttpMethod.GET.name().equals(requestType);
+
         throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) {
-        String resourceName = jsonPath.getResourceName();
-        PathIds resourceIds = jsonPath.getIds();
-        RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
-
-
-        String elementName = jsonPath.getElementName();
-        ResourceField relationshipField = registryEntry.getResourceInformation()
-                .findRelationshipFieldByName(elementName);
-
-        Utils.checkResourceFieldExists(relationshipField, resourceName);
-
-        Class<?> baseRelationshipFieldClass = relationshipField.getType();
-        Class<?> relationshipFieldClass = Generics
-                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
-
-        RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-                .getRelationshipRepositoryForClass(relationshipFieldClass);
-
-        RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
-
-        Serializable castedResourceId = parseResourceId(registryEntry, resourceIds);
-        BaseResponseContext target;
-        if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            @SuppressWarnings("unchecked")
-            JsonApiResponse response = relationshipRepositoryForClass
-                    .findManyTargets(castedResourceId, elementName, queryParams);
-
-            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams);
-
-            List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, relationshipFieldEntry, response);
-            response.setEntity(dataList);
-            target = new CollectionResponseContext(response, jsonPath, queryParams);
-        } else {
-            @SuppressWarnings("unchecked")
-            JsonApiResponse response = relationshipRepositoryForClass
-                    .findOneTarget(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams);
-
-            if (response.getEntity() != null) {
-                LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, relationshipFieldEntry, response);
-                response.setEntity(linkageContainer);
-                target = new ResourceResponseContext(response, jsonPath, queryParams);
-            } else {
-                target = new ResourceResponseContext(response, jsonPath, queryParams);
-            }
-        }
-
-        return target;
-    }
-
-    @Override
     public BaseResponseContext handle(Request request) {
+        //        String resourceName = jsonPath.getResourceName();
+//        PathIds resourceIds = jsonPath.getIds();
+//        RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
+//
+//
+//        String elementName = jsonPath.getElementName();
+//        ResourceField relationshipField = registryEntry.getResourceInformation()
+//                .findRelationshipFieldByName(elementName);
+//
+//        Utils.checkResourceFieldExists(relationshipField, resourceName);
+//
+//        Class<?> baseRelationshipFieldClass = relationshipField.getType();
+//        Class<?> relationshipFieldClass = Generics
+//                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+//
+//        RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
+//                .getRelationshipRepositoryForClass(relationshipFieldClass);
+//
+//        RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
+//
+//        Serializable castedResourceId = parseResourceId(registryEntry, resourceIds);
+//        BaseResponseContext target;
+//        if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
+//            @SuppressWarnings("unchecked")
+//            JsonApiResponse response = relationshipRepositoryForClass
+//                    .findManyTargets(castedResourceId, elementName, queryParams);
+//
+//            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams);
+//
+//            List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, relationshipFieldEntry, response);
+//            response.setEntity(dataList);
+//            target = new CollectionResponseContext(response, jsonPath, queryParams);
+//        } else {
+//            @SuppressWarnings("unchecked")
+//            JsonApiResponse response = relationshipRepositoryForClass
+//                    .findOneTarget(castedResourceId, elementName, queryParams);
+//            includeFieldSetter.setIncludedElements(relationshipFieldEntry, resourceName, response, queryParams);
+//
+//            if (response.getEntity() != null) {
+//                LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, relationshipFieldEntry, response);
+//                response.setEntity(linkageContainer);
+//                target = new ResourceResponseContext(response, jsonPath, queryParams);
+//            } else {
+//                target = new ResourceResponseContext(response, jsonPath, queryParams);
+//            }
+//        }
+//
+//        return target;
+
         throw new UnsupportedOperationException("Not implemented");
     }
 

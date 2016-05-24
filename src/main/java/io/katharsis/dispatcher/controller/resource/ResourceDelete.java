@@ -2,16 +2,12 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.dispatcher.controller.Utils;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
-import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -37,36 +33,54 @@ public class ResourceDelete extends BaseController {
      * Checks if requested resource method is acceptable - is a DELETE request for a resource.
      */
     @Override
-    public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-        return !jsonPath.isCollection()
-                && jsonPath instanceof ResourcePath
-                && HttpMethod.DELETE.name().equals(requestType);
-    }
-
-    @Override
     public boolean isAcceptable(Request request) {
-        throw new UnsupportedOperationException("Not implemented");
+        //        return !jsonPath.isCollection()
+//                && jsonPath instanceof ResourcePath
+//                && HttpMethod.DELETE.name().equals(requestType);
+        return request.getMethod() == HttpMethod.DELETE && canDelete(request.getPath());
     }
 
-    @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) {
-        String resourceName = jsonPath.getElementName();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        Utils.checkResourceExists(registryEntry, resourceName);
+    /**
+     * Can delete only for URLs like:
+     * - http://host.local/tasks/1
+     * - http://host.local/tasks/1/relationships/project
+     *
+     * @return
+     */
 
-        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository();
-
-        for (Serializable id : parseResourceIds(registryEntry, jsonPath)) {
-            repository.delete(id, queryParams);
+    protected boolean canDelete(JsonApiPath path) {
+        if (path.isCollection()) {
+            return false;
         }
+        if (path.getIds().isPresent()) {
+            if (path.getIds().get().size() > 1) {
+                return false;
+            }
+            if (path.getField().isPresent()) {
+                return false;
+            }
 
-        //TODO: Avoid nulls - use optional
-        return null;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public BaseResponseContext handle(Request request) {
-        throw new UnsupportedOperationException("Not implemented");
+        //        String resourceName = jsonPath.getElementName();
+//        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+//        Utils.checkResourceExists(registryEntry, resourceName);
+//
+//        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository();
+//
+//        for (Serializable id : parseResourceIds(registryEntry, jsonPath)) {
+//            repository.delete(id, queryParams);
+//        }
+//
+//        throw new UnsupportedOperationException("Not implemented");
+
+//        //TODO: Avoid nulls - use optional
+        return null;
     }
 
     private Iterable<? extends Serializable> parseResourceIds(RegistryEntry registryEntry, JsonPath jsonPath) {

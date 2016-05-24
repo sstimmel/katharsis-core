@@ -173,7 +173,7 @@ public class IncludeLookupSetter {
 
         try {
             RelationshipRepositoryAdapter relationshipRepositoryForClass = rootEntry
-                    .getRelationshipRepositoryForClass(relationshipFieldClass);
+                    .getRelationshipRepositoryForClass(relationshipFieldClass, null);
             if (relationshipRepositoryForClass != null) {
                 JsonApiResponse response;
                 if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {

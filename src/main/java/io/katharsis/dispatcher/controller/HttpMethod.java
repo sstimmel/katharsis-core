@@ -15,7 +15,7 @@ public enum HttpMethod {
         if (method == null) {
             throw new IllegalStateException("Method should not be null.");
         }
-        switch (method) {
+        switch (method.toLowerCase()) {
             case "get":
                 return GET;
             case "post":

@@ -1,10 +1,7 @@
 package io.katharsis.dispatcher.controller;
 
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.BaseResponseContext;
@@ -16,7 +13,7 @@ import java.io.Serializable;
 /**
  * Represents a controller contract. There can be many kinds of requests that can be send to the framework. The
  * initial process of checking if a request is acceptable is managed by
- * {@link BaseController#isAcceptable(io.katharsis.request.path.JsonPath, String)} method. If the method returns
+ * {@link BaseController#isAcceptable(io.katharsis.request.Request)} method. If the method returns
  * true, the matched controller is used to handle the request.
  */
 public abstract class BaseController {
@@ -24,12 +21,9 @@ public abstract class BaseController {
     /**
      * Checks if requested resource method is acceptable.
      *
-     * @param jsonPath    Requested resource path
-     * @param requestType HTTP request type
+     * @param request the HTTP Request from the client
      * @return Acceptance result in boolean
      */
-    public abstract boolean isAcceptable(JsonPath jsonPath, String requestType);
-
     public abstract boolean isAcceptable(Request request);
 
     public abstract TypeParser getTypeParser();
@@ -39,13 +33,9 @@ public abstract class BaseController {
     /**
      * Passes the request to controller method.
      *
-     * @param jsonPath    Requested resource path
-     * @param queryParams Params specifying request
-     * @param requestBody Top-level JSON object from method's body of the request passed as {@link RequestBody}
+     * @param request The request received
      * @return BaseResponseContext object
      */
-    public abstract BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody);
-
     public abstract BaseResponseContext handle(Request request);
 
     protected void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,

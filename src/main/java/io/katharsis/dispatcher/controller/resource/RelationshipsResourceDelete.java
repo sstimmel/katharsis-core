@@ -49,13 +49,4 @@ public class RelationshipsResourceDelete extends RelationshipsResourceUpsert {
         relationshipRepositoryForClass.setRelation(resource, null, elementName, queryParams);
     }
 
-    @Override
-    public boolean isAcceptable(Request request) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public BaseResponseContext handle(Request request) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
 }

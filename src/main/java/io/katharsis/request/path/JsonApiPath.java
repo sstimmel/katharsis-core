@@ -4,6 +4,8 @@ package io.katharsis.request.path;
 import io.katharsis.utils.java.Optional;
 
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -49,6 +51,10 @@ public class JsonApiPath {
         return path.split(SEPARATOR);
     }
 
+    public static JsonApiPath parsePath(URL path) {
+        return parsePath(path, "/");
+    }
+
     /**
      * Parses path provided by the application. The path provided cannot contain neither hostname nor protocol. It
      * can start or end with slash e.g. <i>/tasks/1/</i> or <i>tasks/1</i>.
@@ -56,8 +62,10 @@ public class JsonApiPath {
      * @param path Path to be parsed
      * @return doubly-linked list which represents path given at the input
      */
-    public static JsonApiPath parsePath(URL path) {
-        String[] pathParts = splitPath(path.getPath());
+
+    public static JsonApiPath parsePath(URL path, String apiMountPath) {
+        Path relativePath = Paths.get(apiMountPath).relativize(Paths.get(path.getPath()));
+        String[] pathParts = splitPath(relativePath.toString());
 
         validatePath(pathParts);
 

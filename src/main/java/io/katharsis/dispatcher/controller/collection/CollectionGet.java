@@ -5,10 +5,8 @@ import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -35,31 +33,8 @@ public class CollectionGet extends ResourceIncludeField {
      * Check if it is a GET request for a collection of resources.
      */
     @Override
-    public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-        return jsonPath.isCollection()
-                && jsonPath instanceof ResourcePath
-                && HttpMethod.GET.name().equals(requestType);
-    }
-
-    @Override
     public boolean isAcceptable(Request request) {
         return request.getMethod() == HttpMethod.GET && request.getPath().isCollection();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) {
-        String resourceName = jsonPath.getElementName();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        checkResourceExists(registryEntry, resourceName);
-
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
-        Iterable<? extends Serializable> parsedIds = parseResourceIds(registryEntry, jsonPath);
-        JsonApiResponse response = collectionResponse(resourceRepository, queryParams, parsedIds);
-
-        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams);
-
-        return new CollectionResponseContext(response, jsonPath, queryParams);
     }
 
     @Override
@@ -70,29 +45,19 @@ public class CollectionGet extends ResourceIncludeField {
         checkResourceExists(registryEntry, path.getResource());
 
         QueryParams queryParams = getQueryParamsBuilder().parseQuery(request.getUrl());
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(request.getParameterProvider());
 
-        Iterable<? extends Serializable> parsedIds = request.getPath().getIds().get();
         JsonApiResponse response;
         if (path.getIds().isPresent()) {
-            response = resourceRepository.findAll(queryParams);
-        } else {
+            Iterable<? extends Serializable> parsedIds = request.getPath().getIds().get();
             response = resourceRepository.findAll(parsedIds, queryParams);
+        } else {
+            response = resourceRepository.findAll(queryParams);
         }
 
         includeFieldSetter.setIncludedElements(registryEntry, path.getResource(), response, queryParams);
 
         return new CollectionResponseContext(response, path, queryParams);
-    }
-
-    private JsonApiResponse collectionResponse(ResourceRepositoryAdapter resourceRepository, QueryParams queryParams, Iterable<? extends Serializable> parsedIds) {
-        JsonApiResponse response;
-        if (parsedIds == null) {
-            response = resourceRepository.findAll(queryParams);
-        } else {
-            response = resourceRepository.findAll(parsedIds, queryParams);
-        }
-        return response;
     }
 
     //TODO: ieugen we could reason better about this if we JSonPath had a richer API

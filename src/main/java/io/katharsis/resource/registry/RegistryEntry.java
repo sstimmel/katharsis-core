@@ -31,27 +31,23 @@ public class RegistryEntry<T> {
     private final ResourceInformation resourceInformation;
     private final ResourceEntry<T, ?> resourceEntry;
     private final List<ResponseRelationshipEntry<T, ?>> relationshipEntries;
-    private final RepositoryMethodParameterProvider parameterProvider;
     private RegistryEntry parentRegistryEntry = null;
 
     public RegistryEntry(ResourceInformation resourceInformation,
-                         @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry,
-                         RepositoryMethodParameterProvider parameterProvider) {
-        this(resourceInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>(), parameterProvider);
+                         @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
+        this(resourceInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>());
     }
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          ResourceEntry<T, ?> resourceEntry,
-                         List<ResponseRelationshipEntry<T, ?>> relationshipEntries,
-                         RepositoryMethodParameterProvider parameterProvider) {
+                         List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
         this.resourceInformation = resourceInformation;
         this.resourceEntry = resourceEntry;
         this.relationshipEntries = relationshipEntries;
-        this.parameterProvider = parameterProvider;
     }
 
     @SuppressWarnings("unchecked")
-    public ResourceRepositoryAdapter getResourceRepository() {
+    public ResourceRepositoryAdapter getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
         Object repoInstance = null;
         if (resourceEntry instanceof DirectResponseResourceEntry) {
             repoInstance = ((DirectResponseResourceEntry<T, ?>) resourceEntry).getResourceRepository();
@@ -66,7 +62,7 @@ public class RegistryEntry<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz) {
+    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz, RepositoryMethodParameterProvider parameterProvider) {
         ResponseRelationshipEntry<T, ?> foundRelationshipEntry = null;
         for (ResponseRelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
             if (clazz == relationshipEntry.getTargetAffiliation()) {
@@ -89,10 +85,6 @@ public class RegistryEntry<T> {
 
     public ResourceInformation getResourceInformation() {
         return resourceInformation;
-    }
-
-    public RepositoryMethodParameterProvider getParameterProvider() {
-        return parameterProvider;
     }
 
     public RegistryEntry getParentRegistryEntry() {
