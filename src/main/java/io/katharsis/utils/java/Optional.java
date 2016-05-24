@@ -12,19 +12,8 @@ public class Optional<T> {
         this.value = value;
     }
 
-    public boolean isPresent() {
-        return value != null;
-    }
-
-    public T get() {
-        if (value == null) {
-            throw new NoSuchElementException("No value present");
-        }
-        return value;
-    }
-
     @SuppressWarnings("unchecked")
-    public static<T> Optional<T> empty() {
+    public static <T> Optional<T> empty() {
         return (Optional<T>) EMPTY;
     }
 
@@ -35,5 +24,16 @@ public class Optional<T> {
 
     public static <T> Optional<T> ofNullable(T value) {
         return value == null ? Optional.<T>empty() : of(value);
+    }
+
+    public boolean isPresent() {
+        return value != null;
+    }
+
+    public T get() {
+        if (value == null) {
+            throw new NoSuchElementException("No value present");
+        }
+        return value;
     }
 }

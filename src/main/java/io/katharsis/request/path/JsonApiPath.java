@@ -3,14 +3,15 @@ package io.katharsis.request.path;
 
 import io.katharsis.errorhandling.GenericKatharsisException;
 import io.katharsis.utils.java.Optional;
+import lombok.Getter;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A JSON API Path has between 1-4 elements
@@ -19,6 +20,7 @@ import java.util.Set;
  * <p>
  * This class parses a Path and identifies all parts.
  */
+@Getter
 public class JsonApiPath {
 
     public static final String DEFAULT_ID_SEPARATOR = ",";
@@ -26,18 +28,18 @@ public class JsonApiPath {
     public static final String RELATIONSHIP_MARK = "relationships";
 
     private String resource;
-    private Optional<Set<String>> ids;
+    private Optional<List<String>> ids;
     private Optional<String> relationship;
     private Optional<String> field;
     private Optional<String> query;
 
-    private JsonApiPath(String resource, Set<String> ids, String relationship, String field, String query) {
+    private JsonApiPath(String resource, List<String> ids, String relationship, String field, String query) {
         this(resource, Optional.ofNullable(ids), Optional.ofNullable(relationship),
                 Optional.ofNullable(field), Optional.ofNullable(query));
     }
 
     private JsonApiPath(String resource,
-                        Optional<Set<String>> ids,
+                        Optional<List<String>> ids,
                         Optional<String> relationship,
                         Optional<String> field,
                         Optional<String> query) {
@@ -102,7 +104,7 @@ public class JsonApiPath {
 
         String resource = parseResource(pathParts);
 
-        Optional<Set<String>> ids = parseIds(pathParts);
+        Optional<List<String>> ids = parseIds(pathParts);
         Optional<String> relationship = relationship(pathParts);
         Optional<String> field = parseField(pathParts);
         Optional<String> query = parseQuery(requestQuery);
@@ -148,13 +150,13 @@ public class JsonApiPath {
         return strings[0];
     }
 
-    private static Optional<Set<String>> parseIds(String[] parts) {
+    private static Optional<List<String>> parseIds(String[] parts) {
         if (!hasIds(parts)) {
             return Optional.empty();
         }
         String[] idsStrings = parts[1].split(DEFAULT_ID_SEPARATOR);
 
-        Set<String> ids = new LinkedHashSet<>();
+        List<String> ids = new ArrayList<>();
         for (String id : idsStrings) {
             ids.add(id);
         }
@@ -201,23 +203,15 @@ public class JsonApiPath {
         }
     }
 
-    public String getResource() {
-        return resource;
+    public boolean isResource() {
+        return !(field.isPresent() || relationship.isPresent() || isCollection());
     }
 
-    public Optional<Set<String>> getIds() {
-        return ids;
+    public boolean isRelationshipResource() {
+        return !(field.isPresent() || isCollection()) && relationship.isPresent();
     }
 
-    public Optional<String> getRelationship() {
-        return relationship;
-    }
-
-    public Optional<String> getField() {
-        return field;
-    }
-
-    public Optional<String> getQuery() {
-        return query;
+    public boolean isField() {
+        return field.isPresent() && !(relationship.isPresent() || isCollection());
     }
 }

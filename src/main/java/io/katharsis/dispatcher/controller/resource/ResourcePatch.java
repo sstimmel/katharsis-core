@@ -1,11 +1,22 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.Utils;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
+import io.katharsis.request.dto.DataBody;
+import io.katharsis.request.path.JsonApiPath;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
+
+import java.io.Serializable;
 
 public class ResourcePatch extends ResourceUpsert {
 
@@ -18,38 +29,36 @@ public class ResourcePatch extends ResourceUpsert {
 
     @Override
     public boolean isAcceptable(Request request) {
-        //        return !jsonPath.isCollection() &&
-//                jsonPath instanceof ResourcePath &&
-//                HttpMethod.PATCH.name().equals(requestType);
-
-        throw new UnsupportedOperationException("Not implemented");
+        return request.getMethod() == HttpMethod.PATCH && request.getPath().isResource();
     }
 
     @Override
     public BaseResponseContext handle(Request request) {
-//        String resourceEndpointName = jsonPath.getResourceName();
-//        RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
-//        Utils.checkResourceExists(endpointRegistryEntry, resourceEndpointName);
-//        DataBody dataBody = dataBody(requestBody, resourceEndpointName, HttpMethod.PATCH);
-//
-//        RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
-//        verifyTypes(HttpMethod.PATCH, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
-//
-//        String idString = jsonPath.getIds().getIds().get(0);
-//        Serializable resourceId = parseId(endpointRegistryEntry, idString);
-//
-//        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository();
-//        @SuppressWarnings("unchecked")
-//        Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
-//
-//
-//        setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-//        setRelations(resource, bodyRegistryEntry, dataBody, queryParams);
-//        JsonApiResponse response = resourceRepository.save(resource, queryParams);
-//
-//        return new ResourceResponseContext(response, jsonPath, queryParams);
+        JsonApiPath path = request.getPath();
 
-        throw new UnsupportedOperationException("Not implemented");
+        RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(path.getResource());
+        Utils.checkResourceExists(endpointRegistryEntry, path.getResource());
+        DataBody dataBody = dataBody(request);
+
+        RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
+        verifyTypes(HttpMethod.PATCH, path.getResource(), endpointRegistryEntry, bodyRegistryEntry);
+
+        String idString = path.getIds().get().get(0);
+        Serializable resourceId = parseId(endpointRegistryEntry, idString);
+
+        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(request.getParameterProvider());
+
+        QueryParams queryParams = getQueryParamsBuilder().parseQuery(path.getQuery());
+
+        @SuppressWarnings("unchecked")
+        Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
+
+
+        setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
+        setRelations(resource, bodyRegistryEntry, dataBody, queryParams);
+        JsonApiResponse response = resourceRepository.save(resource, queryParams);
+
+        return new ResourceResponseContext(response, path, queryParams);
     }
 
 }

@@ -2,9 +2,9 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
 import io.katharsis.request.dto.RequestBody;
@@ -22,6 +22,7 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -240,20 +241,27 @@ public abstract class ResourceUpsert extends BaseController {
         return typeParser;
     }
 
-    protected DataBody dataBody(RequestBody requestBody, String resourceEndpointName, HttpMethod httpMethod) {
+    protected DataBody dataBody(Request request) {
 
-        if (requestBody == null) {
-            throw new RequestBodyNotFoundException(httpMethod, resourceEndpointName);
+        if (!request.getBody().isPresent()) {
+            throw new RequestBodyNotFoundException(request.getMethod(), request.getPath().getResource());
         }
-        if (requestBody.isMultiple()) {
-            throw new RequestBodyException(httpMethod, resourceEndpointName, "Multiple data in body");
+        RequestBody body = parseBody(request.getBody().get());
+
+        if (body.isMultiple()) {
+            throw new RequestBodyException(request.getMethod(), request.getPath().getResource(),
+                    "Multiple data in body");
         }
 
-        DataBody dataBody = requestBody.getSingleData();
+        DataBody dataBody = body.getSingleData();
         if (dataBody == null) {
-            throw new RequestBodyException(httpMethod, resourceEndpointName, "No data field in the body.");
+            throw new RequestBodyException(request.getMethod(), request.getPath().getResource(), "No data field in the body.");
         }
         return dataBody;
+    }
+
+    private RequestBody parseBody(InputStream inputStream) {
+        return new RequestBody();
     }
 
     @Override

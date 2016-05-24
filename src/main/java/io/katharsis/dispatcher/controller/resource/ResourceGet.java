@@ -1,12 +1,23 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
+
+import java.io.Serializable;
+import java.util.List;
+
+import static io.katharsis.dispatcher.controller.Utils.checkResourceExists;
 
 public class ResourceGet extends ResourceIncludeField {
 
@@ -24,9 +35,6 @@ public class ResourceGet extends ResourceIncludeField {
      */
     @Override
     public boolean isAcceptable(Request request) {
-        //        return !jsonPath.isCollection()
-//                && jsonPath instanceof ResourcePath
-//                && HttpMethod.GET.name().equals(requestType);
         return request.getMethod() == HttpMethod.GET && !request.getPath().isCollection();
     }
 
@@ -37,21 +45,21 @@ public class ResourceGet extends ResourceIncludeField {
      */
     @Override
     public BaseResponseContext handle(Request request) {
-//        String resourceName = jsonPath.getElementName();
-//        PathIds resourceIds = jsonPath.getIds();
-//        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-//        checkResourceExists(registryEntry, resourceName);
-//
-//        Serializable castedId = parseId(registryEntry, resourceIds.getIds().get(0));
-//
-//        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
-//        @SuppressWarnings("unchecked")
-//        JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
-//        includeFieldSetter.setIncludedElements(registryEntry, resourceName, response, queryParams);
-//
-//        return new ResourceResponseContext(response, jsonPath, queryParams);
+        JsonApiPath path = request.getPath();
 
-        throw new UnsupportedOperationException("Not implemented");
+        RegistryEntry registryEntry = resourceRegistry.getEntry(path.getResource());
+        checkResourceExists(registryEntry, path.getResource());
+
+        List<String> resourceIds = request.getPath().getIds().get();
+        Serializable castedId = parseId(registryEntry, resourceIds.get(0));
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(request.getParameterProvider());
+
+        QueryParams params = getQueryParamsBuilder().parseQuery(path.getQuery());
+        @SuppressWarnings("unchecked")
+        JsonApiResponse response = resourceRepository.findOne(castedId, params);
+        includeFieldSetter.setIncludedElements(registryEntry, path.getResource(), response, params);
+
+        return new ResourceResponseContext(response, path, params);
     }
 
 }

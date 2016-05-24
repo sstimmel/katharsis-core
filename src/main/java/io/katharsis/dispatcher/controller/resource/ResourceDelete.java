@@ -2,10 +2,14 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.Utils;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
 import io.katharsis.request.path.JsonApiPath;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -30,9 +34,6 @@ public class ResourceDelete extends BaseController {
      */
     @Override
     public boolean isAcceptable(Request request) {
-        //        return !jsonPath.isCollection()
-//                && jsonPath instanceof ResourcePath
-//                && HttpMethod.DELETE.name().equals(requestType);
         return request.getMethod() == HttpMethod.DELETE && canDelete(request.getPath());
     }
 
@@ -63,19 +64,20 @@ public class ResourceDelete extends BaseController {
 
     @Override
     public BaseResponseContext handle(Request request) {
-        //        String resourceName = jsonPath.getElementName();
-//        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-//        Utils.checkResourceExists(registryEntry, resourceName);
-//
-//        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository();
-//
-//        for (Serializable id : parseResourceIds(registryEntry, jsonPath)) {
-//            repository.delete(id, queryParams);
-//        }
-//
-//        throw new UnsupportedOperationException("Not implemented");
+        JsonApiPath path = request.getPath();
 
-//        //TODO: Avoid nulls - use optional
+        RegistryEntry registryEntry = resourceRegistry.getEntry(path.getResource());
+        Utils.checkResourceExists(registryEntry, path.getResource());
+
+        ResourceRepositoryAdapter repository = registryEntry.getResourceRepository(request.getParameterProvider());
+
+        QueryParams queryParams = getQueryParamsBuilder().parseQuery(request.getQuery());
+
+        for (String id : path.getIds().get()) {
+            repository.delete(parseId(registryEntry, id), queryParams);
+        }
+
+        // TODO: ieugen: return list of deleted items ??
         return null;
     }
 

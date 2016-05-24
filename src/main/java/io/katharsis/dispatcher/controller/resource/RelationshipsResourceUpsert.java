@@ -2,19 +2,30 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.JsonApiPath;
+import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
+import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.HttpStatus;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
+import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
+import java.util.List;
 
 public abstract class RelationshipsResourceUpsert extends BaseController {
 
@@ -67,76 +78,75 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
 
     @Override
     public boolean isAcceptable(Request request) {
-//                return !jsonPath.isCollection()
-//                && RelationshipsPath.class.equals(jsonPath.getClass())
-//                && method().name().equals(requestType);
-        return request.getPath().getRelationship().isPresent()
-                && (request.getMethod() == HttpMethod.POST ||
+        return (request.getMethod() == HttpMethod.POST ||
                 request.getMethod() == HttpMethod.PATCH ||
-                request.getMethod() == HttpMethod.DELETE);
+                request.getMethod() == HttpMethod.DELETE) &&
+                request.getPath().isRelationshipResource();
     }
 
     @Override
     public BaseResponseContext handle(Request request) {
-        //        String resourceName = jsonPath.getResourceName();
-//        PathIds resourceIds = jsonPath.getIds();
-//        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-//        Utils.checkResourceExists(registryEntry, resourceName);
-//
-//        checkRequestBodyExists(requestBody, resourceName);
-//
-//        Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-//        ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath
-//                .getElementName());
-//        if (relationshipField == null) {
-//            throw new ResourceFieldNotFoundException(jsonPath.getElementName());
-//        }
-//        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository();
-//        @SuppressWarnings("unchecked")
-//        JsonApiResponse response = resourceRepository.findOne(castedResourceId, queryParams);
-//        Object resource = extractResource(response);
-//
-//        Class<?> baseRelationshipFieldClass = relationshipField.getType();
-//        Class<?> relationshipFieldClass = Generics
-//                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
-//
-//        RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipFieldClass);
-//
-//        @SuppressWarnings("unchecked")
-//        RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-//                .getRelationshipRepositoryForClass(relationshipFieldClass);
-//
-//        if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-//            if (!requestBody.isMultiple()) {
-//                throw new RequestBodyException(HttpMethod.POST, resourceName, "Non-multiple data in body");
-//            }
-//            Iterable<DataBody> dataBodies = requestBody.getMultipleData();
-//            processToManyRelationship(resource, relationshipEntry, jsonPath.getElementName(), dataBodies, queryParams,
-//                    relationshipRepositoryForClass);
-//        } else {
-//            if (requestBody.isMultiple()) {
-//                throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
-//            }
-//            DataBody dataBody = requestBody.getSingleData();
-//            processToOneRelationship(resource, relationshipEntry, jsonPath.getElementName(), dataBody, queryParams,
-//                    relationshipRepositoryForClass);
-//        }
-//
-//        return new ResourceResponseContext(response, HttpStatus.NO_CONTENT_204);
+        JsonApiPath path = request.getPath();
+        RegistryEntry registryEntry = resourceRegistry.getEntry(path.getResource());
+        Utils.checkResourceExists(registryEntry, path.getResource());
 
-        throw new UnsupportedOperationException("Not implemented");
-    }
+        RequestBody requestBody = checkRequestBodyExists(request);
 
-    private void checkRequestBodyExists(RequestBody requestBody, String resourceName) {
-        if (requestBody == null) {
-            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceName);
+        Serializable castedResourceId = getResourceId(registryEntry, path.getIds().get());
+        ResourceField relationshipField = registryEntry.getResourceInformation()
+                .findRelationshipFieldByName(path.getRelationship().get());
+
+        if (relationshipField == null) {
+            throw new ResourceFieldNotFoundException(path.getRelationship().get());
         }
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(request.getParameterProvider());
+
+        QueryParams queryParams = getQueryParamsBuilder().parseQuery(path.getQuery());
+
+        @SuppressWarnings("unchecked")
+        JsonApiResponse response = resourceRepository.findOne(castedResourceId, queryParams);
+        Object resource = extractResource(response);
+
+        Class<?> baseRelationshipFieldClass = relationshipField.getType();
+        Class<?> relationshipFieldClass = Generics
+                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+
+        RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipFieldClass);
+
+        @SuppressWarnings("unchecked")
+        RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
+                .getRelationshipRepositoryForClass(relationshipFieldClass, request.getParameterProvider());
+
+        if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
+            if (!requestBody.isMultiple()) {
+                throw new RequestBodyException(HttpMethod.POST, path.getResource(), "Non-multiple data in body");
+            }
+            Iterable<DataBody> dataBodies = requestBody.getMultipleData();
+            processToManyRelationship(resource, relationshipEntry, path.getRelationship().get(), dataBodies, queryParams,
+                    relationshipRepositoryForClass);
+        } else {
+            if (requestBody.isMultiple()) {
+                throw new RequestBodyException(HttpMethod.POST, path.getResource(), "Multiple data in body");
+            }
+            DataBody dataBody = requestBody.getSingleData();
+            processToOneRelationship(resource, relationshipEntry, path.getRelationship().get(), dataBody, queryParams,
+                    relationshipRepositoryForClass);
+        }
+
+        return new ResourceResponseContext(response, HttpStatus.NO_CONTENT_204);
     }
 
-//    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
-//        String resourceId = resourceIds.getIds().get(0);
-//        return parseId(registryEntry, resourceId);
-//    }
+    private RequestBody checkRequestBodyExists(Request request) {
+        if (!request.getBody().isPresent()) {
+            throw new RequestBodyNotFoundException(HttpMethod.POST, request.getPath().getResource());
+        }
+        return new RequestBody();
+    }
+
+    private Serializable getResourceId(RegistryEntry<?> registryEntry, List<String> ids) {
+        String resourceId = ids.get(0);
+        return parseId(registryEntry, resourceId);
+    }
 
     @Override
     public TypeParser getTypeParser() {
