@@ -1,6 +1,8 @@
 package io.katharsis.dispatcher.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Throwables;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
@@ -19,6 +21,9 @@ import io.katharsis.utils.parser.TypeParser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public abstract class BaseControllerTest {
     protected static final QueryParams REQUEST_PARAMS = new QueryParams();
@@ -43,7 +48,18 @@ public abstract class BaseControllerTest {
         includeFieldSetter = new IncludeLookupSetter(resourceRegistry);
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry));
+
         parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
         queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
     }
+
+
+    protected InputStream serialize(Object object) {
+        try {
+            return new ByteArrayInputStream(objectMapper.writeValueAsString(object).getBytes());
+        } catch (JsonProcessingException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
 }

@@ -2,12 +2,16 @@ package io.katharsis.jackson;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.katharsis.jackson.deserializer.RequestBodyDeserializer;
+import io.katharsis.jackson.deserializer.ResourceRelationshipsDeserializer;
 import io.katharsis.jackson.serializer.BaseResponseSerializer;
 import io.katharsis.jackson.serializer.ContainerSerializer;
 import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
 import io.katharsis.jackson.serializer.ErrorResponseSerializer;
 import io.katharsis.jackson.serializer.LinkageContainerSerializer;
 import io.katharsis.jackson.serializer.RelationshipContainerSerializer;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
@@ -32,7 +36,9 @@ public class JsonApiModuleBuilder {
                 .addSerializer(new RelationshipContainerSerializer(resourceRegistry))
                 .addSerializer(new LinkageContainerSerializer(resourceRegistry))
                 .addSerializer(new BaseResponseSerializer(resourceRegistry))
-                .addSerializer(new ErrorResponseSerializer());
+                .addSerializer(new ErrorResponseSerializer())
+                .addDeserializer(ResourceRelationships.class, new ResourceRelationshipsDeserializer())
+                .addDeserializer(RequestBody.class, new RequestBodyDeserializer());
 
         return simpleModule;
     }

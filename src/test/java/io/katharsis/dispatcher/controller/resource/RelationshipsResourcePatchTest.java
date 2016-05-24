@@ -1,6 +1,5 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
@@ -28,7 +27,6 @@ import static org.mockito.Mockito.mock;
 public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = HttpMethod.PATCH.name();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     private UserToProjectRepository localUserToProjectRepository;
@@ -77,17 +75,16 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
     @Test
     public void onExistingResourcesShouldAddToOneRelationship() throws Exception {
         // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+        RequestBody newTaskBody = new RequestBody(DataBody.builder()
+                .type("tasks")
+                .attributes(objectMapper.createObjectNode().put("name", "sample task"))
+                .relationships(new ResourceRelationships())
+                .build());
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(taskPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -100,14 +97,13 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        RequestBody newProjectBody = new RequestBody(DataBody.builder()
+                .type("projects")
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build());
 
         taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        request = new Request(taskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(taskPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
 
         // WHEN -- adding a project
@@ -123,14 +119,13 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(data);
-        data.setType("projects");
-        data.setId(projectId.toString());
+        RequestBody newTaskToProjectBody = new RequestBody(DataBody.builder()
+                .id(projectId.toString())
+                .type("projects")
+                .build());
 
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/project");
-        request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
@@ -148,17 +143,16 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
     @Test
     public void onExistingResourcesShouldAddToManyRelationship() throws Exception {
         // GIVEN
-        RequestBody newUserBody = new RequestBody();
-        DataBody data = new DataBody();
-        newUserBody.setData(data);
-        data.setType("users");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample user"));
-        data.setRelationships(new ResourceRelationships());
+        RequestBody newUserBody = new RequestBody(DataBody.builder()
+                .type("users")
+                .attributes(objectMapper.createObjectNode().put("name", "sample user"))
+                .relationships(new ResourceRelationships())
+                .build());
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users");
-        Request request = new Request(taskPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(taskPath, REQUEST_TYPE, serialize(newUserBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER,
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
                 queryParamsBuilder);
 
         // WHEN -- adding a user
@@ -172,14 +166,13 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        RequestBody newProjectBody = new RequestBody(DataBody.builder()
+                .type("projects")
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build());
 
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        request = new Request(projectPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(projectPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
         // WHEN -- adding a project
         BaseResponseContext projectResponse = resourcePost.handle(request);
@@ -194,14 +187,13 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(Collections.singletonList(data));
-        data.setType("projects");
-        data.setId(projectId.toString());
+        RequestBody newTaskToProjectBody = new RequestBody(Collections.singletonList(DataBody.builder()
+                .type("projects")
+                .id(projectId.toString())
+                .build()));
 
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users/" + userId + "/relationships/assignedProjects");
-        request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
@@ -219,17 +211,17 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
     @Test
     public void onDeletingToOneRelationshipShouldSetTheValue() throws Exception {
         // GIVEN
-        RequestBody newTaskBody = new RequestBody();
+
         DataBody data = new DataBody();
-        newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
+        RequestBody newTaskBody = new RequestBody(data);
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(taskPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER,
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
                 queryParamsBuilder);
 
         // WHEN -- adding a task
@@ -247,7 +239,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         newTaskToProjectBody.setData(null);
 
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/project");
-        request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder);
 

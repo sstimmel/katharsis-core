@@ -94,11 +94,9 @@ public class ResourceGetTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
-        InputStream body = new ByteArrayInputStream(new byte[]{});
-
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
 
-        Request request = new Request(taskPath, REQUEST_TYPE, body, parameterProvider);
+        Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
                 queryParamsBuilder);
@@ -111,17 +109,15 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
 
-        Request requestWithId = new Request(jsonPath, REQUEST_TYPE, body, parameterProvider);
+        Request requestWithId = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
         // WHEN
-        BaseResponseContext response = sut.handle(request);
+        BaseResponseContext response = sut.handle(requestWithId);
 
         // THEN
         Assert.assertNotNull(response);
     }
 
     @Test
-    @Ignore
-    //TODO: ieugen fix include
     public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
         // GIVEN
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/task-with-lookup/1");
@@ -157,10 +153,8 @@ public class ResourceGetTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
-        InputStream body = new ByteArrayInputStream(new byte[]{});
-
         JsonApiPath path = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(path, REQUEST_TYPE, body, parameterProvider);
+        Request request = new Request(path, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
                 queryParamsBuilder);
@@ -183,9 +177,9 @@ public class ResourceGetTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        Request projectRequest = new Request(projectPath, REQUEST_TYPE, body, parameterProvider);
+        Request projectRequest = new Request(projectPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
         // WHEN -- adding a project
-        BaseResponseContext projectResponse = resourcePost.handle(request);
+        BaseResponseContext projectResponse = resourcePost.handle(projectRequest);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -204,7 +198,7 @@ public class ResourceGetTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/project");
-        request = new Request(projectPath, REQUEST_TYPE, body, parameterProvider);
+        request = new Request(projectPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser,
                 queryParamsBuilder);
@@ -220,7 +214,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
         //Given
         path = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
-        request = new Request(path, REQUEST_TYPE, body, parameterProvider);
+        request = new Request(path, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter
                 , queryParamsBuilder);

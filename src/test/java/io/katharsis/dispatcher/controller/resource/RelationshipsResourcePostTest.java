@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 public class RelationshipsResourcePostTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = HttpMethod.POST.name();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     private UserToProjectRepository localUserToProjectRepository;
@@ -79,13 +79,13 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -102,10 +102,10 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(jsonPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
 
         // WHEN -- adding a project
@@ -128,7 +128,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/project");
-        request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder);
 
@@ -149,13 +149,13 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newUserBody.setData(data);
         data.setType("users");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample user"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample user"));
         data.setRelationships(new ResourceRelationships());
 
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users");
-        Request request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newUserBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN -- adding a user
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -172,11 +172,11 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
 
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
 
         // WHEN -- adding a project
@@ -199,7 +199,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users/" + userId + "/relationships/assignedProjects");
-        request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder);
 
@@ -220,13 +220,13 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(taskPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -243,7 +243,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         newTaskToProjectBody.setData(null);
 
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/project");
-        request = new Request(savedTaskPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder);
 

@@ -131,7 +131,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(attributes);
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
@@ -159,7 +159,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.getRelationships().setAdditionalProperty("project", new LinkageData("projects", projectId.toString()));
 
         jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
 
         // WHEN
@@ -187,7 +187,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
@@ -214,7 +214,7 @@ public class ResourcePostTest extends BaseControllerTest {
 
 
         jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users");
-        request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newUserBody), parameterProvider);
 
 
         // WHEN
@@ -243,7 +243,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(attributes);
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/documents");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newMemorandumBody), parameterProvider);
 
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
@@ -268,7 +268,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
@@ -298,7 +298,7 @@ public class ResourcePostTest extends BaseControllerTest {
         pojoData.setRelationships(relationships);
 
         jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/pojo");
-        request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(jsonApiPath, REQUEST_TYPE, serialize(pojoBody), parameterProvider);
 
         // WHEN
         BaseResponseContext pojoResponse = sut.handle(request);

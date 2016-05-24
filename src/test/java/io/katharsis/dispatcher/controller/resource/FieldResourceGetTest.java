@@ -6,7 +6,6 @@ import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
@@ -66,7 +65,6 @@ public class FieldResourceGetTest extends BaseControllerTest {
     }
 
     @Test
-    @Ignore
     public void onGivenRequestFieldResourceGetShouldHandleIt() throws Exception {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/project"), REQUEST_TYPE, null, parameterProvider);
@@ -81,7 +79,6 @@ public class FieldResourceGetTest extends BaseControllerTest {
     }
 
     @Test
-    @Ignore
     public void onGivenRequestFieldResourcesGetShouldHandleIt() throws Exception {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/users/1/assignedProjects"), REQUEST_TYPE, null, parameterProvider);

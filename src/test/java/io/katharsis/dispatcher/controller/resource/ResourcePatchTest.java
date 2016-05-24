@@ -75,7 +75,7 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("name", "sample task"));
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
@@ -92,7 +92,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode()
                 .put("name", "task updated"));
         jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
-        request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(jsonPath, REQUEST_TYPE, serialize(taskPatch), parameterProvider);
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
@@ -115,7 +115,7 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("name", "sample task"));
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
@@ -132,14 +132,14 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode()
                 .put("name", "task updated"));
         jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks" + taskId);
-        request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(jsonPath, REQUEST_TYPE, serialize(taskPatch), parameterProvider);
 
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
-        BaseResponseContext response = null;
+
         try {
-            response = sut.handle(request);
+            BaseResponseContext response = sut.handle(request);
             Assert.fail("Should have recieved exception.");
         } catch (RequestBodyException rbe) {
             // Got correct exception
@@ -161,7 +161,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.setAttributes(attributes);
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/documents");
-        Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(memorandumBody), parameterProvider);
 
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
@@ -185,7 +185,7 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("body", "new body"));
 
         JsonApiPath documentPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/documents/" + memorandumId);
-        request = new Request(documentPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(documentPath, REQUEST_TYPE, serialize(memorandumBody), parameterProvider);
 
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
@@ -211,7 +211,7 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("name", "sample task"));
 
         JsonApiPath documentPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(documentPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(documentPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
@@ -231,7 +231,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.getRelationships()
                 .setAdditionalProperty("project", null);
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
-        request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(jsonPath, REQUEST_TYPE, serialize(taskPatch), parameterProvider);
 
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 

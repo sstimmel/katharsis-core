@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class FieldResourcePostTest extends BaseControllerTest {
+
     private static final String REQUEST_TYPE = HttpMethod.POST.name();
 
     @Test
@@ -72,15 +73,14 @@ public class FieldResourcePostTest extends BaseControllerTest {
     @Test
     public void onExistingParentResourceShouldSaveIt() throws Exception {
         // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+        RequestBody newTaskBody = new RequestBody(DataBody.builder()
+                .type("tasks")
+                .attributes(objectMapper.createObjectNode().put("name", "sample task"))
+                .relationships(new ResourceRelationships())
+                .build());
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(taskPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
@@ -94,14 +94,13 @@ public class FieldResourcePostTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
+        RequestBody newProjectBody = new RequestBody(DataBody.builder()
+                .type("projects")
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build());
 
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/project");
-        request = new Request(projectPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(projectPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
@@ -123,15 +122,14 @@ public class FieldResourcePostTest extends BaseControllerTest {
     @Test
     public void onExistingParentResourceShouldSaveToToMany() throws Exception {
         // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+        RequestBody newTaskBody = new RequestBody(DataBody.builder()
+                .type("tasks")
+                .attributes(objectMapper.createObjectNode().put("name", "sample task"))
+                .relationships(new ResourceRelationships())
+                .build());
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(taskPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN
@@ -145,14 +143,12 @@ public class FieldResourcePostTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
-
+        RequestBody newProjectBody = new RequestBody(DataBody.builder()
+                .type("projects")
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build());
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/projects");
-        request = new Request(projectPath, REQUEST_TYPE, null, parameterProvider);
+        request = new Request(projectPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
 
         // WHEN

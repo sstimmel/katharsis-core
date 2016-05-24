@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
@@ -22,6 +23,7 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -261,7 +263,11 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     private RequestBody parseBody(InputStream inputStream) {
-        return new RequestBody();
+        try {
+            return objectMapper.readValue(inputStream, RequestBody.class);
+        } catch (IOException e) {
+            throw new JsonSerializationException("Exception reading JSON API request body. " + e.getMessage());
+        }
     }
 
     @Override

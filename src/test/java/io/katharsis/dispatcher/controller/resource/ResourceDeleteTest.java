@@ -4,7 +4,6 @@ import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.request.Request;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
@@ -31,7 +30,6 @@ public class ResourceDeleteTest extends BaseControllerTest {
     }
 
     @Test
-    @Ignore
     ///TODO: ieugen: the logic has changed, we check if param name is relation lower in the code
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
