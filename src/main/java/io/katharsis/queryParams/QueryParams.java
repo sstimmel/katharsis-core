@@ -32,7 +32,8 @@ public class QueryParams {
     private TypedParams<GroupingParams> grouping;
     private TypedParams<IncludedFieldsParams> includedFields;
     private TypedParams<IncludedRelationsParams> includedRelations;
-    private Map<RestrictedPaginationKeys, Integer> pagination;
+    private Map<RestrictedPaginationKeys, Integer> paginationIntegers;
+    private Map<RestrictedPaginationKeys, PaginationValue> paginationValues;
 
     private static List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
         String entryKey = entry.getKey()
@@ -226,21 +227,45 @@ public class QueryParams {
      * is agnostic about pagination strategies.
      * <p>
      * Pagination params can be send with following format: <br>
-     * <strong>page[offset|limit] = "value"</strong>, where value is an integer
+     * <strong>page[offset|limit|number|size|cursor] = "value"</strong>
      * <p>
      * Examples of accepted grouping of resources:
      * <ul>
      * <li>{@code GET /projects/?page[offset]=0&page[limit]=10}</li>
+     * <li>{@code GET /projects/?page[number]=4&page[size]=10}</li>
+     * <li>{@code GET /projects/?page[cursor]=opaquestring}</li>
+     * </ul>
+     *
+     * @return {@link Map} Map of pagination keys passed to request
+     */
+    public Map<RestrictedPaginationKeys, PaginationValue> getPaginationValues() {
+        return paginationValues;
+    }
+
+    /**
+     * <strong>Important!</strong> Katharsis implementation sets on strategy of pagination whereas JSON API
+     * <a href="http://jsonapi.org/format/#fetching-pagination">definition of pagination</a>
+     * is agnostic about pagination strategies.
+     * <p>
+     * Pagination params can be send with following format: <br>
+     * <strong>page[offset|limit|number|size|cursor] = "value"</strong>
+     * <p>
+     * Examples of accepted grouping of resources:
+     * <ul>
+     * <li>{@code GET /projects/?page[offset]=0&page[limit]=10}</li>
+     * <li>{@code GET /projects/?page[number]=4&page[size]=10}</li>
+     * <li>{@code GET /projects/?page[cursor]=opaquestring}</li>
      * </ul>
      *
      * @return {@link Map} Map of pagination keys passed to request
      */
     public Map<RestrictedPaginationKeys, Integer> getPagination() {
-        return pagination;
+        return paginationIntegers;
     }
 
     void setPagination(Map<String, Set<String>> pagination) {
-        Map<RestrictedPaginationKeys, Integer> decodedPagination = new LinkedHashMap<>();
+        Map<RestrictedPaginationKeys, Integer> decodedPaginationInt = new LinkedHashMap<>();
+        Map<RestrictedPaginationKeys, PaginationValue> decodedPaginationVal = new LinkedHashMap<>();
 
         for (Map.Entry<String, Set<String>> entry : pagination.entrySet()) {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.page.name());
@@ -251,14 +276,19 @@ public class QueryParams {
             }
 
             String resourceType = propertyList.get(0);
+            String paramValue = entry.getValue().iterator().next();
+            PaginationValue paginationValue = new PaginationValue(paramValue);
 
-            decodedPagination.put(RestrictedPaginationKeys.valueOf(resourceType), Integer.parseInt(entry
-                    .getValue()
-                    .iterator()
-                    .next()));
+            try {
+                decodedPaginationInt.put(RestrictedPaginationKeys.valueOf(resourceType), Integer.parseInt(paramValue));
+            } catch(NumberFormatException e) {
+                // just skip for now
+            }
+            decodedPaginationVal.put(RestrictedPaginationKeys.valueOf(resourceType), paginationValue);
         }
 
-        this.pagination = Collections.unmodifiableMap(decodedPagination);
+        this.paginationIntegers = Collections.unmodifiableMap(decodedPaginationInt);
+        this.paginationValues = Collections.unmodifiableMap(decodedPaginationVal);
     }
 
     /**
@@ -379,7 +409,7 @@ public class QueryParams {
                 ", grouping=" + grouping +
                 ", includedFields=" + includedFields +
                 ", includedRelations=" + includedRelations +
-                ", pagination=" + pagination +
+                ", pagination=" + paginationValues +
                 '}';
     }
 }

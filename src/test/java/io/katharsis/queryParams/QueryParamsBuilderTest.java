@@ -107,6 +107,41 @@ public class QueryParamsBuilderTest {
     }
 
     @Test
+    public void onGivenPaginationBuilderShouldReturnRequestParamsWithPaginationValues() throws
+            ParametersDeserializationException {
+        // GIVEN
+        queryParams.put("page[offset]", Collections.singleton("0"));
+        queryParams.put("page[limit]", Collections.singleton("10"));
+        queryParams.put("page[size]", Collections.singleton("00"));
+        queryParams.put("page[cursor]", Collections.singleton("AnOboeAndAFork"));
+
+        // WHEN
+        QueryParams result = sut.buildQueryParams(queryParams);
+
+        // THEN
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.offset).asInteger()).isEqualTo(0);
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.limit).asInteger()).isEqualTo(10);
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.size).asInteger()).isEqualTo(0);
+
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.offset).asLong()).isEqualTo(0L);
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.limit).asLong()).isEqualTo(10L);
+
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.offset).asString()).isEqualTo("0");
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.limit).asString()).isEqualTo("10");
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.size).asString()).isEqualTo("00");
+        assertThat(result.getPaginationValues()
+                .get(RestrictedPaginationKeys.cursor).asString()).isEqualTo("AnOboeAndAFork");
+    }
+
+    @Test
     public void onGivenIncludedFieldsBuilderShouldReturnRequestParamsWithIncludedFields() throws
         ParametersDeserializationException {
         // GIVEN
