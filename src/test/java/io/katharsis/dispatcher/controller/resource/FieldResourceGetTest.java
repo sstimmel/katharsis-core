@@ -24,7 +24,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -39,7 +39,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/relationships/project"), REQUEST_TYPE, null, parameterProvider);
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -55,7 +55,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter
-                , queryParamsBuilder);
+                , queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -69,7 +69,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/project"), REQUEST_TYPE, null, parameterProvider);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);
@@ -84,7 +84,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         Request request = new Request(parsePathFromStringUrl("http://domain.local/users/1/assignedProjects"), REQUEST_TYPE, null, parameterProvider);
 
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);

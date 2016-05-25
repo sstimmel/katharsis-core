@@ -14,19 +14,18 @@ import io.katharsis.response.BaseResponseContext;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static io.katharsis.dispatcher.controller.HttpMethod.PATCH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourcePatchTest extends BaseControllerTest {
-
-    private static final String REQUEST_TYPE = "PATCH";
 
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonPath, PATCH.name(), null, parameterProvider);
 
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -39,9 +38,9 @@ public class ResourcePatchTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/1");
-        Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonPath, PATCH.name(), null, parameterProvider);
 
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -53,12 +52,12 @@ public class ResourcePatchTest extends BaseControllerTest {
     @Test
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // THEN
         expectedException.expect(RuntimeException.class);
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/fridges");
-        Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonPath, PATCH.name(), null, parameterProvider);
 
         // WHEN
         sut.handle(request);
@@ -75,10 +74,10 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("name", "sample task"));
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
+        Request request = new Request(jsonPath, PATCH.name(), serialize(newTaskBody), parameterProvider);
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
         BaseResponseContext taskResponse = resourcePost.handle(request);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
@@ -92,8 +91,8 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode()
                 .put("name", "task updated"));
         jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
-        request = new Request(jsonPath, REQUEST_TYPE, serialize(taskPatch), parameterProvider);
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        request = new Request(jsonPath, PATCH.name(), serialize(taskPatch), parameterProvider);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);
@@ -115,26 +114,26 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("name", "sample task"));
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
+        Request request = new Request(jsonPath, PATCH.name(), serialize(newTaskBody), parameterProvider);
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
         BaseResponseContext taskResponse = resourcePost.handle(request);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
 
         // GIVEN
-        RequestBody taskPatch = new RequestBody();
-        data = new DataBody();
-        taskPatch.setData(data);
-        data.setType("WRONG_AND_MISSING_TYPE");
-        data.setAttributes(objectMapper.createObjectNode()
-                .put("name", "task updated"));
-        jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks" + taskId);
-        request = new Request(jsonPath, REQUEST_TYPE, serialize(taskPatch), parameterProvider);
 
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        data = new DataBody();
+        data.setType("WRONG_AND_MISSING_TYPE");
+        data.setAttributes(objectMapper.createObjectNode().put("name", "task updated"));
+        RequestBody taskPatch = new RequestBody(data);
+
+        jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
+        request = new Request(jsonPath, PATCH.name(), serialize(taskPatch), parameterProvider);
+
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
 
@@ -161,9 +160,9 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.setAttributes(attributes);
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/documents");
-        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(memorandumBody), parameterProvider);
+        Request request = new Request(jsonPath, PATCH.name(), serialize(memorandumBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -185,9 +184,9 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("body", "new body"));
 
         JsonApiPath documentPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/documents/" + memorandumId);
-        request = new Request(documentPath, REQUEST_TYPE, serialize(memorandumBody), parameterProvider);
+        request = new Request(documentPath, PATCH.name(), serialize(memorandumBody), parameterProvider);
 
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext memorandumResponse = sut.handle(request);
@@ -211,10 +210,10 @@ public class ResourcePatchTest extends BaseControllerTest {
                 .put("name", "sample task"));
 
         JsonApiPath documentPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(documentPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
+        Request request = new Request(documentPath, PATCH.name(), serialize(newTaskBody), parameterProvider);
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
         BaseResponseContext taskResponse = resourcePost.handle(request);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
@@ -231,9 +230,9 @@ public class ResourcePatchTest extends BaseControllerTest {
         data.getRelationships()
                 .setAdditionalProperty("project", null);
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
-        request = new Request(jsonPath, REQUEST_TYPE, serialize(taskPatch), parameterProvider);
+        request = new Request(jsonPath, PATCH.name(), serialize(taskPatch), parameterProvider);
 
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);

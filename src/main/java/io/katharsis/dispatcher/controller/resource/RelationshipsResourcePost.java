@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -17,8 +18,9 @@ public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
 
     public RelationshipsResourcePost(ResourceRegistry resourceRegistry,
                                      TypeParser typeParser,
-                                     QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, typeParser, paramsBuilder);
+                                     QueryParamsBuilder paramsBuilder,
+                                     ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, paramsBuilder, objectMapper);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.collection;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
 import io.katharsis.queryParams.QueryParams;
@@ -24,8 +25,9 @@ public class CollectionGet extends ResourceIncludeField {
     public CollectionGet(ResourceRegistry resourceRegistry,
                          TypeParser typeParser,
                          IncludeLookupSetter fieldSetter,
-                         QueryParamsBuilder queryParamsBuilder) {
-        super(resourceRegistry, typeParser, fieldSetter, queryParamsBuilder);
+                         QueryParamsBuilder queryParamsBuilder,
+                         ObjectMapper mapper) {
+        super(resourceRegistry, typeParser, fieldSetter, queryParamsBuilder, mapper);
     }
 
     /**

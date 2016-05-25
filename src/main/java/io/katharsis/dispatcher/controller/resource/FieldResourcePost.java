@@ -32,10 +32,9 @@ public class FieldResourcePost extends ResourceUpsert {
 
     public FieldResourcePost(ResourceRegistry resourceRegistry,
                              TypeParser typeParser,
-                             @SuppressWarnings
-                                     ("SameParameterValue") ObjectMapper objectMapper,
-                             QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, typeParser, objectMapper, paramsBuilder);
+                             QueryParamsBuilder paramsBuilder,
+                             ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, paramsBuilder, objectMapper);
     }
 
     @Override

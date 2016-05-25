@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
@@ -21,7 +22,9 @@ public class ResourceDelete extends BaseController {
 
     public ResourceDelete(ResourceRegistry resourceRegistry,
                           TypeParser typeParser,
-                          QueryParamsBuilder paramsBuilder) {
+                          QueryParamsBuilder paramsBuilder,
+                          ObjectMapper objectMapper) {
+        super(objectMapper);
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.queryParamsBuilder = paramsBuilder;

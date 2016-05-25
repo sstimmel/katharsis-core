@@ -22,9 +22,9 @@ public class ResourcePost extends ResourceUpsert {
 
     public ResourcePost(ResourceRegistry resourceRegistry,
                         TypeParser typeParser,
-                        ObjectMapper objectMapper,
-                        QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, typeParser, objectMapper, paramsBuilder);
+                        QueryParamsBuilder paramsBuilder,
+                        ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, paramsBuilder, objectMapper);
     }
 
     /**
@@ -48,7 +48,9 @@ public class ResourcePost extends ResourceUpsert {
         DataBody dataBody = dataBody(request);
 
         RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
+
         verifyTypes(HttpMethod.POST, path.getResource(), endpointRegistryEntry, bodyRegistryEntry);
+
         Object newResource = ClassUtils.newInstance(bodyRegistryEntry.getResourceInformation().getResourceClass());
 
         setId(dataBody, newResource, bodyRegistryEntry);

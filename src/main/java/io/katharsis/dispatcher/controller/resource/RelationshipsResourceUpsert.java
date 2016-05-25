@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Utils;
@@ -23,22 +24,27 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.List;
 
+@Getter
 public abstract class RelationshipsResourceUpsert extends BaseController {
 
-    final TypeParser typeParser;
+    private final TypeParser typeParser;
     private final ResourceRegistry resourceRegistry;
     private final QueryParamsBuilder paramsBuilder;
 
     RelationshipsResourceUpsert(ResourceRegistry resourceRegistry,
                                 TypeParser typeParser,
-                                QueryParamsBuilder paramsBuilder) {
+                                QueryParamsBuilder paramsBuilder,
+                                ObjectMapper objectMapper) {
+        super(objectMapper);
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.paramsBuilder = paramsBuilder;
+
     }
 
     /**
@@ -140,7 +146,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
         if (!request.getBody().isPresent()) {
             throw new RequestBodyNotFoundException(HttpMethod.POST, request.getPath().getResource());
         }
-        return new RequestBody();
+        return parseBody(request.getBody().get());
     }
 
     private Serializable getResourceId(RegistryEntry<?> registryEntry, List<String> ids) {

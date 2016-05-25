@@ -29,7 +29,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, queryParamsBuilder,objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -45,7 +45,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -61,7 +61,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -81,7 +81,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -101,7 +101,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/project");
         request = new Request(projectPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext projectResponse = sut.handle(request);
@@ -130,7 +130,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -149,7 +149,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
                 .build());
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/projects");
         request = new Request(projectPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext projectResponse = sut.handle(request);

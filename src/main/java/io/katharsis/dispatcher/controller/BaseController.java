@@ -1,13 +1,19 @@
 package io.katharsis.dispatcher.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
+import io.katharsis.request.dto.RequestBody;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.parser.TypeParser;
+import lombok.Getter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 
 /**
@@ -17,6 +23,13 @@ import java.io.Serializable;
  * true, the matched controller is used to handle the request.
  */
 public abstract class BaseController {
+
+    @Getter
+    protected final ObjectMapper objectMapper;
+
+    public BaseController(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     /**
      * Checks if requested resource method is acceptable.
@@ -38,7 +51,20 @@ public abstract class BaseController {
      */
     public abstract BaseResponseContext handle(Request request);
 
-    protected void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,
+    /**
+     * Check if a request is valid in the context.
+     * - does the resource support the HTTP method
+     * - does the URL resource type match the body data type
+     * - etc.
+     *
+     * @param methodType
+     * @param resourceEndpointName
+     * @param endpointRegistryEntry
+     * @param bodyRegistryEntry
+     */
+    protected void verifyTypes(HttpMethod methodType,
+                               String resourceEndpointName,
+                               RegistryEntry endpointRegistryEntry,
                                RegistryEntry bodyRegistryEntry) {
         if (endpointRegistryEntry.equals(bodyRegistryEntry)) {
             return;
@@ -71,6 +97,14 @@ public abstract class BaseController {
                 .getIdField().getType();
 
         return getTypeParser().parse(ids, idType);
+    }
+
+    public RequestBody parseBody(InputStream inputStream) {
+        try {
+            return getObjectMapper().readValue(inputStream, RequestBody.class);
+        } catch (IOException e) {
+            throw new JsonSerializationException("Exception reading JSON API request body. " + e.getMessage());
+        }
     }
 
 }

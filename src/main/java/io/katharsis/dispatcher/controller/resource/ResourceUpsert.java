@@ -2,7 +2,6 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.Request;
@@ -23,8 +22,6 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,16 +32,15 @@ public abstract class ResourceUpsert extends BaseController {
 
     final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
-    private final ObjectMapper objectMapper;
     private final QueryParamsBuilder paramsBuilder;
 
     public ResourceUpsert(ResourceRegistry resourceRegistry,
                           TypeParser typeParser,
-                          ObjectMapper objectMapper,
-                          QueryParamsBuilder paramsBuilder) {
+                          QueryParamsBuilder paramsBuilder,
+                          ObjectMapper objectMapper) {
+        super(objectMapper);
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
-        this.objectMapper = objectMapper;
         this.paramsBuilder = paramsBuilder;
     }
 
@@ -260,14 +256,6 @@ public abstract class ResourceUpsert extends BaseController {
             throw new RequestBodyException(request.getMethod(), request.getPath().getResource(), "No data field in the body.");
         }
         return dataBody;
-    }
-
-    private RequestBody parseBody(InputStream inputStream) {
-        try {
-            return objectMapper.readValue(inputStream, RequestBody.class);
-        } catch (IOException e) {
-            throw new JsonSerializationException("Exception reading JSON API request body. " + e.getMessage());
-        }
     }
 
     @Override

@@ -35,7 +35,7 @@ public class CollectionGetTest extends BaseControllerTest {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/"), REQUEST_TYPE, null, parameterProvider);
 
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -49,7 +49,7 @@ public class CollectionGetTest extends BaseControllerTest {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/2"), REQUEST_TYPE, null, parameterProvider);
 
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -63,7 +63,7 @@ public class CollectionGetTest extends BaseControllerTest {
         // GIVEN
 
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/"), REQUEST_TYPE, null, parameterProvider);
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);
@@ -77,7 +77,7 @@ public class CollectionGetTest extends BaseControllerTest {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1,2"), REQUEST_TYPE, null, parameterProvider);
 
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);
@@ -98,7 +98,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(requestBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -121,7 +121,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -163,7 +163,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/includedProjects");
         request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a relation between task and project
         BaseResponseContext projectRelationshipResponse = sut.handle(request);
@@ -178,7 +178,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
         request = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
                 Collections.singleton("includedProjects"));
@@ -208,7 +208,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -248,7 +248,7 @@ public class CollectionGetTest extends BaseControllerTest {
 
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/projects");
         request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder);
+        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a relation between task and project
         BaseResponseContext projectRelationshipResponse = sut.handle(request);
@@ -262,7 +262,7 @@ public class CollectionGetTest extends BaseControllerTest {
         //Given
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
         request = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
                 Collections.singleton("[projects]"));

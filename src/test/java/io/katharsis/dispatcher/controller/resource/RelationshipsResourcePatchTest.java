@@ -46,7 +46,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -63,7 +63,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -84,7 +84,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder,objectMapper);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -128,7 +128,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
-                queryParamsBuilder);
+                queryParamsBuilder,objectMapper);
 
         // WHEN -- adding a relation between task and project
         BaseResponseContext projectRelationshipResponse = sut.handle(request);
@@ -152,8 +152,8 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newUserBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
-                queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser,
+                queryParamsBuilder,objectMapper);
 
         // WHEN -- adding a user
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -196,7 +196,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
-                queryParamsBuilder);
+                queryParamsBuilder,objectMapper);
 
         // WHEN -- adding a relation between user and project
         BaseResponseContext projectRelationshipResponse = sut.handle(request);
@@ -221,8 +221,8 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
-                queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser,
+                queryParamsBuilder,objectMapper);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -241,7 +241,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/project");
         request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
         RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser,
-                queryParamsBuilder);
+                queryParamsBuilder,objectMapper);
 
         // WHEN -- adding a relation between user and project
         BaseResponseContext projectRelationshipResponse = sut.handle(request);

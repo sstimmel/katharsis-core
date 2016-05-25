@@ -18,7 +18,6 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.response.BaseResponseContext;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -52,8 +51,7 @@ public class ResourceGetTest extends BaseControllerTest {
                 .put("data", "asd");
         data.setAttributes(attributes);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper,
-                queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
     }
 
     @Test
@@ -61,7 +59,7 @@ public class ResourceGetTest extends BaseControllerTest {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/"), REQUEST_TYPE, null, parameterProvider);
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -75,7 +73,7 @@ public class ResourceGetTest extends BaseControllerTest {
         // GIVEN
         Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/2"), REQUEST_TYPE, null, parameterProvider);
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -98,8 +96,8 @@ public class ResourceGetTest extends BaseControllerTest {
 
         Request request = new Request(taskPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
-                queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser,
+                queryParamsBuilder, objectMapper);
         BaseResponseContext taskResponse = resourcePost.handle(request);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
@@ -107,7 +105,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
         // GIVEN
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId);
-        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
 
         Request requestWithId = new Request(jsonPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
         // WHEN
@@ -121,7 +119,7 @@ public class ResourceGetTest extends BaseControllerTest {
     public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
         // GIVEN
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/task-with-lookup/1");
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[task-with-lookup]",
                 new HashSet<>(Arrays.asList("project", "projectNull", "projectOverridden", "projectOverriddenNull")));
@@ -156,8 +154,8 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonApiPath path = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         Request request = new Request(path, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper,
-                queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser,
+                queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a task
         BaseResponseContext taskResponse = resourcePost.handle(request);
@@ -201,7 +199,7 @@ public class ResourceGetTest extends BaseControllerTest {
         request = new Request(projectPath, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser,
-                queryParamsBuilder);
+                queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a relation between task and project
         BaseResponseContext projectRelationshipResponse = sut.handle(request);
@@ -217,7 +215,7 @@ public class ResourceGetTest extends BaseControllerTest {
         request = new Request(path, REQUEST_TYPE, serialize(newTaskToProjectBody), parameterProvider);
 
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter
-                , queryParamsBuilder);
+                , queryParamsBuilder, objectMapper);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
                 Collections.singleton("[project]"));

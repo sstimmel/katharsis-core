@@ -25,19 +25,18 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import static io.katharsis.dispatcher.controller.HttpMethod.POST;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourcePostTest extends BaseControllerTest {
-
-    private static final String REQUEST_TYPE = "POST";
 
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/1");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), null, parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -50,9 +49,9 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), null, parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -71,9 +70,9 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), null, parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -91,9 +90,9 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setType("fridges");
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/fridges");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), null, parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -106,9 +105,9 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/fridges");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, null, parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), null, parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -120,23 +119,23 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onNewResourcesAndRelationshipShouldPersistThoseData() throws Exception {
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        DataBody data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        ObjectNode attributes = objectMapper.createObjectNode()
-                .put("name", "sample project");
-        attributes.putObject("data")
-                .put("data", "asd");
-        data.setAttributes(attributes);
+
+        ObjectNode attributes = objectMapper.createObjectNode().put("name", "sample project");
+        attributes.putObject("data").put("data", "asd");
+
+        DataBody data = DataBody.builder()
+                .type("projects")
+                .attributes(attributes)
+                .build();
+        RequestBody newProjectBody = new RequestBody(data);
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), serialize(newProjectBody), parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
-        BaseResponseContext projectResponse = sut.handle(request);
+        BaseResponseContext projectResponse = resourcePost.handle(request);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -150,20 +149,19 @@ public class ResourcePostTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newTaskBody = new RequestBody();
+
         data = new DataBody();
-        newTaskBody.setData(data);
         data.setType("tasks");
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
         data.getRelationships().setAdditionalProperty("project", new LinkageData("projects", projectId.toString()));
+        RequestBody newTaskBody = new RequestBody(data);
 
         jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
-        request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newTaskBody), parameterProvider);
-
+        request = new Request(jsonApiPath, POST.name(), serialize(newTaskBody), parameterProvider);
 
         // WHEN
-        BaseResponseContext taskResponse = sut.handle(request);
+        BaseResponseContext taskResponse = resourcePost.handle(request);
 
         // THEN
         assertThat(taskResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -173,6 +171,7 @@ public class ResourcePostTest extends BaseControllerTest {
         assertThat(((Task) (taskResponse.getResponse().getEntity())).getName()).isEqualTo("sample task");
 
         TaskRepository taskRepository = new TaskRepository();
+
         Task persistedTask = taskRepository.findOne(taskId, null);
         assertThat(persistedTask.getProject().getId()).isEqualTo(projectId);
     }
@@ -187,9 +186,9 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), serialize(newProjectBody), parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext projectResponse = sut.handle(request);
@@ -209,12 +208,11 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setType("users");
         data.setAttributes(objectMapper.createObjectNode().put("name", "some user"));
         data.setRelationships(new ResourceRelationships());
-        data.getRelationships().setAdditionalProperty("assignedProjects", Collections.singletonList(new LinkageData("projects",
-                projectId.toString())));
-
+        data.getRelationships().setAdditionalProperty("assignedProjects",
+                Collections.singletonList(new LinkageData("projects", projectId.toString())));
 
         jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users");
-        request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newUserBody), parameterProvider);
+        request = new Request(jsonApiPath, POST.name(), serialize(newUserBody), parameterProvider);
 
 
         // WHEN
@@ -243,9 +241,9 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(attributes);
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/documents");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newMemorandumBody), parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), serialize(newMemorandumBody), parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext memorandumResponse = sut.handle(request);
@@ -268,9 +266,9 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonApiPath jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        Request request = new Request(jsonApiPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
+        Request request = new Request(jsonApiPath, POST.name(), serialize(newProjectBody), parameterProvider);
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext projectResponse = sut.handle(request);
@@ -298,7 +296,7 @@ public class ResourcePostTest extends BaseControllerTest {
         pojoData.setRelationships(relationships);
 
         jsonApiPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/pojo");
-        request = new Request(jsonApiPath, REQUEST_TYPE, serialize(pojoBody), parameterProvider);
+        request = new Request(jsonApiPath, POST.name(), serialize(pojoBody), parameterProvider);
 
         // WHEN
         BaseResponseContext pojoResponse = sut.handle(request);

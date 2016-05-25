@@ -34,7 +34,8 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser,
+                includeFieldSetter, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -51,7 +52,8 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser,
+                includeFieldSetter, queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -67,7 +69,8 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter,
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(request);
@@ -81,7 +84,8 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/1/relationships/project");
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter,
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);
@@ -96,7 +100,8 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/1/relationships/project");
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
 
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter,
+                queryParamsBuilder, objectMapper);
         new TaskToProjectRepository().setRelation(new Task().setId(1L), 42L, "project");
 
         // WHEN
@@ -115,7 +120,8 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
 
         JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users/1/relationships/assignedProjects");
         Request request = new Request(jsonPath, REQUEST_TYPE, null, parameterProvider);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter,
+                queryParamsBuilder, objectMapper);
 
         // WHEN
         BaseResponseContext response = sut.handle(request);

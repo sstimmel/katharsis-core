@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -11,12 +12,14 @@ public abstract class ResourceIncludeField extends BaseController {
     protected final ResourceRegistry resourceRegistry;
     protected final TypeParser typeParser;
     protected final IncludeLookupSetter includeFieldSetter;
-    private QueryParamsBuilder queryParamsBuilder;
+    private final QueryParamsBuilder queryParamsBuilder;
 
     public ResourceIncludeField(ResourceRegistry resourceRegistry,
                                 TypeParser typeParser,
                                 IncludeLookupSetter fieldSetter,
-                                QueryParamsBuilder queryParamsBuilder) {
+                                QueryParamsBuilder queryParamsBuilder,
+                                ObjectMapper objectMapper) {
+        super(objectMapper);
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.includeFieldSetter = fieldSetter;

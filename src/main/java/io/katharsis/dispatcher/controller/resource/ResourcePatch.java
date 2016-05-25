@@ -22,9 +22,9 @@ public class ResourcePatch extends ResourceUpsert {
 
     public ResourcePatch(ResourceRegistry resourceRegistry,
                          TypeParser typeParser,
-                         @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper,
-                         QueryParamsBuilder paramsBuilder) {
-        super(resourceRegistry, typeParser, objectMapper, paramsBuilder);
+                         QueryParamsBuilder paramsBuilder,
+                         ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, paramsBuilder, objectMapper);
     }
 
     @Override
