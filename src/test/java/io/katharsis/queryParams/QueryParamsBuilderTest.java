@@ -135,6 +135,15 @@ public class QueryParamsBuilderTest {
         result.getPaginationAsLong(RestrictedPaginationKeys.cursor);
     }
 
+    @Test(expected = ParametersDeserializationException.class)
+    public void onGivenPaginationTooDeepBuilderShouldThrowException() throws Exception {
+        // GIVEN
+        queryParams.put("page[cursor][whoops]", Collections.singleton("AnOboeAndAFork"));
+
+        // WHEN
+        sut.buildQueryParams(queryParams);
+    }
+
     @Test
     public void onGivenIncludedFieldsBuilderShouldReturnRequestParamsWithIncludedFields() throws
         ParametersDeserializationException {
