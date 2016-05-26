@@ -112,14 +112,19 @@ public class RequestDispatcher {
             switch (request.getMethod()) {
                 case GET:
                     response = handleGet(request);
+                    break;
                 case POST:
                     response = handlePost(request);
+                    break;
                 case PUT:
                     response = handlePut(request);
+                    break;
                 case PATCH:
                     response = handlePatch(request);
+                    break;
                 case DELETE:
                     response = handleDelete(request);
+                    break;
                 default:
                     throw new MethodNotFoundException(request);
             }
