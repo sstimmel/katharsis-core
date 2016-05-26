@@ -29,7 +29,7 @@ public class FieldResourceGet extends ResourceIncludeField {
                             IncludeLookupSetter fieldSetter,
                             QueryParamsBuilder paramsBuilder,
                             ObjectMapper objectMapper) {
-        super(resourceRegistry, typeParser, fieldSetter, paramsBuilder,objectMapper);
+        super(resourceRegistry, typeParser, fieldSetter, paramsBuilder, objectMapper);
     }
 
     @Override
@@ -65,13 +65,13 @@ public class FieldResourceGet extends ResourceIncludeField {
             JsonApiResponse response = relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, queryParams);
 
-            includeFieldSetter.setIncludedElements(registryEntry, jsonPath.getResource(), response, queryParams);
+            includeFieldSetter.injectIncludedElementsForCollection(response, request, queryParams);
             target = new CollectionResponseContext(response, jsonPath, queryParams);
         } else {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findOneTarget(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(registryEntry, jsonPath.getResource(), response, queryParams);
+            includeFieldSetter.injectIncludedRelationshipsInResource(response, request, queryParams);
             target = new ResourceResponseContext(response, jsonPath, queryParams);
         }
 

@@ -72,7 +72,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
             JsonApiResponse response = relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, queryParams);
 
-            includeFieldSetter.setIncludedElements(relationshipFieldEntry, path.getResource(), response, queryParams);
+            includeFieldSetter.injectIncludedElementsForCollection(response, request, queryParams);
 
             List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, relationshipFieldEntry, response);
             response.setEntity(dataList);
@@ -81,7 +81,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findOneTarget(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(relationshipFieldEntry, path.getResource(), response, queryParams);
+            includeFieldSetter.injectIncludedRelationshipsInResource(response, request, queryParams);
 
             if (response.getEntity() != null) {
                 LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, relationshipFieldEntry, response);

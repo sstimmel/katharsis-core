@@ -56,7 +56,9 @@ public class CollectionGet extends ResourceIncludeField {
             response = resourceRepository.findAll(queryParams);
         }
 
-        includeFieldSetter.setIncludedElements(registryEntry, path.getResource(), response, queryParams);
+        if (queryParams.hasIncludedRelations()) {
+            includeFieldSetter.injectIncludedElementsForCollection(response, request, queryParams);
+        }
 
         return new CollectionResponseContext(response, path, queryParams);
     }

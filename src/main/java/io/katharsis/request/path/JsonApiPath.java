@@ -3,7 +3,7 @@ package io.katharsis.request.path;
 
 import io.katharsis.errorhandling.GenericKatharsisException;
 import io.katharsis.utils.java.Optional;
-import lombok.Getter;
+import lombok.Value;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -20,7 +20,7 @@ import java.util.List;
  * <p>
  * This class parses a Path and identifies all parts.
  */
-@Getter
+@Value
 public class JsonApiPath {
 
     public static final String DEFAULT_ID_SEPARATOR = ",";

@@ -59,7 +59,7 @@ public class ResourceGet extends ResourceIncludeField {
         QueryParams params = getQueryParamsBuilder().parseQuery(path.getQuery());
         @SuppressWarnings("unchecked")
         JsonApiResponse response = resourceRepository.findOne(castedId, params);
-        includeFieldSetter.setIncludedElements(registryEntry, path.getResource(), response, params);
+        includeFieldSetter.injectIncludedRelationshipsInResource(response, request, params);
 
         return new ResourceResponseContext(response, path, params);
     }

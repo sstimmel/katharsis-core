@@ -395,6 +395,10 @@ public class QueryParams {
         this.includedRelations = new TypedParams<>(Collections.unmodifiableMap(decodedInclusions));
     }
 
+    public boolean hasIncludedRelations() {
+        return !includedRelations.getParams().isEmpty();
+    }
+
     @Override
     public String toString() {
         return "QueryParams{" +

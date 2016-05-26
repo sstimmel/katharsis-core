@@ -5,6 +5,7 @@ import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.request.Request;
 import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -14,17 +15,17 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+@Slf4j
 public class IncludeLookupSetter {
-    private static final transient Logger logger = LoggerFactory.getLogger(IncludeLookupSetter.class);
 
     private final ResourceRegistry resourceRegistry;
 
@@ -32,83 +33,52 @@ public class IncludeLookupSetter {
         this.resourceRegistry = resourceRegistry;
     }
 
-    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
-                                                          String resourceName) {
+    private static Set<Inclusion> extractIncludedFields(TypedParams<IncludedRelationsParams> queryParams,
+                                                        String resourceName) {
         IncludedRelationsParams includedRelationsParams = null;
         for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams().entrySet()) {
             if (resourceName.equals(entry.getKey())) {
                 includedRelationsParams = entry.getValue();
             }
         }
-        return includedRelationsParams;
+        return includedRelationsParams == null ? new HashSet<Inclusion>() : includedRelationsParams.getParams();
     }
 
-    public void setIncludedElements(RegistryEntry registryEntry,
-                                    String resourceName,
-                                    Object repositoryResource,
-                                    QueryParams queryParams) {
+    public void injectIncludedElementsForCollection(Object responseResources,
+                                                    Request request,
+                                                    QueryParams queryParams) {
 
-        Object resource = resolveResource(repositoryResource);
 
-        if (resourceHasIncludedResources(queryParams, resource)) {
-            if (isCollectionResource(resource)) {
-                for (Object target : (Iterable<?>) resource) {
-                    setIncludedElements(registryEntry, resourceName, target, queryParams);
-                }
+        for (Object resource : (Iterable) resolveResource(responseResources)) {
+            injectIncludedRelationshipsInResource(resource, request, queryParams);
+        }
+    }
+
+    /**
+     * Iterate over included fields. Include all relationships for each field belonging to this resource
+     *
+     * @param responseResource
+     * @param request
+     * @param queryParams
+     */
+    public void injectIncludedRelationshipsInResource(Object responseResource,
+                                                      Request request,
+                                                      QueryParams queryParams) {
+
+        String resourceName = request.getPath().getResource();
+        RegistryEntry resourceEntry = resourceRegistry.getEntry(resourceName);
+
+        Set<Inclusion> includedRelations = extractIncludedFields(queryParams.getIncludedRelations(), resourceName);
+
+        // iterate over all included fields
+        for (Inclusion inclusion : includedRelations) {
+            if (!inclusion.isNestedPath()) {
+                includeRelationshipsForResource(resourceEntry, resolveResource(responseResource), request, inclusion, queryParams);
+
             } else {
-                IncludedRelationsParams includedRelationsParams = findInclusions(queryParams.getIncludedRelations(),
-                        resourceName);
-                if (includedRelationsParams != null) {
-                    // iterate over all included fields
-                    for (Inclusion inclusion : includedRelationsParams.getParams()) {
-                        List<String> pathList = inclusion.getPathList();
-                        if (!pathList.isEmpty()) {
-                            getElements(registryEntry, resource, pathList, queryParams);
-                        }
-                    }
-                }
+                log.warn("Unsupported nested inclusion {}", request.getPath());
             }
         }
-    }
-
-    void getElements(RegistryEntry registryEntry, Object resource, List<String> pathList, QueryParams queryParams) {
-        if (!pathList.isEmpty()) {
-            // resolve field
-            String underlyingFieldName = underlyingFieldName(registryEntry, pathList);
-
-            Field field = ClassUtils.findClassField(resource.getClass(), underlyingFieldName);
-            if (field == null) {
-                logger.warn("Error loading relationship, couldn't find field " + underlyingFieldName);
-                return;
-            }
-            Object property = PropertyUtils.getProperty(resource, field.getName());
-            //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
-            if (shouldWeLoadRelationship(field, property)) {
-                property = loadRelationship(resource, field, queryParams);
-                PropertyUtils.setProperty(resource, field.getName(), property);
-            }
-
-            if (property != null) {
-                List<String> subPathList = pathList.subList(1, pathList.size());
-                if (isCollectionResource(property)) {
-                    for (Object o : ((Iterable) property)) {
-                        //noinspection unchecked
-                        getElements(registryEntry, o, subPathList, queryParams);
-                    }
-                } else {
-                    //noinspection unchecked
-                    getElements(registryEntry, property, subPathList, queryParams);
-                }
-            }
-        }
-    }
-
-    private boolean resourceHasIncludedResources(QueryParams queryParams, Object resource) {
-        return resource != null && queryParams.getIncludedRelations() != null;
-    }
-
-    private boolean isCollectionResource(Object resource) {
-        return Iterable.class.isAssignableFrom(resource.getClass());
     }
 
     private Object resolveResource(Object repositoryResource) {
@@ -121,8 +91,47 @@ public class IncludeLookupSetter {
         return resource;
     }
 
-    private String underlyingFieldName(RegistryEntry registryEntry, List<String> pathList) {
-        String cleanedUpName = removeSurroundingBracketsAndQuotes(pathList.get(0));
+    void includeRelationshipsForResource(RegistryEntry resourceEntry,
+                                         Object resource,
+                                         Request request,
+                                         Inclusion inclusion,
+                                         QueryParams queryParams) {
+        // resolve field
+        String includedRelationName = inclusion.getPathList().get(0);
+
+        String underlyingFieldName = underlyingFieldName(resourceEntry, includedRelationName);
+
+        Field field = ClassUtils.findClassField(resource.getClass(), underlyingFieldName);
+
+        if (field == null) {
+            log.warn("Error loading relationship, couldn't find field {}: {}", underlyingFieldName, request.getPath());
+            return;
+        }
+
+        Object property = PropertyUtils.getProperty(resource, field.getName());
+        //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
+        if (shouldWeLoadRelationship(field, property)) {
+            property = loadRelationship(resource, field, queryParams);
+            PropertyUtils.setProperty(resource, field.getName(), property);
+        }
+
+//        if (property != null) {
+//            List<String> subPathList = pathList.subList(1, pathList.size());
+//            if (isCollectionResource(property)) {
+//                for (Object o : ((Iterable) property)) {
+//                    //noinspection unchecked
+//                    getElements(resourceEntry, o, subPathList, queryParams);
+//                }
+//            } else {
+//                //noinspection unchecked
+//                getElements(resourceEntry, property, subPathList, queryParams);
+//            }
+//        }
+    }
+
+
+    private String underlyingFieldName(RegistryEntry registryEntry, String fieldName) {
+        String cleanedUpName = removeSurroundingBracketsAndQuotes(fieldName);
         ResourceField resourceField = registryEntry.getResourceInformation().findRelationshipFieldByName(cleanedUpName);
         return resourceField.getUnderlyingName();
     }
@@ -184,7 +193,7 @@ public class IncludeLookupSetter {
                 return response.getEntity();
             }
         } catch (RelationshipRepositoryNotFoundException e) {
-            logger.debug("Relationship is not defined", e);
+            log.debug("Relationship is not defined", e);
         }
 
         return null;

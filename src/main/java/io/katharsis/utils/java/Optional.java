@@ -1,8 +1,13 @@
 package io.katharsis.utils.java;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+@ToString
+@EqualsAndHashCode
 public class Optional<T> {
     private static final Optional<?> EMPTY = new Optional<>(null);
 
@@ -36,4 +41,9 @@ public class Optional<T> {
         }
         return value;
     }
+
+    public T orElse(T other) {
+        return value != null ? value : other;
+    }
+
 }
