@@ -1,13 +1,14 @@
 package io.katharsis.dispatcher;
 
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
+import io.katharsis.request.Request;
 
 /**
  * Indicates that no corresponding controller for a request had not been found.
  */
 class MethodNotFoundException extends KatharsisMatchingException {
 
-    public MethodNotFoundException(String uri, String method) {
-        super(String.format("%s: %s", method, uri));
+    public MethodNotFoundException(Request request) {
+        super(request.toString());
     }
 }

@@ -12,6 +12,9 @@ public interface BaseResponseContext {
     @JsonIgnore
     int getHttpStatus();
 
+    @JsonIgnore
+    void setHttpStatus(int newStatus);
+
     JsonApiResponse getResponse();
 
     JsonApiPath getPath();

@@ -2,6 +2,8 @@ package io.katharsis.response;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonApiPath;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -27,6 +29,8 @@ public class ResourceResponseContext implements BaseResponseContext {
 
     private QueryParams queryParams;
 
+    @Getter
+    @Setter
     private int httpStatus;
 
     public ResourceResponseContext(JsonApiResponse response, int httpStatus) {

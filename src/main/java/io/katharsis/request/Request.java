@@ -63,9 +63,6 @@ public class Request {
 
     @Override
     public String toString() {
-        return "Request{" +
-                "path=" + path +
-                ", method=" + method +
-                '}';
+        return "path=" + path + ", method=" + method;
     }
 }

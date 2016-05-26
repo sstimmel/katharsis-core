@@ -29,6 +29,11 @@ public final class ErrorResponse implements BaseResponseContext {
     }
 
     @Override
+    public void setHttpStatus(int newStatus) {
+        //TODO: ieugen: refactor this empyt method
+    }
+
+    @Override
     public JsonApiResponse getResponse() {
         return new JsonApiResponse()
                 .setEntity(data);

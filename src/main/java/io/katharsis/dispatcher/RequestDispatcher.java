@@ -12,6 +12,9 @@ import io.katharsis.dispatcher.controller.resource.ResourceDelete;
 import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.dispatcher.controller.resource.ResourcePatch;
 import io.katharsis.dispatcher.controller.resource.ResourcePost;
+import io.katharsis.errorhandling.ErrorData;
+import io.katharsis.errorhandling.ErrorResponse;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -21,6 +24,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.java.Optional;
 import io.katharsis.utils.parser.TypeParser;
+import lombok.NonNull;
 
 /**
  * A class that can be used to integrate Katharsis with external frameworks like Jersey, Spring etc. See katharsis-rs
@@ -61,7 +65,7 @@ public class RequestDispatcher {
         this.resourceGet = new ResourceGet(resourceRegistry, typeParser, includeLookupSetter,
                 queryParamsBuilder, mapper);
         this.resourcePost = new ResourcePost(resourceRegistry, typeParser,
-                queryParamsBuilder,mapper);
+                queryParamsBuilder, mapper);
         this.resourcePatch = new ResourcePatch(resourceRegistry, typeParser,
                 queryParamsBuilder, mapper);
         this.resourceDelete = new ResourceDelete(resourceRegistry, typeParser,
@@ -89,7 +93,7 @@ public class RequestDispatcher {
      * @return the response form the Katharsis
      */
     public BaseResponseContext dispatchRequest(Request request) {
-
+        BaseResponseContext response = null;
         try {
             /**
              * Extract informations from the request. Based on those we can route the request.
@@ -107,30 +111,45 @@ public class RequestDispatcher {
 
             switch (request.getMethod()) {
                 case GET:
-                    return handleGet(request);
+                    response = handleGet(request);
                 case POST:
-                    return handlePost(request);
+                    response = handlePost(request);
                 case PUT:
-                    return handlePut(request);
+                    response = handlePut(request);
                 case PATCH:
-                    return handlePatch(request);
+                    response = handlePatch(request);
                 case DELETE:
-                    return handleDelete(request);
+                    response = handleDelete(request);
                 default:
-                    throw new IllegalStateException("Unsupported method " + request);
+                    throw new MethodNotFoundException(request);
             }
 
+        } catch (KatharsisMatchingException ke) {
+            response.setHttpStatus(406);
         } catch (Exception e) {
-            Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
-            if (exceptionMapper.isPresent()) {
-                //noinspection unchecked
-                return exceptionMapper.get()
-                        .toErrorResponse(e);
-            } else {
-                throw e;
-            }
+            response = toErrorResponse(e, 422);
+        } finally {
+            return response;
         }
     }
+
+    public BaseResponseContext toErrorResponse(@NonNull Throwable e, int statusCode) {
+        Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
+        ErrorResponse errorResponse;
+        if (exceptionMapper.isPresent()) {
+            errorResponse = exceptionMapper.get().toErrorResponse(e);
+        } else {
+            errorResponse = ErrorResponse.builder()
+                    .setStatus(statusCode)
+                    .setSingleErrorData(ErrorData.builder()
+                            .setDetail(e.getMessage() + e)
+                            .build())
+                    .build();
+        }
+
+        return errorResponse;
+    }
+
 
     private BaseResponseContext handleGet(Request request) {
         if (collectionGet.isAcceptable(request)) {
@@ -149,7 +168,7 @@ public class RequestDispatcher {
             return relationshipsResourceGet.handle(request);
         }
 
-        throw new IllegalStateException("Invalid state handling request " + request);
+        throw new MethodNotFoundException(request);
     }
 
     private BaseResponseContext handlePut(Request request) {
@@ -168,7 +187,7 @@ public class RequestDispatcher {
         if (relationshipsResourcePost.isAcceptable(request)) {
             return relationshipsResourcePost.handle(request);
         }
-        throw new IllegalStateException("Illegal state while processing " + request);
+        throw new MethodNotFoundException(request);
     }
 
     private BaseResponseContext handlePatch(Request request) {
@@ -179,7 +198,7 @@ public class RequestDispatcher {
         if (relationshipsResourcePatch.isAcceptable(request)) {
             return relationshipsResourcePatch.handle(request);
         }
-        throw new IllegalStateException("Illegal state while processing " + request);
+        throw new MethodNotFoundException(request);
     }
 
     private BaseResponseContext handleDelete(Request request) {
@@ -190,7 +209,7 @@ public class RequestDispatcher {
         if (relationshipsResourceDelete.isAcceptable(request)) {
             return relationshipsResourceDelete.handle(request);
         }
-        throw new IllegalStateException("Illegal state while processing" + request);
+        throw new MethodNotFoundException(request);
     }
 
 }

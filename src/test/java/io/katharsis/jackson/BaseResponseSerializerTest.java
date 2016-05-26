@@ -246,6 +246,11 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
             }
 
             @Override
+            public void setHttpStatus(int newStatus) {
+                return;
+            }
+
+            @Override
             public JsonApiResponse getResponse() {
                 return null;
             }
