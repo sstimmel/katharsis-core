@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.katharsis.jackson.deserializer.ResourceRelationshipsDeserializer;
+import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;

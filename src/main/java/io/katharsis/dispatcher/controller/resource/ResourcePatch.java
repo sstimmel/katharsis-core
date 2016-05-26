@@ -29,7 +29,9 @@ public class ResourcePatch extends ResourceUpsert {
 
     @Override
     public boolean isAcceptable(Request request) {
-        return request.getMethod() == HttpMethod.PATCH && request.getPath().isResource();
+        return request.getMethod() == HttpMethod.PATCH
+                && request.getPath().isResource()
+                && !request.getPath().isCollection();
     }
 
     @Override

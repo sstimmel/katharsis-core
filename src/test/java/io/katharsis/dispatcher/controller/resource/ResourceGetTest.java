@@ -20,12 +20,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -118,16 +114,19 @@ public class ResourceGetTest extends BaseControllerTest {
     @Test
     public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
         // GIVEN
-        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/task-with-lookup/1");
+//        Map<String, Set<String>> queryParams = new HashMap<>();
+//        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[task-with-lookup]",
+//                new HashSet<>(Arrays.asList("project", "projectNull", "projectOverridden", "projectOverriddenNull")));
+//        QueryParams queryParamsObject = queryParamsBuilder.buildQueryParams(queryParams);
+
+        RequestBody body = new RequestBody(DataBody.builder().build());
+
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/task-with-lookup/1?include[task-with-lookup]=" +
+                "project,projectNull,projectOverridden,projectOverriddenNull");
+
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter, queryParamsBuilder, objectMapper);
-        Map<String, Set<String>> queryParams = new HashMap<>();
-        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[task-with-lookup]",
-                new HashSet<>(Arrays.asList("project", "projectNull", "projectOverridden", "projectOverriddenNull")));
-        QueryParams queryParamsObject = queryParamsBuilder.buildQueryParams(queryParams);
+        Request request = new Request(jsonPath, REQUEST_TYPE, serialize(body), parameterProvider);
 
-        InputStream body = new ByteArrayInputStream(new byte[]{});
-
-        Request request = new Request(jsonPath, REQUEST_TYPE, body, parameterProvider);
         // WHEN
         BaseResponseContext response = responseGetResp.handle(request);
 

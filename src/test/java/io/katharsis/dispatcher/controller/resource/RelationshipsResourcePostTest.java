@@ -176,7 +176,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
 
 
         JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
-        request = new Request(savedTaskPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
+        request = new Request(projectPath, REQUEST_TYPE, serialize(newProjectBody), parameterProvider);
 
 
         // WHEN -- adding a project

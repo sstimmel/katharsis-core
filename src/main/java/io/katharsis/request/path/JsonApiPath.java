@@ -199,12 +199,20 @@ public class JsonApiPath {
             return ids.get().size() > 1;
         } else {
             // resource is always present, check for absence of field and relationship
-            return !(field.isPresent() || relationship.isPresent());
+            return !hasFieldOrResource();
         }
     }
 
     public boolean isResource() {
-        return !(field.isPresent() || relationship.isPresent() || isCollection());
+        return isCollection() || (isSingleResource() && !hasFieldOrResource());
+    }
+
+    private boolean isSingleResource() {
+        return ids.isPresent() ? ids.get().size() == 1 : false;
+    }
+
+    private boolean hasFieldOrResource() {
+        return field.isPresent() || relationship.isPresent();
     }
 
     public boolean isRelationshipResource() {
