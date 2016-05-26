@@ -55,9 +55,8 @@ public class ResourcePatch extends ResourceUpsert {
         @SuppressWarnings("unchecked")
         Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
 
-
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, queryParams);
+        setRelations(resource, bodyRegistryEntry, dataBody, queryParams, request.getParameterProvider());
         JsonApiResponse response = resourceRepository.save(resource, queryParams);
 
         return new ResourceResponseContext(response, path, queryParams);
