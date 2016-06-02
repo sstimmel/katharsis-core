@@ -12,6 +12,7 @@ import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.utils.StringUtils;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -32,7 +33,7 @@ public class QueryParams {
     private TypedParams<GroupingParams> grouping;
     private TypedParams<IncludedFieldsParams> includedFields;
     private TypedParams<IncludedRelationsParams> includedRelations;
-    private Map<RestrictedPaginationKeys, Integer> pagination;
+    private Map<RestrictedPaginationKeys, String> pagination;
 
     private static List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
         String entryKey = entry.getKey()
@@ -226,21 +227,47 @@ public class QueryParams {
      * is agnostic about pagination strategies.
      * <p>
      * Pagination params can be send with following format: <br>
-     * <strong>page[offset|limit] = "value"</strong>, where value is an integer
+     * <strong>page[offset|limit|number|size|cursor] = "value"</strong>
      * <p>
      * Examples of accepted grouping of resources:
      * <ul>
      * <li>{@code GET /projects/?page[offset]=0&page[limit]=10}</li>
+     * <li>{@code GET /projects/?page[number]=4&page[size]=10}</li>
+     * <li>{@code GET /projects/?page[cursor]=opaquestring}</li>
      * </ul>
      *
      * @return {@link Map} Map of pagination keys passed to request
      */
-    public Map<RestrictedPaginationKeys, Integer> getPagination() {
+    public Map<RestrictedPaginationKeys, String> getPagination() {
         return pagination;
     }
 
+    /**
+     * @return the request parameter value for key converted to an Integer, or null if the parameter was not provided
+     * @throws NumberFormatException if the parameter cannot be converted to an Integer
+     */
+    public Integer getPaginationAsInt(RestrictedPaginationKeys key) {
+        return pagination.containsKey(key) ? Integer.parseInt(pagination.get(key)) : null;
+    }
+
+    /**
+     * @return the request parameter value for key converted to a Long, or null if the parameter was not provided
+     * @throws NumberFormatException if the parameter cannot be converted to a Long
+     */
+    public Long getPaginationAsLong(RestrictedPaginationKeys key) {
+        return pagination.containsKey(key) ? Long.parseLong(pagination.get(key)) : null;
+    }
+
+    /**
+     * @return the request parameter value for key, or null if the parameter was not provided
+     */
+    public String getPaginationAsString(RestrictedPaginationKeys key) {
+        return pagination.get(key);
+    }
+
     void setPagination(Map<String, Set<String>> pagination) {
-        Map<RestrictedPaginationKeys, Integer> decodedPagination = new LinkedHashMap<>();
+        Map<RestrictedPaginationKeys, String> decodedPagination =
+                new EnumMap<>(RestrictedPaginationKeys.class);
 
         for (Map.Entry<String, Set<String>> entry : pagination.entrySet()) {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.page.name());
@@ -251,11 +278,8 @@ public class QueryParams {
             }
 
             String resourceType = propertyList.get(0);
-
-            decodedPagination.put(RestrictedPaginationKeys.valueOf(resourceType), Integer.parseInt(entry
-                    .getValue()
-                    .iterator()
-                    .next()));
+            String paramValue = entry.getValue().iterator().next();
+            decodedPagination.put(RestrictedPaginationKeys.valueOf(resourceType), paramValue);
         }
 
         this.pagination = Collections.unmodifiableMap(decodedPagination);
