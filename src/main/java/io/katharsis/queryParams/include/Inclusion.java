@@ -1,7 +1,5 @@
 package io.katharsis.queryParams.include;
 
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import lombok.Value;
 
 import java.util.Arrays;
@@ -12,8 +10,6 @@ import java.util.List;
  * <i>comments.author</i>.
  */
 @Value
-@ToString
-@EqualsAndHashCode
 public class Inclusion {
 
     private String path;

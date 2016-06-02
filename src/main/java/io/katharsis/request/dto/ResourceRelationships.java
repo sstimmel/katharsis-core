@@ -12,6 +12,7 @@ import java.util.Map;
 /**
  * @see ResourceRelationshipsDeserializer
  */
+@Data
 public class ResourceRelationships {
 
     @JsonIgnore

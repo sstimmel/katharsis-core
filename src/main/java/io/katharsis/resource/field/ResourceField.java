@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ResourceField {
+
     private final String jsonName;
     private final String underlyingName;
     private final Class<?> type;
@@ -61,8 +62,8 @@ public class ResourceField {
     /**
      * Returns a flag which indicate if a field should not be serialized automatically.
      *
-     * @see JsonApiToMany#lazy()
      * @return true if a field is lazy
+     * @see JsonApiToMany#lazy()
      */
     public boolean isLazy() {
         JsonApiIncludeByDefault includeByDefaultAnnotation = null;
@@ -91,10 +92,10 @@ public class ResourceField {
             return false;
         ResourceField that = (ResourceField) o;
         return Objects.equals(jsonName, that.jsonName) &&
-            Objects.equals(underlyingName, that.underlyingName) &&
-            Objects.equals(type, that.type) &&
-            Objects.equals(genericType, that.genericType) &&
-            Objects.equals(annotations, that.annotations);
+                Objects.equals(underlyingName, that.underlyingName) &&
+                Objects.equals(type, that.type) &&
+                Objects.equals(genericType, that.genericType) &&
+                Objects.equals(annotations, that.annotations);
     }
 
     @Override
