@@ -54,7 +54,7 @@ data class ProjectResource(
 class TaskResourceRepository {
 
     @JsonApiFindAll
-    fun findAll(ids: List<String>, taskRepository: TaskRepository): List<TaskResource> {
+    fun findAll(taskRepository: TaskRepository): List<TaskResource> {
         val tasks = taskRepository.findAll()
 
         return tasks.map { task -> from(task) }

@@ -4,6 +4,7 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonApiPath;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Objects;
 
@@ -18,6 +19,7 @@ import java.util.Objects;
  * }
  * </pre>
  */
+@ToString
 public class ResourceResponseContext implements BaseResponseContext {
 
     /**
