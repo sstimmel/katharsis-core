@@ -9,6 +9,7 @@ import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.utils.Predicate1;
+import lombok.Value;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -18,13 +19,10 @@ import java.util.List;
 /**
  * Repository entries builder for classes annotated with repository annotations.
  */
+@Value
 public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     private final JsonServiceLocator jsonServiceLocator;
-
-    public AnnotatedRepositoryEntryBuilder(JsonServiceLocator jsonServiceLocator) {
-        this.jsonServiceLocator = jsonServiceLocator;
-    }
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {

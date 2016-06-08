@@ -1,14 +1,12 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,8 +15,8 @@ import java.util.Set;
 /**
  * Builder responsible for building an instance of ResourceRegistry.
  */
+@Slf4j
 public class ResourceRegistryBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceRegistryBuilder.class);
 
     private final ResourceInformationBuilder resourceInformationBuilder;
     private final RepositoryEntryBuilderFacade repositoryEntryBuilder;
@@ -53,7 +51,7 @@ public class ResourceRegistryBuilder {
         Set<ResourceInformation> resourceInformationSet = new HashSet<>(jsonApiResources.size());
         for (Class<?> clazz : jsonApiResources) {
             resourceInformationSet.add(resourceInformationBuilder.build(clazz));
-            LOGGER.info("{} registered as a resource", clazz);
+            log.info("{} registered as a resource", clazz);
         }
 
         Set<RegistryEntry> registryEntries = new HashSet<>(resourceInformationSet.size());
@@ -61,10 +59,10 @@ public class ResourceRegistryBuilder {
             Class<?> resourceClass = resourceInformation.getResourceClass();
 
             ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(resourceLookup, resourceClass);
-            LOGGER.info("{} has a resource repository {}", resourceInformation.getResourceClass(), resourceEntry);
+            log.info("{} has a resource repository {}", resourceInformation.getResourceClass(), resourceEntry);
             List<ResponseRelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
                     .buildRelationshipRepositories(resourceLookup, resourceClass);
-            LOGGER.info("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
+            log.info("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
 
             registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
 

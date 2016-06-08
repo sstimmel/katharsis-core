@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 
 public class NewInstanceRepositoryMethodParameterProvider implements RepositoryMethodParameterProvider {
 
-
     @Override
     public <T> T provide(Method method, int parameterIndex) {
         Class<?> aClass = method.getParameterTypes()[parameterIndex];

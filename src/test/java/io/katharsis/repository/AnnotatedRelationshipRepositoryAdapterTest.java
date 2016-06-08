@@ -25,6 +25,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class AnnotatedRelationshipRepositoryAdapterTest {
+
     private QueryParams queryParams;
     private ParametersFactory parameterProvider;
 
@@ -207,7 +208,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
         // THEN
         verify(repo).findOneTarget(1L, "project", queryParams, "");
         assertThat(project).isNotNull();
-        assertThat(((Project)project).getId()).isEqualTo(42L);
+        assertThat(((Project) project).getId()).isEqualTo(42L);
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)
@@ -330,7 +331,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
         @JsonApiFindOneTarget
         public Project findOneTarget(Long id, String fieldName, QueryParams queryParams, String sth) {
             return new Project()
-                .setId(42L);
+                    .setId(42L);
         }
     }
 
@@ -348,7 +349,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
         @JsonApiFindManyTargets
         public Iterable<Project> findManyTargets(Long id, String fieldName, QueryParams queryParams, String sth) {
             return Collections.singleton(new Project()
-                .setId(42L));
+                    .setId(42L));
         }
     }
 }

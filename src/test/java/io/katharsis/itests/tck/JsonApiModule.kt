@@ -3,6 +3,7 @@ package io.katharsis.itests.tck
 import io.katharsis.repository.annotations.JsonApiFindAll
 import io.katharsis.repository.annotations.JsonApiFindOne
 import io.katharsis.repository.annotations.JsonApiResourceRepository
+import io.katharsis.repository.annotations.JsonApiSave
 import io.katharsis.resource.annotations.JsonApiId
 import io.katharsis.resource.annotations.JsonApiResource
 import io.katharsis.resource.annotations.JsonApiToMany
@@ -34,7 +35,7 @@ private fun projectResource(task: Task): ProjectResource? {
 @JsonApiResource(type = "tasks")
 data class TaskResource(
         @JsonApiId
-        var uuid: String = UUID.randomUUID().toString(),
+        var uuid: String? = UUID.randomUUID().toString(),
         var task: String = "task",
         @JsonApiToOne
         var project: ProjectResource?
@@ -64,6 +65,21 @@ class TaskResourceRepository {
     fun findOne(id: String, taskRepository: TaskRepository): TaskResource {
         val task = taskRepository.findOne(id);
         return from(task);
+    }
+
+    @JsonApiSave
+    fun save(taskRes: TaskResource, taskRepository: TaskRepository): TaskResource {
+        var t: Task
+        if (taskRes.uuid == null) {
+            val (uuid, task) = taskRes
+            t = Task(uuid ?: "", task, null)
+        } else {
+            t = taskRepository.findOne(taskRes.uuid)
+            t.task = taskRes.task
+        }
+
+        val saved = taskRepository.save(t)
+        return from(saved)
     }
 
 }

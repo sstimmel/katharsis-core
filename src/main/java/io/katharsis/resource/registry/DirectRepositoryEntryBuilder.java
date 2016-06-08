@@ -9,9 +9,8 @@ import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
+import lombok.extern.slf4j.Slf4j;
 import net.jodah.typetools.TypeResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -21,8 +20,8 @@ import java.util.Set;
 /**
  * Repository entries builder for classes implementing repository interfaces.
  */
+@Slf4j
 public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DirectRepositoryEntryBuilder.class);
 
     private final JsonServiceLocator jsonServiceLocator;
 
@@ -39,7 +38,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
         }
         @SuppressWarnings("unchecked")
         DirectResponseResourceEntry directResourceEntry = new DirectResponseResourceEntry(
-            new RepositoryInstanceBuilder(jsonServiceLocator, repoClass));
+                new RepositoryInstanceBuilder(jsonServiceLocator, repoClass));
         return directResourceEntry;
     }
 
@@ -60,7 +59,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
         Set<Class<?>> relationshipRepositoryClasses = lookup.getResourceRepositoryClasses();
 
         Set<Class<?>> relationshipRepositories =
-            findRelationshipRepositories(resourceClass, relationshipRepositoryClasses);
+                findRelationshipRepositories(resourceClass, relationshipRepositoryClasses);
 
         List<ResponseRelationshipEntry<?, ?>> relationshipEntries = new LinkedList<>();
         for (Class<?> relationshipRepositoryClass : relationshipRepositories) {
@@ -69,12 +68,12 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
                 throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
             }
 
-            LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
-                relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
+            log.debug("Assigned {} RelationshipRepository  to {} resource class",
+                    relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
 
             @SuppressWarnings("unchecked")
             DirectResponseRelationshipEntry<Object, Object> relationshipEntry = new DirectResponseRelationshipEntry<>(
-                new RepositoryInstanceBuilder<>(jsonServiceLocator, (Class<RelationshipRepository>) relationshipRepositoryClass));
+                    new RepositoryInstanceBuilder<>(jsonServiceLocator, (Class<RelationshipRepository>) relationshipRepositoryClass));
             relationshipEntries.add(relationshipEntry);
         }
         return relationshipEntries;
