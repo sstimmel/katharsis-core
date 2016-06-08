@@ -33,7 +33,7 @@ public class QueryParams {
     private TypedParams<GroupingParams> grouping;
     private TypedParams<IncludedFieldsParams> includedFields;
     private TypedParams<IncludedRelationsParams> includedRelations;
-    private Map<RestrictedPaginationKeys, String> pagination;
+    private Map<PaginationKey, String> pagination;
 
     private static List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
         String entryKey = entry.getKey()
@@ -60,10 +60,10 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-filtering">definition of filtering</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Filter params can be send with following format (Katharsis does not specify or implement any operators): <br>
      * <strong>filter[ResourceType][property|operator]([property|operator])* = "value"</strong><br>
-     * <p>
+     * <p/>
      * Examples of accepted filtering of resources:
      * <ul>
      * <li>{@code GET /tasks/?filter[tasks][name]=Super task}</li>
@@ -112,10 +112,10 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-sorting">definition of sorting</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Sort params can be send with following format: <br>
      * <strong>sort[ResourceType][property]([property])* = "asc|desc"</strong>
-     * <p>
+     * <p/>
      * Examples of accepted sorting of resources:
      * <ul>
      * <li>{@code GET /tasks/?sort[tasks][name]=asc}</li>
@@ -169,10 +169,10 @@ public class QueryParams {
     /**
      * <strong>Important: </strong> Grouping itself is not specified by JSON API itself, but the
      * keyword and format it reserved for today and future use in Katharsis.
-     * <p>
+     * <p/>
      * Group params can be send with following format: <br>
      * <strong>group[ResourceType] = "property(.property)*"</strong>
-     * <p>
+     * <p/>
      * Examples of accepted grouping of resources:
      * <ul>
      * <li>{@code GET /tasks/?group[tasks]=name}</li>
@@ -225,10 +225,10 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation sets on strategy of pagination whereas JSON API
      * <a href="http://jsonapi.org/format/#fetching-pagination">definition of pagination</a>
      * is agnostic about pagination strategies.
-     * <p>
+     * <p/>
      * Pagination params can be send with following format: <br>
      * <strong>page[offset|limit|number|size|cursor] = "value"</strong>
-     * <p>
+     * <p/>
      * Examples of accepted grouping of resources:
      * <ul>
      * <li>{@code GET /projects/?page[offset]=0&page[limit]=10}</li>
@@ -238,36 +238,13 @@ public class QueryParams {
      *
      * @return {@link Map} Map of pagination keys passed to request
      */
-    public Map<RestrictedPaginationKeys, String> getPagination() {
+    public Map<PaginationKey, String> getPagination() {
         return pagination;
     }
 
-    /**
-     * @return the request parameter value for key converted to an Integer, or null if the parameter was not provided
-     * @throws NumberFormatException if the parameter cannot be converted to an Integer
-     */
-    public Integer getPaginationAsInt(RestrictedPaginationKeys key) {
-        return pagination.containsKey(key) ? Integer.parseInt(pagination.get(key)) : null;
-    }
-
-    /**
-     * @return the request parameter value for key converted to a Long, or null if the parameter was not provided
-     * @throws NumberFormatException if the parameter cannot be converted to a Long
-     */
-    public Long getPaginationAsLong(RestrictedPaginationKeys key) {
-        return pagination.containsKey(key) ? Long.parseLong(pagination.get(key)) : null;
-    }
-
-    /**
-     * @return the request parameter value for key, or null if the parameter was not provided
-     */
-    public String getPaginationAsString(RestrictedPaginationKeys key) {
-        return pagination.get(key);
-    }
-
     void setPagination(Map<String, Set<String>> pagination) {
-        Map<RestrictedPaginationKeys, String> decodedPagination =
-                new EnumMap<>(RestrictedPaginationKeys.class);
+        Map<PaginationKey, String> decodedPagination =
+                new EnumMap<>(PaginationKey.class);
 
         for (Map.Entry<String, Set<String>> entry : pagination.entrySet()) {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.page.name());
@@ -279,20 +256,43 @@ public class QueryParams {
 
             String resourceType = propertyList.get(0);
             String paramValue = entry.getValue().iterator().next();
-            decodedPagination.put(RestrictedPaginationKeys.valueOf(resourceType), paramValue);
+            decodedPagination.put(PaginationKey.valueOf(resourceType), paramValue);
         }
 
         this.pagination = Collections.unmodifiableMap(decodedPagination);
     }
 
     /**
+     * @return the request parameter value for key converted to an Integer, or null if the parameter was not provided
+     * @throws NumberFormatException if the parameter cannot be converted to an Integer
+     */
+    public Integer getPaginationAsInt(PaginationKey key) {
+        return pagination.containsKey(key) ? Integer.parseInt(pagination.get(key)) : null;
+    }
+
+    /**
+     * @return the request parameter value for key converted to a Long, or null if the parameter was not provided
+     * @throws NumberFormatException if the parameter cannot be converted to a Long
+     */
+    public Long getPaginationAsLong(PaginationKey key) {
+        return pagination.containsKey(key) ? Long.parseLong(pagination.get(key)) : null;
+    }
+
+    /**
+     * @return the request parameter value for key, or null if the parameter was not provided
+     */
+    public String getPaginationAsString(PaginationKey key) {
+        return pagination.get(key);
+    }
+
+    /**
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-sparse-fieldsets">definition of sparse field set</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Sparse field set params can be send with following format: <br>
      * <strong>fields[ResourceType] = "property(.property)*"</strong><br>
-     * <p>
+     * <p/>
      * Examples of accepted sparse field sets of resources:
      * <ul>
      * <li>{@code GET /tasks/?fields[tasks]=name}</li>
@@ -344,10 +344,10 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-includes">definition of includes</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Included field set params can be send with following format: <br>
      * <strong>include[ResourceType] = "property(.property)*"</strong><br>
-     * <p>
+     * <p/>
      * Examples of accepted sparse field sets of resources:
      * <ul>
      * <li>{@code GET /tasks/?include[tasks]=author}</li>

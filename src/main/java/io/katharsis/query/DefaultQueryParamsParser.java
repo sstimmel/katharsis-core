@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package io.katharsis.queryParams;
+package io.katharsis.query;
 
 import io.katharsis.errorhandling.exception.QueryParseException;
-import io.katharsis.query.QueryParams;
+import io.katharsis.queryParams.QueryParamsParser;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import lombok.NonNull;
 
@@ -116,8 +116,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
     }
 
     public QueryParams parse(@NonNull String query) {
-        QueryParams params = new QueryParams(splitQueryParams(query));
-        return params;
+        return new QueryParams(splitQueryParams(query));
     }
 
     public Map<String, Set<String>> splitQueryParams(@NonNull String query) {

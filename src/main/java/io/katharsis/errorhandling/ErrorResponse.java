@@ -4,9 +4,11 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
+import lombok.ToString;
 
 import java.util.Objects;
 
+@ToString
 public final class ErrorResponse implements BaseResponseContext {
 
     public static final String ERRORS = "errors";
