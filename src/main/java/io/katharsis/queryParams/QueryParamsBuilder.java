@@ -1,14 +1,9 @@
 package io.katharsis.queryParams;
 
 import io.katharsis.errorhandling.exception.KatharsisException;
-import io.katharsis.errorhandling.exception.QueryParseException;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.utils.java.Optional;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,31 +26,6 @@ public class QueryParamsBuilder {
 
     public QueryParamsBuilder(final QueryParamsParser queryParamsParser) {
         this.queryParamsParser = queryParamsParser;
-    }
-
-    /**
-     * Code adapted from http://stackoverflow.com/questions/13592236/parse-a-uri-string-into-name-value-collection
-     *
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    public static Map<String, Set<String>> splitQuery(Optional<String> query) throws UnsupportedEncodingException {
-        final Map<String, Set<String>> query_pairs = new LinkedHashMap<>();
-        final String[] pairs = extractQueryKeyValuePairs(query);
-        for (String pair : pairs) {
-            final int idx = pair.indexOf("=");
-            final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), "UTF-8") : pair;
-            if (!query_pairs.containsKey(key)) {
-                query_pairs.put(key, new LinkedHashSet<String>());
-            }
-            final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
-            query_pairs.get(key).add(value);
-        }
-        return query_pairs;
-    }
-
-    private static String[] extractQueryKeyValuePairs(Optional<String> query) {
-        return query.isPresent() ? query.get().split("&") : new String[]{};
     }
 
     /**
@@ -89,11 +59,7 @@ public class QueryParamsBuilder {
      * @throws ParametersDeserializationException thrown when unsupported input format is detected
      */
     public QueryParams parseQuery(Optional<String> query) throws KatharsisException {
-        try {
-            return buildQueryParams(splitQuery(query));
-        } catch (UnsupportedEncodingException e) {
-            throw new QueryParseException(String.format("Could not parse query %s. %s", query, e.getMessage()));
-        }
+        return buildQueryParams(DefaultQueryParamsParser.splitQuery(query.orElse("")));
     }
 
 }
