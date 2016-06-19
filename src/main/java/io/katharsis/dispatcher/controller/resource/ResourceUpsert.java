@@ -33,7 +33,7 @@ public abstract class ResourceUpsert extends BaseController {
 
     final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
-    private final ObjectMapper objectMapper;
+    protected final ObjectMapper objectMapper;
     private final RepositoryMethodParameterProvider parameterProvider;
     private final QueryParamsBuilder paramsBuilder;
 
