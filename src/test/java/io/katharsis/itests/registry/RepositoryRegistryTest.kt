@@ -4,6 +4,7 @@ import io.katharsis.dispatcher.RepositoryRegistryImpl
 import io.katharsis.errorhandling.exception.KatharsisInitializationException
 import io.katharsis.itests.registry.fixtures1.Task
 import io.katharsis.itests.registry.fixtures1.TaskRestRepo
+import org.junit.Ignore
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -16,6 +17,7 @@ class RepositoryRegistryTest {
     val repoWithoutResourceFixtures = "io.katharsis.itests.registry.fixtures2";
 
     @Test
+    @Ignore
     fun testResourceDiscovery() {
         val registry = RepositoryRegistryImpl(goodFixtures, "/api/");
         val resources: Map<String, Any> = registry.getResources();
@@ -27,6 +29,7 @@ class RepositoryRegistryTest {
     }
 
     @Test
+    @Ignore
     fun testRepositoryDiscovery() {
         val registry = RepositoryRegistryImpl(goodFixtures, "/api/");
         val repos: Map<String, Any> = registry.getRepositories();
@@ -38,6 +41,7 @@ class RepositoryRegistryTest {
     }
 
     @Test
+    @Ignore
     fun testResourceDiscoveryForRepositoryWithoutResource() {
         try {
             val registry = RepositoryRegistryImpl(repoWithoutResourceFixtures, "/api/");
