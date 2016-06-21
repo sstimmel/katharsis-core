@@ -7,7 +7,7 @@ import io.katharsis.jackson.mock.models.ClassBWithInclusion;
 import io.katharsis.jackson.mock.models.ClassCWithInclusion;
 import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
 import io.katharsis.jackson.serializer.include.ResourceDigest;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -41,7 +41,7 @@ public class IncludedRelationshipExtractorTest {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
                 new ResourceFieldNameTransformer());
 
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
                 resourceInformationBuilder);
 
         String resourceSearchPackage = String.format("%s,%s", ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,

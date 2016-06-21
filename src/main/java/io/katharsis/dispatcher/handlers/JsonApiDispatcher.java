@@ -1,6 +1,8 @@
-package io.katharsis.dispatcher;
+package io.katharsis.dispatcher.handlers;
 
 
+import io.katharsis.dispatcher.MethodNotFoundException;
+import io.katharsis.dispatcher.ResponseContext;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;

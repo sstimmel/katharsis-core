@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
@@ -23,10 +23,10 @@ import java.util.Set;
 @Slf4j
 public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
-    private final JsonServiceLocator jsonServiceLocator;
+    private final RepositoryFactory repositoryFactory;
 
-    public DirectRepositoryEntryBuilder(JsonServiceLocator jsonServiceLocator) {
-        this.jsonServiceLocator = jsonServiceLocator;
+    public DirectRepositoryEntryBuilder(RepositoryFactory repositoryFactory) {
+        this.repositoryFactory = repositoryFactory;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
         }
         @SuppressWarnings("unchecked")
         DirectResponseResourceEntry directResourceEntry = new DirectResponseResourceEntry(
-                new RepositoryInstanceBuilder(jsonServiceLocator, repoClass));
+                new RepositoryInstanceBuilder(repositoryFactory, repoClass));
         return directResourceEntry;
     }
 
@@ -63,7 +63,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
         List<ResponseRelationshipEntry<?, ?>> relationshipEntries = new LinkedList<>();
         for (Class<?> relationshipRepositoryClass : relationshipRepositories) {
-            RelationshipRepository relationshipRepository = (RelationshipRepository) jsonServiceLocator.getInstance(relationshipRepositoryClass);
+            RelationshipRepository relationshipRepository = (RelationshipRepository) repositoryFactory.getInstance(relationshipRepositoryClass);
             if (relationshipRepository == null) {
                 throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
             }
@@ -73,7 +73,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
             @SuppressWarnings("unchecked")
             DirectResponseRelationshipEntry<Object, Object> relationshipEntry = new DirectResponseRelationshipEntry<>(
-                    new RepositoryInstanceBuilder<>(jsonServiceLocator, (Class<RelationshipRepository>) relationshipRepositoryClass));
+                    new RepositoryInstanceBuilder<>(repositoryFactory, (Class<RelationshipRepository>) relationshipRepositoryClass));
             relationshipEntries.add(relationshipEntry);
         }
         return relationshipEntries;

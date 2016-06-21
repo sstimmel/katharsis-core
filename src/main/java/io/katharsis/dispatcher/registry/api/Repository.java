@@ -1,4 +1,4 @@
-package io.katharsis.dispatcher;
+package io.katharsis.dispatcher.registry.api;
 
 import io.katharsis.query.QueryParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;

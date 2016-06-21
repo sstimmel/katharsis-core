@@ -8,10 +8,10 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder
 import io.katharsis.itests.tck.ProjectRepository
 import io.katharsis.itests.tck.TaskRepository
 import io.katharsis.jackson.JsonApiModuleBuilder
-import io.katharsis.locator.SampleJsonServiceLocator
+import io.katharsis.locator.NewInstanceRepositoryFactory
 import io.katharsis.queryParams.DefaultQueryParamsParser
 import io.katharsis.queryParams.QueryParamsBuilder
-import io.katharsis.repository.RepositoryMethodParameterProvider
+import io.katharsis.repository.RepositoryParameterProvider
 import io.katharsis.resource.field.ResourceFieldNameTransformer
 import io.katharsis.resource.information.ResourceInformationBuilder
 import io.katharsis.resource.registry.ResourceRegistry
@@ -70,7 +70,7 @@ open class IntegrationConfig {
 
     @Bean
     open fun resourceRegistry(): ResourceRegistry {
-        val resourceRegistry = ResourceRegistryBuilder(SampleJsonServiceLocator(),
+        val resourceRegistry = ResourceRegistryBuilder(NewInstanceRepositoryFactory(),
                 ResourceInformationBuilder(ResourceFieldNameTransformer()))
                 .build("io.katharsis.itests.tck", "/")
         return resourceRegistry
@@ -84,7 +84,7 @@ open class IntegrationConfig {
     }
 
     @Bean
-    open fun paramProvider(): RepositoryMethodParameterProvider {
+    open fun paramProvider(): RepositoryParameterProvider {
         return ParamProvider(context)
     }
 
@@ -99,7 +99,7 @@ open class IntegrationConfig {
     }
 }
 
-class ParamProvider(val context: ApplicationContext) : RepositoryMethodParameterProvider {
+class ParamProvider(val context: ApplicationContext) : RepositoryParameterProvider {
 
     override fun <T> provide(method: Method?, parameterIndex: Int): T {
         val aClass = method!!.getParameterTypes()[parameterIndex]

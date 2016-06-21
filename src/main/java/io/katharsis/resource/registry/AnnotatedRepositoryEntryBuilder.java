@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
@@ -22,7 +22,7 @@ import java.util.List;
 @Value
 public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
-    private final JsonServiceLocator jsonServiceLocator;
+    private final RepositoryFactory repositoryFactory;
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
@@ -37,7 +37,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         if (repositoryClasses.size() == 0) {
             return null;
         } else {
-            return new AnnotatedResourceEntryBuilder<>(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClasses.get(0)));
+            return new AnnotatedResourceEntryBuilder<>(new RepositoryInstanceBuilder<>(repositoryFactory, repositoryClasses.get(0)));
         }
     }
 
@@ -54,7 +54,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         List<Class<?>> repositoryClasses = findRepositoryClasses(lookup, classPredicate, JsonApiRelationshipRepository.class);
         List<ResponseRelationshipEntry<?, ?>> relationshipEntries = new ArrayList<>(repositoryClasses.size());
         for (Class<?> repositoryClass : repositoryClasses) {
-            relationshipEntries.add(new AnnotatedRelationshipEntryBuilder<>(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClass)));
+            relationshipEntries.add(new AnnotatedRelationshipEntryBuilder<>(new RepositoryInstanceBuilder<>(repositoryFactory, repositoryClass)));
         }
 
         return relationshipEntries;

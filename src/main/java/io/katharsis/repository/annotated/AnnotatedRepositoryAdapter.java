@@ -83,7 +83,8 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
         }
     }
 
-    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
+    protected <TYPE> TYPE invokeOperation(Method foundMethod,
+                                          Class<? extends Annotation> annotationType,
                                           Object[] firstParameters) {
         checkIfNotNull(annotationType, foundMethod);
         Object[] methodParameters = parametersFactory
@@ -91,8 +92,11 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
         return invoke(foundMethod, methodParameters);
     }
 
-    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
-                                          Object[] firstParameters, QueryParams queryParams) {
+    protected <TYPE> TYPE invokeOperation(Method foundMethod,
+                                          Class<? extends Annotation> annotationType,
+                                          Object[] firstParameters,
+                                          QueryParams queryParams) {
+
         checkIfNotNull(annotationType, foundMethod);
         Object[] methodParameters = parametersFactory
             .buildParameters(firstParameters, foundMethod, queryParams, annotationType);

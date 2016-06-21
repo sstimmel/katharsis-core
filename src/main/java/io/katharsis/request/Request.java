@@ -2,7 +2,7 @@ package io.katharsis.request;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.errorhandling.GenericKatharsisException;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.utils.java.Optional;
 
@@ -22,9 +22,9 @@ public class Request {
     private final JsonApiPath path;
     private final Optional<InputStream> body;
 
-    private final RepositoryMethodParameterProvider parameterProvider;
+    private final RepositoryParameterProvider parameterProvider;
 
-    public Request(JsonApiPath path, String method, InputStream body, RepositoryMethodParameterProvider parameterProvider) {
+    public Request(JsonApiPath path, String method, InputStream body, RepositoryParameterProvider parameterProvider) {
         this.path = path;
         this.method = HttpMethod.parse(method);
         this.body = Optional.ofNullable(body);
@@ -57,7 +57,7 @@ public class Request {
     }
 
 
-    public RepositoryMethodParameterProvider getParameterProvider() {
+    public RepositoryParameterProvider getParameterProvider() {
         return parameterProvider;
     }
 

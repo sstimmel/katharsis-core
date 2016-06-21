@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -21,10 +21,10 @@ public class ResourceRegistryBuilder {
     private final ResourceInformationBuilder resourceInformationBuilder;
     private final RepositoryEntryBuilderFacade repositoryEntryBuilder;
 
-    public ResourceRegistryBuilder(JsonServiceLocator jsonServiceLocator,
+    public ResourceRegistryBuilder(RepositoryFactory repositoryFactory,
                                    ResourceInformationBuilder resourceInformationBuilder) {
         this.resourceInformationBuilder = resourceInformationBuilder;
-        this.repositoryEntryBuilder = new RepositoryEntryBuilderFacade(jsonServiceLocator);
+        this.repositoryEntryBuilder = new RepositoryEntryBuilderFacade(repositoryFactory);
     }
 
     /**

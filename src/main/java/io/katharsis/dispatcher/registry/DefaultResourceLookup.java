@@ -1,8 +1,9 @@
-package io.katharsis.dispatcher;
+package io.katharsis.dispatcher.registry;
 
 import io.katharsis.errorhandling.exception.KatharsisInitializationException;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.registry.ResourceLookup;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -14,30 +15,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@Slf4j
+/**
+ * Looks up and loads Json APi resource and repository classes.
+ */
 @Data
-public class RepositoryRegistryImpl implements RepositoryRegistry {
+@Slf4j
+public class DefaultResourceLookup implements ResourceLookup {
+
+    private Map<String, Class<?>> resources;
+    private Map<String, Class<?>> repositories;
 
     private Reflections reflections;
-    private Map<String, Class> resources;
-    private Map<String, Class> repositories;
 
-    private String packages;
-    private String baseUrl;
-
-    public RepositoryRegistryImpl(@NonNull String packages,
-                                  @NonNull String baseUrl) {
-        this.packages = packages;
-        this.baseUrl = baseUrl;
-
+    public DefaultResourceLookup(@NonNull String packages) {
         this.reflections = new Reflections(packages.split(","));
 
         this.resources = processResourceClasses();
         this.repositories = processRepositoryClasses();
     }
 
-    protected Map<String, Class> processResourceClasses() {
-        Map<String, Class> resources = new HashMap<>();
+    protected Map<String, Class<?>> processResourceClasses() {
+        Map<String, Class<?>> resources = new HashMap<>();
         for (Class resource : findResourceClasses()) {
             JsonApiResource res = getAnnotation(resource, JsonApiResource.class);
             if (resources.containsKey(res.type())) {
@@ -52,8 +50,8 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
         return resources;
     }
 
-    private Map<String, Class> processRepositoryClasses() {
-        Map<String, Class> repositories = new HashMap<>();
+    private Map<String, Class<?>> processRepositoryClasses() {
+        Map<String, Class<?>> repositories = new HashMap<>();
         for (Class repository : findRepositoryClasses()) {
             JsonApiResourceRepository res = getAnnotation(repository, JsonApiResourceRepository.class);
 
@@ -98,11 +96,6 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
         return (T) annotation;
     }
 
-    @Override
-    public Repository get(String resource) {
-        return null;
-    }
-
     protected Set<Class<?>> findResourceClasses() {
         return reflections.getTypesAnnotatedWith(JsonApiResource.class);
     }
@@ -113,5 +106,19 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
         result.addAll(annotatedResourceRepositories);
 
         return result;
+    }
+
+    @Override
+    public Set<Class<?>> getResourceClasses() {
+        Set<Class<?>> res = new HashSet<>();
+        res.addAll(resources.values());
+        return res;
+    }
+
+    @Override
+    public Set<Class<?>> getResourceRepositoryClasses() {
+        Set<Class<?>> res = new HashSet<>();
+        res.addAll(repositories.values());
+        return res;
     }
 }

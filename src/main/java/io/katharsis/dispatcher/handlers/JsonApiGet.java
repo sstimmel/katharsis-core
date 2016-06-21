@@ -1,5 +1,9 @@
-package io.katharsis.dispatcher;
+package io.katharsis.dispatcher.handlers;
 
+import io.katharsis.dispatcher.DefaultResponseContext;
+import io.katharsis.dispatcher.registry.api.Repository;
+import io.katharsis.dispatcher.registry.api.RepositoryRegistry;
+import io.katharsis.dispatcher.ResponseContext;
 import io.katharsis.domain.CollectionResponse;
 import io.katharsis.domain.SingleResponse;
 import io.katharsis.query.QueryParams;

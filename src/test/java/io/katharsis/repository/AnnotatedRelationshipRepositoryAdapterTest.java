@@ -11,7 +11,7 @@ import io.katharsis.repository.annotations.JsonApiSetRelation;
 import io.katharsis.repository.annotations.JsonApiSetRelations;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
-import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
+import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import org.junit.Before;
@@ -32,7 +32,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
     @Before
     public void setUp() throws Exception {
         queryParams = new QueryParams();
-        parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
+        parameterProvider = new ParametersFactory(new NewInstanceRepositoryParameterProvider());
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)

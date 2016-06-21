@@ -1,7 +1,7 @@
 package io.katharsis.resource.registry.repository;
 
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class AnnotatedRelationshipEntryBuilderTest {
 
         // GIVEN
         final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(
-            new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), SimpleRelationshipRepository.class));
+            new RepositoryInstanceBuilder(new NewInstanceRepositoryFactory(), SimpleRelationshipRepository.class));
 
 
         // WHEN
@@ -31,10 +31,15 @@ public class AnnotatedRelationshipEntryBuilderTest {
 
         // GIVEN
         final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(
-            new RepositoryInstanceBuilder(new JsonServiceLocator() {
+            new RepositoryInstanceBuilder(new RepositoryFactory() {
                 @Override
                 public <T> T getInstance(Class<T> clazz) {
                     return (T) new SimpleRelationshipRepository() {};
+                }
+
+                @Override
+                public <R> R build(Class<R> clazz) {
+                    return null;
                 }
             }, SimpleRelationshipRepository.class)
         );
@@ -52,10 +57,15 @@ public class AnnotatedRelationshipEntryBuilderTest {
 
         // GIVEN
         final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(
-            new RepositoryInstanceBuilder(new JsonServiceLocator() {
+            new RepositoryInstanceBuilder(new RepositoryFactory() {
                 @Override
                 public <T> T getInstance(Class<T> clazz) {
                     return (T) new Object();
+                }
+
+                @Override
+                public <R> R build(Class<R> clazz) {
+                    return null;
                 }
             }, SimpleRelationshipRepository.class)
         );

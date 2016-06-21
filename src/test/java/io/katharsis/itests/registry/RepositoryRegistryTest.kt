@@ -1,6 +1,6 @@
 package io.katharsis.itests.registry
 
-import io.katharsis.dispatcher.RepositoryRegistryImpl
+import io.katharsis.dispatcher.registry.RepositoryRegistryImpl
 import io.katharsis.errorhandling.exception.KatharsisInitializationException
 import io.katharsis.itests.registry.fixtures1.Task
 import io.katharsis.itests.registry.fixtures1.TaskRestRepo
@@ -17,7 +17,7 @@ class RepositoryRegistryTest {
 
     @Test
     fun testResourceDiscovery() {
-        val registry = RepositoryRegistryImpl(goodFixtures, "/api/");
+        val registry = RepositoryRegistryImpl.build(goodFixtures, "/api/");
         val resources: Map<String, Any> = registry.getResources();
 
         assertFalse(resources.isEmpty())
@@ -28,7 +28,7 @@ class RepositoryRegistryTest {
 
     @Test
     fun testRepositoryDiscovery() {
-        val registry = RepositoryRegistryImpl(goodFixtures, "/api/");
+        val registry = RepositoryRegistryImpl.build(goodFixtures, "/api/");
         val repos: Map<String, Any> = registry.getRepositories();
 
         assertFalse(repos.isEmpty())
@@ -40,7 +40,7 @@ class RepositoryRegistryTest {
     @Test
     fun testResourceDiscoveryForRepositoryWithoutResource() {
         try {
-            val registry = RepositoryRegistryImpl(repoWithoutResourceFixtures, "/api/");
+            RepositoryRegistryImpl.build(repoWithoutResourceFixtures, "/api/");
         } catch (e: KatharsisInitializationException) {
             val msg = e.message
             if (msg != null) {

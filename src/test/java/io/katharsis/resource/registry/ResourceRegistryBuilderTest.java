@@ -1,9 +1,9 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
+import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
-import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
+import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Document;
@@ -31,7 +31,7 @@ public class ResourceRegistryBuilderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private ResourceInformationBuilder resourceInformationBuilder;
-    private RepositoryMethodParameterProvider provider = new NewInstanceRepositoryMethodParameterProvider();
+    private RepositoryParameterProvider provider = new NewInstanceRepositoryParameterProvider();
 
     @Before
     public void setUp() throws Exception {
@@ -41,7 +41,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onValidPackageShouldBuildRegistry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
                 resourceInformationBuilder);
 
         // WHEN
@@ -68,7 +68,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onValidPackagesShouldBuildRegistry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
                 resourceInformationBuilder);
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
@@ -83,7 +83,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNoRelationshipRepositoryInstanceShouldThrowException() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory() {
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskToProjectRepository.class) {
                     return null;
@@ -104,7 +104,7 @@ public class ResourceRegistryBuilderTest {
     public void onNoRepositoryShouldCreateNotFoundRepository() {
         // GIVEN
         ResourceRegistryBuilder sut =
-                new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
+                new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(), resourceInformationBuilder);
 
         // WHEN
         ResourceRegistry result = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -121,7 +121,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onInheritedResourcesShouldAddInformationToEntry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
                 resourceInformationBuilder);
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
@@ -139,7 +139,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNonInheritedResourcesShouldNotAddInformationToEntry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
                 resourceInformationBuilder);
 
         // WHEN

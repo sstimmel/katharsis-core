@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
-public class SampleJsonServiceLocatorTest {
+public class SampleRepositoryFactoryTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -15,7 +15,7 @@ public class SampleJsonServiceLocatorTest {
     @Test
     public void onValidClassShouldReturnInstance() {
         // GIVEN
-        SampleJsonServiceLocator sut = new SampleJsonServiceLocator();
+        NewInstanceRepositoryFactory sut = new NewInstanceRepositoryFactory();
 
         // WHEN
         Object object = sut.getInstance(Object.class);
@@ -27,7 +27,7 @@ public class SampleJsonServiceLocatorTest {
     @Test
     public void onClassWithPrivateConstructorShouldThrowException() {
         // GIVEN
-        SampleJsonServiceLocator sut = new SampleJsonServiceLocator();
+        NewInstanceRepositoryFactory sut = new NewInstanceRepositoryFactory();
 
         // THEN
         expectedException.expect(RuntimeException.class);

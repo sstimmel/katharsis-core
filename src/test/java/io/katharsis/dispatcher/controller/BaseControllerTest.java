@@ -4,12 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import io.katharsis.jackson.JsonApiModuleBuilder;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
+import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -33,14 +33,14 @@ public abstract class BaseControllerTest {
     protected ResourceRegistry resourceRegistry;
     protected TypeParser typeParser;
     protected IncludeLookupSetter includeFieldSetter;
-    protected RepositoryMethodParameterProvider parameterProvider;
+    protected RepositoryParameterProvider parameterProvider;
     protected QueryParamsBuilder queryParamsBuilder;
 
     @Before
     public void prepare() {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
                 new ResourceFieldNameTransformer());
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
                 resourceInformationBuilder);
         resourceRegistry = registryBuilder
                 .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
@@ -49,7 +49,7 @@ public abstract class BaseControllerTest {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry));
 
-        parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
+        parameterProvider = new NewInstanceRepositoryParameterProvider();
         queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
     }
 

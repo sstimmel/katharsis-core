@@ -7,6 +7,7 @@ import lombok.Value;
 import org.reflections.Reflections;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,6 +27,16 @@ public class AnnotatedResourceLookup implements ResourceLookup {
         } else {
             reflections = new Reflections(packageName);
         }
+    }
+
+    @Override
+    public Map<String, Class<?>> getResources() {
+        return null;
+    }
+
+    @Override
+    public Map<String, Class<?>> getRepositories() {
+        return null;
     }
 
     @Override
