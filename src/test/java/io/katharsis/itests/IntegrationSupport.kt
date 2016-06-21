@@ -72,7 +72,7 @@ open class IntegrationConfig {
     open fun resourceRegistry(): ResourceRegistry {
         val resourceRegistry = ResourceRegistryBuilder(SampleJsonServiceLocator(),
                 ResourceInformationBuilder(ResourceFieldNameTransformer()))
-                .build("io.katharsis.itests", "/")
+                .build("io.katharsis.itests.tck", "/")
         return resourceRegistry
     }
 
