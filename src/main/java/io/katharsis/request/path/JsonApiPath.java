@@ -15,9 +15,9 @@ import java.util.List;
 
 /**
  * A JSON API Path has between 1-4 elements
- * <p>
+ * <p/>
  * / resource / id(s) / field | "relationships" / relationship
- * <p>
+ * <p/>
  * This class parses a Path and identifies all parts.
  */
 @Value
@@ -76,7 +76,7 @@ public class JsonApiPath {
 
     /**
      * Parses the path by converting to URL and extracting the path.
-     * <p>
+     * <p/>
      * URL must be absolute.
      *
      * @param url

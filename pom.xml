@@ -33,6 +33,16 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
@@ -112,6 +122,13 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-vfs2</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+            <optional>true</optional> <!-- case: -->
+        </dependency>
+        <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>typetools</artifactId>
         </dependency>
@@ -144,16 +161,22 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-test-junit</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
 
         <!--<dependency>-->
-            <!--<groupId>org.jetbrains.spek</groupId>-->
-            <!--<artifactId>spek</artifactId>-->
-            <!--<version>${spek.version}</version>-->
-            <!--<scope>test</scope>-->
+        <!--<groupId>org.jetbrains.spek</groupId>-->
+        <!--<artifactId>spek</artifactId>-->
+        <!--<version>${spek.version}</version>-->
+        <!--<scope>test</scope>-->
         <!--</dependency>-->
 
         <dependency>

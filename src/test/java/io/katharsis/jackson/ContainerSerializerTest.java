@@ -1,5 +1,7 @@
 package io.katharsis.jackson;
 
+import io.katharsis.domain.api.LinksInformation;
+import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -11,8 +13,6 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.response.Container;
 import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponseContext;
 import org.junit.Test;
 

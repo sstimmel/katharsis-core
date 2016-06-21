@@ -21,6 +21,19 @@ public class JsonApiModuleBuilder {
 
     public static final String JSON_API_MODULE_NAME = "JsonApiModule";
 
+    public static SimpleModule create() {
+        SimpleModule simpleModule = new SimpleModule(JSON_API_MODULE_NAME,
+                new Version(1, 0, 0, null, null, null));
+
+        simpleModule
+                .addSerializer(new ErrorResponseSerializer())
+                .addSerializer(new DataResponseSerializer())
+                .addDeserializer(ResourceRelationships.class, new ResourceRelationshipsDeserializer())
+                .addDeserializer(RequestBody.class, new RequestBodyDeserializer());
+
+        return simpleModule;
+    }
+
     /**
      * Creates Katharsis Jackson module with all required serializers
      *
@@ -37,6 +50,7 @@ public class JsonApiModuleBuilder {
                 .addSerializer(new LinkageContainerSerializer(resourceRegistry))
                 .addSerializer(new BaseResponseSerializer(resourceRegistry))
                 .addSerializer(new ErrorResponseSerializer())
+                .addSerializer(new DataResponseSerializer())
                 .addDeserializer(ResourceRelationships.class, new ResourceRelationshipsDeserializer())
                 .addDeserializer(RequestBody.class, new RequestBodyDeserializer());
 

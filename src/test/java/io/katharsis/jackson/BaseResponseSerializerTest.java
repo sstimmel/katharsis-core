@@ -2,6 +2,8 @@ package io.katharsis.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import io.katharsis.domain.api.LinksInformation;
+import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -15,8 +17,6 @@ import io.katharsis.response.CollectionResponseContext;
 import io.katharsis.response.Container;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinkageContainer;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponseContext;
 import org.junit.Rule;
 import org.junit.Test;

@@ -13,8 +13,7 @@ import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.Container;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -27,8 +26,9 @@ import java.util.Set;
 /**
  * Extracts inclusions from a resource.
  */
+@Slf4j
 public class IncludedRelationshipExtractor {
-    private static final Logger logger = LoggerFactory.getLogger(IncludedRelationshipExtractor.class);
+
     private final ResourceRegistry resourceRegistry;
 
     public IncludedRelationshipExtractor(ResourceRegistry resourceRegistry) {
@@ -56,7 +56,7 @@ public class IncludedRelationshipExtractor {
             //noinspection unchecked
             includedResources.putAll(extractIncludedRelationships(resource, response));
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | NoSuchFieldException e) {
-            logger.info("Exception while extracting included fields", e);
+            log.info("Exception while extracting included fields", e);
         }
 
         return includedResources;

@@ -1,5 +1,7 @@
 package io.katharsis.response;
 
+import io.katharsis.domain.api.LinksInformation;
+import io.katharsis.domain.api.MetaInformation;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

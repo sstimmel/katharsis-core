@@ -1,5 +1,7 @@
 package io.katharsis.repository;
 
+import io.katharsis.domain.api.LinksInformation;
+import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.annotated.AnnotatedRepositoryAdapter;
 import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
@@ -10,8 +12,6 @@ import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -11,7 +11,7 @@ import kotlin.test.assertNotNull
 
 @RunWith(value = SpringJUnit4ClassRunner::class)
 @ContextConfiguration(classes = arrayOf(IntegrationConfig::class))
-class RepositoriesTest() : KatharsisIntegrationSupport() {
+class SpringDataRepositoriesTest() : KatharsisIntegrationSupport() {
 
     @Test
     fun makeSureRepositoriesWork() {

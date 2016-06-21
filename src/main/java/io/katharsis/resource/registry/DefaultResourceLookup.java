@@ -39,6 +39,7 @@ public class DefaultResourceLookup implements ResourceLookup {
     public Set<Class<?>> getResourceRepositoryClasses() {
         Set<Class<?>> annotatedResourceRepositories = reflections.getTypesAnnotatedWith(JsonApiResourceRepository.class);
         Set<Class<?>> annotatedRelationshipRepositories = reflections.getTypesAnnotatedWith(JsonApiRelationshipRepository.class);
+
         Set<Class<? extends ResourceRepository>> resourceRepositories = reflections.getSubTypesOf(ResourceRepository.class);
         Set<Class<? extends RelationshipRepository>> relationshipRepositories = reflections.getSubTypesOf(RelationshipRepository.class);
 
