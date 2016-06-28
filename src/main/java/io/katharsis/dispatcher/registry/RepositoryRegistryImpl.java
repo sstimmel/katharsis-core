@@ -1,47 +1,61 @@
 package io.katharsis.dispatcher.registry;
 
-import io.katharsis.dispatcher.registry.api.Repository;
+import io.katharsis.dispatcher.registry.annotated.AnnotatedResourceRepositoryAdapter;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.dispatcher.registry.api.RepositoryRegistry;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.exception.RepositoryNotFoundException;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Data
 public class RepositoryRegistryImpl implements RepositoryRegistry {
 
-    private Map<String, Class<?>> resources;
-    private Map<String, Class<?>> repositories;
-
-    private RepositoryFactory factory;
+    private Map<String, AnnotatedResourceRepositoryAdapter> adapters;
 
     private String packages;
     private String baseUrl;
 
     public RepositoryRegistryImpl(@NonNull String baseUrl,
-                                  @NonNull Map<String, Class<?>> resources,
-                                  @NonNull Map<String, Class<?>> repositories) {
+                                  @NonNull Map<String, AnnotatedResourceRepositoryAdapter> adapters) {
         this.baseUrl = baseUrl;
-        this.resources = resources;
-        this.repositories = repositories;
+        this.adapters = adapters;
     }
 
     public static RepositoryRegistryImpl build(String packages, String baseUrl) {
         DefaultResourceLookup resourceLookup = new DefaultResourceLookup(packages);
 
-        return new RepositoryRegistryImpl(baseUrl, resourceLookup.getResources(), resourceLookup.getRepositories());
+        RepositoryFactory factory = new NewInstanceRepositoryFactory(new ParametersFactory());
+
+        Map<String, Class<?>> repositories = resourceLookup.getRepositories();
+        Map<String, AnnotatedResourceRepositoryAdapter> adapters = buildAdapters(factory, repositories);
+
+        return new RepositoryRegistryImpl(baseUrl, adapters);
+    }
+
+    private static Map<String, AnnotatedResourceRepositoryAdapter> buildAdapters(RepositoryFactory factory,
+                                                                                 Map<String, Class<?>> repositories) {
+
+        Map<String, AnnotatedResourceRepositoryAdapter> adapters = new HashMap<>();
+
+        for (Map.Entry<String, Class<?>> entry : repositories.entrySet()) {
+            AnnotatedResourceRepositoryAdapter adapter = (AnnotatedResourceRepositoryAdapter) factory.build(entry.getValue());
+            adapters.put(entry.getKey(), adapter);
+        }
+        return adapters;
     }
 
     @Override
-    public Repository get(String resource) throws RepositoryNotFoundException {
-        Class<?> repozz = repositories.get(resource);
-        if (repozz == null) {
+    public AnnotatedResourceRepositoryAdapter get(String resource) throws RepositoryNotFoundException {
+        if (!adapters.containsKey(resource)) {
             throw new RepositoryNotFoundException(resource);
         }
-        return (Repository) factory.build(repozz);
+        return adapters.get(resource);
     }
 }

@@ -1,5 +1,6 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.RepositoryParameterProvider;
@@ -36,12 +37,17 @@ public class RegistryEntryTest {
 
     RepositoryParameterProvider provider = new NewInstanceRepositoryParameterProvider();
 
+    ParametersFactory parametersFactory = new ParametersFactory();
+
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
 
-        RepositoryInstanceBuilder repos = new RepositoryInstanceBuilder(new NewInstanceRepositoryFactory(), TaskToProjectRepository.class);
-        RepositoryInstanceBuilder annotatedRepos = new RepositoryInstanceBuilder(new NewInstanceRepositoryFactory(), TaskRepository.class);
+        RepositoryInstanceBuilder repos = new RepositoryInstanceBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory),
+                TaskToProjectRepository.class);
+        RepositoryInstanceBuilder annotatedRepos = new RepositoryInstanceBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory), TaskRepository.class);
 
         RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(annotatedRepos),
                 Collections.singletonList(new DirectResponseRelationshipEntry<>(repos)));
@@ -58,8 +64,8 @@ public class RegistryEntryTest {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry(resourceInformation, null,
-                Collections.singletonList(new DirectResponseRelationshipEntry<>(
-                        new RepositoryInstanceBuilder(new NewInstanceRepositoryFactory(), TaskToProjectRepository.class))));
+                Collections.singletonList(new DirectResponseRelationshipEntry<>(new RepositoryInstanceBuilder(
+                        new NewInstanceRepositoryFactory(parametersFactory), TaskToProjectRepository.class))));
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);

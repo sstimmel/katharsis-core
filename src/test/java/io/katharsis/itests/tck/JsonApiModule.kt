@@ -83,3 +83,7 @@ class TaskResourceRepository {
     }
 
 }
+
+@JsonApiResourceRepository(value = ProjectResource::class)
+class ProjectResourceRepository {
+}

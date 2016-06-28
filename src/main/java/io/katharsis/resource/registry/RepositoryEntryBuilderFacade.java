@@ -39,8 +39,8 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
                 }
 
                 @Override
-                public <R> R build(Class<R> clazz) {
-                    return (R) new NotFoundRepository<>(resourceClass);
+                public Object build(Class clazz) {
+                    return new NotFoundRepository<>(resourceClass);
                 }
             }, NotFoundRepository.class);
             resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);

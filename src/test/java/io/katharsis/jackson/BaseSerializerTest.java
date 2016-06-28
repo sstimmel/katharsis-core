@@ -1,6 +1,7 @@
 package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonApiPath;
@@ -18,14 +19,16 @@ public abstract class BaseSerializerTest {
 
     protected ResourceRegistry resourceRegistry;
     protected ResourceResponseContext testResponse;
+    ParametersFactory parametersFactory = new ParametersFactory();
     ObjectMapper sut;
 
     @Before
     public void setUp() throws Exception {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
                 new ResourceFieldNameTransformer());
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
-                resourceInformationBuilder);
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory), resourceInformationBuilder);
+
         resourceRegistry = registryBuilder
                 .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 

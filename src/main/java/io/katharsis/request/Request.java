@@ -11,9 +11,15 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
+import static io.katharsis.request.Request.JsonApiRequestType.COLLECTION;
+import static io.katharsis.request.Request.JsonApiRequestType.COLLECTION_IDS;
+import static io.katharsis.request.Request.JsonApiRequestType.FIELD;
+import static io.katharsis.request.Request.JsonApiRequestType.RELATIONSHIP;
+import static io.katharsis.request.Request.JsonApiRequestType.SINGLE_RESOURCE;
+
 /**
  * Katharsis Domain object that holds for the request data.
- * <p>
+ * <p/>
  * The body InputStream is not closed by Katharsis.
  */
 public class Request {
@@ -61,8 +67,38 @@ public class Request {
         return parameterProvider;
     }
 
+    public JsonApiRequestType requestType() {
+        if (path.getField().isPresent()) {
+            return FIELD;
+        }
+
+        if (path.getRelationship().isPresent()) {
+            return RELATIONSHIP;
+        }
+
+        if (path.getIds().isPresent()) {
+            if (path.getIds().get().size() > 1) {
+                return COLLECTION_IDS;
+            }
+            return SINGLE_RESOURCE;
+        } else {
+            return COLLECTION;
+        }
+    }
+
     @Override
     public String toString() {
         return "path=" + path + ", method=" + method;
+    }
+
+    /**
+     * Determine the 'state' of the request by looking at the JSON API Path.
+     */
+    public enum JsonApiRequestType {
+        COLLECTION,
+        COLLECTION_IDS,
+        SINGLE_RESOURCE,
+        FIELD,
+        RELATIONSHIP
     }
 }

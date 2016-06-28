@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.registry.api;
 
+import io.katharsis.dispatcher.registry.annotated.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.repository.exception.RepositoryNotFoundException;
 
 /**
@@ -7,5 +8,6 @@ import io.katharsis.repository.exception.RepositoryNotFoundException;
  */
 public interface RepositoryRegistry {
 
-    Repository get(String resource) throws RepositoryNotFoundException;
+    AnnotatedResourceRepositoryAdapter get(String resource) throws RepositoryNotFoundException;
+
 }

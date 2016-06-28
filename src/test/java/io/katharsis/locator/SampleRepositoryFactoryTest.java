@@ -1,5 +1,6 @@
 package io.katharsis.locator;
 
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -9,13 +10,14 @@ import java.util.Arrays;
 
 public class SampleRepositoryFactoryTest {
 
+    ParametersFactory parametersFactory = new ParametersFactory();
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void onValidClassShouldReturnInstance() {
         // GIVEN
-        NewInstanceRepositoryFactory sut = new NewInstanceRepositoryFactory();
+        NewInstanceRepositoryFactory sut = new NewInstanceRepositoryFactory(parametersFactory);
 
         // WHEN
         Object object = sut.getInstance(Object.class);
@@ -27,7 +29,7 @@ public class SampleRepositoryFactoryTest {
     @Test
     public void onClassWithPrivateConstructorShouldThrowException() {
         // GIVEN
-        NewInstanceRepositoryFactory sut = new NewInstanceRepositoryFactory();
+        NewInstanceRepositoryFactory sut = new NewInstanceRepositoryFactory(parametersFactory);
 
         // THEN
         expectedException.expect(RuntimeException.class);

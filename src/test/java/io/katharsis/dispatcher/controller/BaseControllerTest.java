@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
@@ -35,13 +36,14 @@ public abstract class BaseControllerTest {
     protected IncludeLookupSetter includeFieldSetter;
     protected RepositoryParameterProvider parameterProvider;
     protected QueryParamsBuilder queryParamsBuilder;
+    ParametersFactory parametersFactory = new ParametersFactory();
 
     @Before
     public void prepare() {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
                 new ResourceFieldNameTransformer());
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
-                resourceInformationBuilder);
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory), resourceInformationBuilder);
         resourceRegistry = registryBuilder
                 .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         typeParser = new TypeParser();

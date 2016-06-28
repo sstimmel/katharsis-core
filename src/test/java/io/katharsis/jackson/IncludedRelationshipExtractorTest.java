@@ -1,5 +1,6 @@
 package io.katharsis.jackson;
 
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.jackson.mock.models.ClassA;
 import io.katharsis.jackson.mock.models.ClassAWithInclusion;
 import io.katharsis.jackson.mock.models.ClassB;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class IncludedRelationshipExtractorTest {
 
+    ParametersFactory parametersFactory = new ParametersFactory();
     private IncludedRelationshipExtractor sut;
     private ResourceResponseContext testResponse;
 
@@ -41,8 +43,8 @@ public class IncludedRelationshipExtractorTest {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
                 new ResourceFieldNameTransformer());
 
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
-                resourceInformationBuilder);
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory), resourceInformationBuilder);
 
         String resourceSearchPackage = String.format("%s,%s", ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
                 "io.katharsis.jackson.mock");

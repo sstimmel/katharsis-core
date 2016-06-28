@@ -1,5 +1,6 @@
 package io.katharsis.itests.registry
 
+import io.katharsis.dispatcher.registry.DefaultResourceLookup
 import io.katharsis.dispatcher.registry.RepositoryRegistryImpl
 import io.katharsis.errorhandling.exception.KatharsisInitializationException
 import io.katharsis.itests.registry.fixtures1.Task
@@ -10,14 +11,14 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 
-class RepositoryRegistryTest {
+class ResourceLookupTest {
 
     val goodFixtures = "io.katharsis.itests.registry.fixtures1";
     val repoWithoutResourceFixtures = "io.katharsis.itests.registry.fixtures2";
 
     @Test
     fun testResourceDiscovery() {
-        val registry = RepositoryRegistryImpl.build(goodFixtures, "/api/");
+        val registry =  DefaultResourceLookup(goodFixtures);
         val resources: Map<String, Any> = registry.getResources();
 
         assertFalse(resources.isEmpty())
@@ -28,7 +29,7 @@ class RepositoryRegistryTest {
 
     @Test
     fun testRepositoryDiscovery() {
-        val registry = RepositoryRegistryImpl.build(goodFixtures, "/api/");
+        val registry = DefaultResourceLookup(goodFixtures);
         val repos: Map<String, Any> = registry.getRepositories();
 
         assertFalse(repos.isEmpty())
@@ -40,7 +41,7 @@ class RepositoryRegistryTest {
     @Test
     fun testResourceDiscoveryForRepositoryWithoutResource() {
         try {
-            RepositoryRegistryImpl.build(repoWithoutResourceFixtures, "/api/");
+            DefaultResourceLookup(repoWithoutResourceFixtures);
         } catch (e: KatharsisInitializationException) {
             val msg = e.message
             if (msg != null) {

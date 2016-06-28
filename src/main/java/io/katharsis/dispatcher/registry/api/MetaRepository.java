@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.registry.api;
 import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.query.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 
 /**
@@ -18,5 +19,5 @@ public interface MetaRepository<T> {
      * @param queryParams parameters sent along with the request
      * @return meta information object
      */
-    MetaInformation getMetaInformation(Iterable<T> resources, QueryParams queryParams);
+    MetaInformation getMetaInformation(RepositoryParameterProvider parameterProvider, Iterable<T> resources, QueryParams queryParams);
 }

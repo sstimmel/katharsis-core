@@ -1,8 +1,10 @@
-package io.katharsis.dispatcher.handlers;
+package io.katharsis.dispatcher;
 
 
-import io.katharsis.dispatcher.MethodNotFoundException;
-import io.katharsis.dispatcher.ResponseContext;
+import io.katharsis.dispatcher.handlers.JsonApiDelete;
+import io.katharsis.dispatcher.handlers.JsonApiGet;
+import io.katharsis.dispatcher.handlers.JsonApiPatch;
+import io.katharsis.dispatcher.handlers.JsonApiPost;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
@@ -16,14 +18,13 @@ import lombok.NonNull;
  * and katharsis-servlet for usage.
  */
 @Data
-public class JsonApiDispatcher {
+public class JsonApiDispatcher implements KatharsisDispatcher {
 
+    private final JsonApiGet apiGet;
+    private final JsonApiPost apiPost;
+    private final JsonApiPatch apiPatch;
+    private final JsonApiDelete apiDelete;
     private ExceptionMapperRegistry exceptionMapperRegistry;
-
-    private JsonApiGet apiGet;
-    private JsonApiPost apiPost;
-    private JsonApiPatch apiPatch;
-    private JsonApiDelete apiDelete;
 
     /**
      * Dispatch the request from a client
@@ -31,7 +32,8 @@ public class JsonApiDispatcher {
      * @param request - the request we need to process
      * @return the response form the Katharsis
      */
-    public ResponseContext dispatchRequest(Request request) {
+    @Override
+    public ResponseContext dispatch(Request request) {
         ResponseContext response = null;
         try {
             /**
@@ -91,6 +93,5 @@ public class JsonApiDispatcher {
 
         return errorResponse;
     }
-
 
 }

@@ -1,5 +1,6 @@
 package io.katharsis.resource.registry.repository;
 
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
@@ -11,12 +12,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("unchecked")
 public class AnnotatedRelationshipEntryBuilderTest {
 
+    ParametersFactory parametersFactory = new ParametersFactory();
+
     @Test
     public void onInstanceOfAnnotatedRelationshipRepositoryShouldReturnTargetClass() {
 
         // GIVEN
         final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(
-            new RepositoryInstanceBuilder(new NewInstanceRepositoryFactory(), SimpleRelationshipRepository.class));
+            new RepositoryInstanceBuilder(new NewInstanceRepositoryFactory(parametersFactory), SimpleRelationshipRepository.class));
 
 
         // WHEN
@@ -38,7 +41,7 @@ public class AnnotatedRelationshipEntryBuilderTest {
                 }
 
                 @Override
-                public <R> R build(Class<R> clazz) {
+                public Object build(Class clazz) {
                     return null;
                 }
             }, SimpleRelationshipRepository.class)
@@ -64,7 +67,7 @@ public class AnnotatedRelationshipEntryBuilderTest {
                 }
 
                 @Override
-                public <R> R build(Class<R> clazz) {
+                public Object build(Class clazz) {
                     return null;
                 }
             }, SimpleRelationshipRepository.class)

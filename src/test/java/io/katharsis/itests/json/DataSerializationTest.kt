@@ -1,4 +1,4 @@
-package io.katharsis.itests
+package io.katharsis.itests.json
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.katharsis.domain.CollectionResponse

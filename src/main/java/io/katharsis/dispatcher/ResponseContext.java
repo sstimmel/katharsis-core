@@ -9,6 +9,7 @@ public interface ResponseContext {
     void setHttpStatus(int status);
 
     TopLevel getDocument();
+
     void setDocument(TopLevel document);
 
 }

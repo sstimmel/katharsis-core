@@ -1,7 +1,7 @@
 package io.katharsis.repository;
 
-import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class RepositoryInstanceBuilderTest {
     public void onExistingInstanceShouldReturnValue() throws Exception {
         // GIVEN
         RepositoryInstanceBuilder<TaskRepository> sut =
-            new RepositoryInstanceBuilder<>(new NewInstanceRepositoryFactory(), TaskRepository.class);
+            new RepositoryInstanceBuilder<>(new NewInstanceRepositoryFactory(null), TaskRepository.class);
 
         // WHEN
         TaskRepository result = sut.buildRepository();
@@ -35,7 +35,7 @@ public class RepositoryInstanceBuilderTest {
                 }
 
                 @Override
-                public <R> R build(Class<R> clazz) {
+                public Object build(Class clazz) {
                     return null;
                 }
             }, TaskRepository.class);

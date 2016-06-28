@@ -31,6 +31,7 @@ public class JsonApiModuleBuilder {
                 .addDeserializer(ResourceRelationships.class, new ResourceRelationshipsDeserializer())
                 .addDeserializer(RequestBody.class, new RequestBodyDeserializer());
 
+
         return simpleModule;
     }
 

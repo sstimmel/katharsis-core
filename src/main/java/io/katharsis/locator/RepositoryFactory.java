@@ -21,9 +21,8 @@ public interface RepositoryFactory {
      * Get an instance of a repository class. You may get a cached instance.
      *
      * @param clazz class to be searched for
-     * @param <R>   type of returning object
      * @return instance of a class of type T which implements/extends or is an instance of clazz
      */
-    <R> R build(Class<R> clazz);
+    Object build(Class clazz);
 
 }

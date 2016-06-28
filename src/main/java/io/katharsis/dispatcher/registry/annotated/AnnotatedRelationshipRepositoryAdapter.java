@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.registry.annotated;
 
 import io.katharsis.query.QueryParams;
+import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.repository.annotations.JsonApiAddRelations;
 import io.katharsis.repository.annotations.JsonApiFindManyTargets;
 import io.katharsis.repository.annotations.JsonApiFindOneTarget;
@@ -32,27 +33,27 @@ public class AnnotatedRelationshipRepositoryAdapter<T, T_ID extends Serializable
         findManyTargetsMethod = ClassUtils.findMethodWith(implementationClass, JsonApiFindManyTargets.class);
     }
 
-    public void setRelation(T source, D_ID targetId, String fieldName, QueryParams queryParams) {
-        invokeOperation(setRelationMethod, new Object[]{source, targetId, fieldName}, queryParams);
+    public void setRelation(RepositoryParameterProvider parameterProvider, T source, D_ID targetId, String fieldName, QueryParams queryParams) {
+        invokeOperation(parameterProvider, setRelationMethod, new Object[]{source, targetId, fieldName}, queryParams);
     }
 
-    public void setRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
-        invokeOperation(setRelationsMethod, new Object[]{source, targetIds, fieldName}, queryParams);
+    public void setRelations(RepositoryParameterProvider parameterProvider, T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
+        invokeOperation(parameterProvider, setRelationsMethod, new Object[]{source, targetIds, fieldName}, queryParams);
     }
 
-    public void addRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
-        invokeOperation(addRelationsMethod, new Object[]{source, targetIds, fieldName}, queryParams);
+    public void addRelations(RepositoryParameterProvider parameterProvider, T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
+        invokeOperation(parameterProvider, addRelationsMethod, new Object[]{source, targetIds, fieldName}, queryParams);
     }
 
-    public void removeRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
-        invokeOperation(removeRelationsMethod, new Object[]{source, targetIds, fieldName}, queryParams);
+    public void removeRelations(RepositoryParameterProvider parameterProvider, T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
+        invokeOperation(parameterProvider, removeRelationsMethod, new Object[]{source, targetIds, fieldName}, queryParams);
     }
 
-    public Object findOneTarget(T_ID sourceId, String fieldName, QueryParams queryParams) {
-        return invokeOperation(findOneTargetMethod, new Object[]{sourceId, fieldName}, queryParams);
+    public Object findOneTarget(RepositoryParameterProvider parameterProvider, T_ID sourceId, String fieldName, QueryParams queryParams) {
+        return invokeOperation(parameterProvider, findOneTargetMethod, new Object[]{sourceId, fieldName}, queryParams);
     }
 
-    public Object findManyTargets(T_ID sourceId, String fieldName, QueryParams queryParams) {
-        return invokeOperation(findManyTargetsMethod, new Object[]{sourceId, fieldName}, queryParams);
+    public Object findManyTargets(RepositoryParameterProvider parameterProvider, T_ID sourceId, String fieldName, QueryParams queryParams) {
+        return invokeOperation(parameterProvider, findManyTargetsMethod, new Object[]{sourceId, fieldName}, queryParams);
     }
 }

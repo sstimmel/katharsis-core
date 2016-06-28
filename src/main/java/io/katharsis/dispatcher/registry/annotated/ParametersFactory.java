@@ -8,12 +8,6 @@ import java.lang.reflect.Method;
 
 public class ParametersFactory {
 
-    private final RepositoryParameterProvider parameterProvider;
-
-    public ParametersFactory(RepositoryParameterProvider parameterProvider) {
-        this.parameterProvider = parameterProvider;
-    }
-
     /**
      * Source: https://stackoverflow.com/a/80503
      */
@@ -37,7 +31,7 @@ public class ParametersFactory {
      * @param queryParams     {@link QueryParams} object associated with the request
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(Object[] firstParameters, Method method, QueryParams queryParams) {
+    public Object[] buildParameters(RepositoryParameterProvider parameterProvider, Object[] firstParameters, Method method, QueryParams queryParams) {
         int parametersLength = method.getParameterTypes().length;
         if (firstParameters.length > 0 && parametersLength < 1) {
             throw new RepositoryMethodException(
@@ -64,7 +58,7 @@ public class ParametersFactory {
      * @param method          repository method
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(Object[] firstParameters, Method method) {
+    public Object[] buildParameters(RepositoryParameterProvider parameterProvider, Object[] firstParameters, Method method) {
         int parametersLength = method.getParameterTypes().length;
         if (firstParameters.length > 0 && parametersLength < 1) {
             throw new RepositoryMethodException(

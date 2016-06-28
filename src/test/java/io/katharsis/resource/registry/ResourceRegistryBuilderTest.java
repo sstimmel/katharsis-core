@@ -1,5 +1,6 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
@@ -32,6 +33,7 @@ public class ResourceRegistryBuilderTest {
     public ExpectedException expectedException = ExpectedException.none();
     private ResourceInformationBuilder resourceInformationBuilder;
     private RepositoryParameterProvider provider = new NewInstanceRepositoryParameterProvider();
+    ParametersFactory parametersFactory = new ParametersFactory();
 
     @Before
     public void setUp() throws Exception {
@@ -41,8 +43,8 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onValidPackageShouldBuildRegistry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
-                resourceInformationBuilder);
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory),                resourceInformationBuilder);
 
         // WHEN
         ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -68,7 +70,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onValidPackagesShouldBuildRegistry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(parametersFactory),
                 resourceInformationBuilder);
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
@@ -83,7 +85,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNoRelationshipRepositoryInstanceShouldThrowException() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory() {
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(parametersFactory) {
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskToProjectRepository.class) {
                     return null;
@@ -104,7 +106,7 @@ public class ResourceRegistryBuilderTest {
     public void onNoRepositoryShouldCreateNotFoundRepository() {
         // GIVEN
         ResourceRegistryBuilder sut =
-                new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(), resourceInformationBuilder);
+                new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(parametersFactory), resourceInformationBuilder);
 
         // WHEN
         ResourceRegistry result = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -121,7 +123,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onInheritedResourcesShouldAddInformationToEntry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(parametersFactory),
                 resourceInformationBuilder);
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
@@ -139,7 +141,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNonInheritedResourcesShouldNotAddInformationToEntry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(),
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new NewInstanceRepositoryFactory(parametersFactory),
                 resourceInformationBuilder);
 
         // WHEN
