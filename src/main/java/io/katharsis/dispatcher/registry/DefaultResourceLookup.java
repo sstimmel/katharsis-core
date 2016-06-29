@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.registry;
 
 import io.katharsis.errorhandling.exception.KatharsisInitializationException;
+import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.registry.ResourceLookup;
@@ -22,8 +23,20 @@ import java.util.Set;
 @Slf4j
 public class DefaultResourceLookup implements ResourceLookup {
 
+    /**
+     * Maps resource type (or name) to the resource class.
+     */
     private Map<String, Class<?>> resources;
+    /**
+     * Maps the resource type to the repository that implements operations for it.
+     */
     private Map<String, Class<?>> repositories;
+    /**
+     * Maps resource type to the relationship repository. Resource type (source) is mapped to the target resource entry.
+     * <p/>
+     * (source resource) -> ( target resource , target resource class )
+     */
+    private Map<String, Map<String, Class<?>>> relationships;
 
     private Reflections reflections;
 
@@ -32,6 +45,7 @@ public class DefaultResourceLookup implements ResourceLookup {
 
         this.resources = processResourceClasses();
         this.repositories = processRepositoryClasses();
+        this.relationships = processRelationshipClasses();
     }
 
     protected Map<String, Class<?>> processResourceClasses() {
@@ -55,8 +69,7 @@ public class DefaultResourceLookup implements ResourceLookup {
         for (Class repository : findRepositoryClasses()) {
             JsonApiResourceRepository res = getAnnotation(repository, JsonApiResourceRepository.class);
 
-            String resourceName = getResourceName(res);
-            checkResourceIsKnown(resourceName);
+            String resourceName = validateResource(res.value());
 
             if (repositories.containsKey(resourceName)) {
                 log.error("Duplicate resource found for {}: {} and {}", resourceName, res.value().getCanonicalName(),
@@ -75,14 +88,51 @@ public class DefaultResourceLookup implements ResourceLookup {
         return repositories;
     }
 
-    private void checkResourceIsKnown(String resourceName) {
+    private Map<String, Map<String, Class<?>>> processRelationshipClasses() {
+        Map<String, Map<String, Class<?>>> relationships = new HashMap<>();
+
+        for (Class relationshipRepo : findRelationshipRepositoryClasses()) {
+            JsonApiRelationshipRepository res = getAnnotation(relationshipRepo, JsonApiRelationshipRepository.class);
+
+            String source = checkRepositoryExists(validateResource(res.source()));
+            String target = checkRepositoryExists(validateResource(res.target()));
+
+            Map<String, Class<?>> repos = getOrInit(relationships, source);
+            repos.put(target, res.target());
+            relationships.put(source, repos);
+        }
+
+        return relationships;
+    }
+
+    private Map<String, Class<?>> getOrInit(Map<String, Map<String, Class<?>>> relationships, String source) {
+        Map<String, Class<?>> repos = relationships.get(source);
+        if (repos == null) {
+            repos = new HashMap<>();
+        }
+        return repos;
+    }
+
+    private String checkRepositoryExists(@NonNull String resource) throws KatharsisInitializationException {
+        if (!repositories.containsKey(resource)) {
+            throw new KatharsisInitializationException("A relationship repository needs repositories for `source` " +
+                    "and `target` resources. \nMissing repository for " + resource);
+        }
+        return resource;
+    }
+
+    private String validateResource(Class resourceClass) throws KatharsisInitializationException {
+        return checkResourceIsKnown(getResourceName(resourceClass));
+    }
+
+    private String checkResourceIsKnown(String resourceName) {
         if (!resources.containsKey(resourceName)) {
             throw new KatharsisInitializationException("Resource is not known in this registry: " + resourceName);
         }
+        return resourceName;
     }
 
-    private String getResourceName(JsonApiResourceRepository res) {
-        Class resourceClass = res.value();
+    private String getResourceName(Class resourceClass) {
         JsonApiResource annotation = getAnnotation(resourceClass, JsonApiResource.class);
         return annotation.type();
     }
@@ -101,11 +151,11 @@ public class DefaultResourceLookup implements ResourceLookup {
     }
 
     protected Set<Class<?>> findRepositoryClasses() {
-        Set<Class<?>> annotatedResourceRepositories = reflections.getTypesAnnotatedWith(JsonApiResourceRepository.class);
-        Set<Class<?>> result = new HashSet<>();
-        result.addAll(annotatedResourceRepositories);
+        return reflections.getTypesAnnotatedWith(JsonApiResourceRepository.class);
+    }
 
-        return result;
+    protected Set<Class<?>> findRelationshipRepositoryClasses() {
+        return reflections.getTypesAnnotatedWith(JsonApiRelationshipRepository.class);
     }
 
     @Override

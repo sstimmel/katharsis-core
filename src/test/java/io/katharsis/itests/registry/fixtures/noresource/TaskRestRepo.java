@@ -1,4 +1,4 @@
-package io.katharsis.itests.registry.fixtures2;
+package io.katharsis.itests.registry.fixtures.noresource;
 
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import lombok.Data;

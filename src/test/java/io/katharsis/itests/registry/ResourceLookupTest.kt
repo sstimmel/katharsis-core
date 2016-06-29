@@ -1,10 +1,9 @@
 package io.katharsis.itests.registry
 
 import io.katharsis.dispatcher.registry.DefaultResourceLookup
-import io.katharsis.dispatcher.registry.RepositoryRegistryImpl
 import io.katharsis.errorhandling.exception.KatharsisInitializationException
-import io.katharsis.itests.registry.fixtures1.Task
-import io.katharsis.itests.registry.fixtures1.TaskRestRepo
+import io.katharsis.itests.registry.fixtures.simple.Task
+import io.katharsis.itests.registry.fixtures.simple.TaskRestRepo
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -13,12 +12,13 @@ import kotlin.test.assertTrue
 
 class ResourceLookupTest {
 
-    val goodFixtures = "io.katharsis.itests.registry.fixtures1";
-    val repoWithoutResourceFixtures = "io.katharsis.itests.registry.fixtures2";
+    val goodFixtures = "io.katharsis.itests.registry.fixtures.simple";
+    val repoWithoutResourceFixtures = "io.katharsis.itests.registry.fixtures.noresource";
+    val repoWithRelationships = "io.katharsis.itests.registry.fixtures.relationships";
 
     @Test
     fun testResourceDiscovery() {
-        val registry =  DefaultResourceLookup(goodFixtures);
+        val registry = DefaultResourceLookup(goodFixtures);
         val resources: Map<String, Any> = registry.getResources();
 
         assertFalse(resources.isEmpty())
@@ -51,4 +51,14 @@ class ResourceLookupTest {
         }
     }
 
+    @Test
+    fun testRelationshipRepostiroiesAreFound() {
+        val registry = DefaultResourceLookup(repoWithRelationships);
+        val repos: Map<String, Map<String, Any>> = registry.getRelationships()
+
+        assertFalse(repos.isEmpty())
+
+        assertTrue(repos.containsKey("projects"))
+        assertEquals(io.katharsis.itests.registry.fixtures.relationships.Task::class.toString(), repos.get("projects")?.get("tasks").toString(), "Classes do not match")
+    }
 }

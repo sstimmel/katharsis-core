@@ -9,7 +9,6 @@ import lombok.Data;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Primary data MUST be either:
@@ -31,7 +30,7 @@ public class SingleResponse implements DataResponse {
                           @Nullable MetaInformation meta,
                           @Nullable JsonApi jsonApi,
                           @Nullable LinksInformation links,
-                          @Nullable List<Resource> included) {
+                          @Nullable Collection<Resource> included) {
         this.data = data;
         this.meta = meta;
         this.jsonApi = jsonApi;

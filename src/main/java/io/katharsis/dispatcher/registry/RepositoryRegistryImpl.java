@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.registry;
 
+import io.katharsis.dispatcher.registry.annotated.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.dispatcher.registry.annotated.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.dispatcher.registry.api.RepositoryRegistry;
@@ -18,14 +19,17 @@ import java.util.Map;
 public class RepositoryRegistryImpl implements RepositoryRegistry {
 
     private Map<String, AnnotatedResourceRepositoryAdapter> adapters;
+    private Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipRepoAdapters;
 
     private String packages;
     private String baseUrl;
 
     public RepositoryRegistryImpl(@NonNull String baseUrl,
-                                  @NonNull Map<String, AnnotatedResourceRepositoryAdapter> adapters) {
+                                  @NonNull Map<String, AnnotatedResourceRepositoryAdapter> adapters,
+                                  @NonNull Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters) {
         this.baseUrl = baseUrl;
         this.adapters = adapters;
+        this.relationshipRepoAdapters = relationshipAdapters;
     }
 
     public static RepositoryRegistryImpl build(String packages, String baseUrl) {
@@ -35,8 +39,15 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
 
         Map<String, Class<?>> repositories = resourceLookup.getRepositories();
         Map<String, AnnotatedResourceRepositoryAdapter> adapters = buildAdapters(factory, repositories);
+        Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters =
+                buildRelationshipAdapters();
 
-        return new RepositoryRegistryImpl(baseUrl, adapters);
+        return new RepositoryRegistryImpl(baseUrl, adapters, relationshipAdapters);
+    }
+
+    private static Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> buildRelationshipAdapters() {
+        //TODO: ieugen: we must implement this to have relationships
+        return new HashMap<>();
     }
 
     private static Map<String, AnnotatedResourceRepositoryAdapter> buildAdapters(RepositoryFactory factory,
