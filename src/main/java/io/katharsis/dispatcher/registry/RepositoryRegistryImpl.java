@@ -33,12 +33,13 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
     }
 
     public static RepositoryRegistryImpl build(String packages, String baseUrl) {
-        DefaultResourceLookup resourceLookup = new DefaultResourceLookup(packages);
+        DefaultResourceLookup resourceLookup = new DefaultResourceLookup();
+        ResourceRegistry holder = resourceLookup.scan(packages.split(","));
 
         RepositoryFactory factory = new NewInstanceRepositoryFactory(new ParametersFactory());
 
-        Map<String, Class<?>> repositories = resourceLookup.getRepositories();
-        Map<String, AnnotatedResourceRepositoryAdapter> adapters = buildAdapters(factory, repositories);
+
+        Map<String, AnnotatedResourceRepositoryAdapter> adapters = buildAdapters(factory, holder.getRepositories());
         Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters =
                 buildRelationshipAdapters();
 

@@ -1,5 +1,6 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.dispatcher.registry.ResourceRegistry;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
@@ -9,7 +10,6 @@ import lombok.Value;
 import org.reflections.Reflections;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,12 +32,7 @@ public class DefaultResourceLookup implements ResourceLookup {
     }
 
     @Override
-    public Map<String, Class<?>> getResources() {
-        return null;
-    }
-
-    @Override
-    public Map<String, Class<?>> getRepositories() {
+    public ResourceRegistry scan(String[] packages) {
         return null;
     }
 

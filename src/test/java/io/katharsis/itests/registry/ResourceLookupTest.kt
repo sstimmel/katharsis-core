@@ -12,14 +12,14 @@ import kotlin.test.assertTrue
 
 class ResourceLookupTest {
 
-    val goodFixtures = "io.katharsis.itests.registry.fixtures.simple";
-    val repoWithoutResourceFixtures = "io.katharsis.itests.registry.fixtures.noresource";
-    val repoWithRelationships = "io.katharsis.itests.registry.fixtures.relationships";
+    val goodFixtures = arrayOf("io.katharsis.itests.registry.fixtures.simple");
+    val repoWithoutResourceFixtures = arrayOf("io.katharsis.itests.registry.fixtures.noresource");
+    val repoWithRelationships = arrayOf("io.katharsis.itests.registry.fixtures.relationships");
 
     @Test
     fun testResourceDiscovery() {
-        val registry = DefaultResourceLookup(goodFixtures);
-        val resources: Map<String, Any> = registry.getResources();
+        val registry = DefaultResourceLookup();
+        val resources: Map<String, Any> = registry.scan(goodFixtures).getResources();
 
         assertFalse(resources.isEmpty())
 
@@ -29,8 +29,8 @@ class ResourceLookupTest {
 
     @Test
     fun testRepositoryDiscovery() {
-        val registry = DefaultResourceLookup(goodFixtures);
-        val repos: Map<String, Any> = registry.getRepositories();
+        val registry = DefaultResourceLookup();
+        val repos: Map<String, Any> = registry.scan(goodFixtures).getRepositories();
 
         assertFalse(repos.isEmpty())
 
@@ -41,7 +41,7 @@ class ResourceLookupTest {
     @Test
     fun testResourceDiscoveryForRepositoryWithoutResource() {
         try {
-            DefaultResourceLookup(repoWithoutResourceFixtures);
+            DefaultResourceLookup().scan(repoWithoutResourceFixtures);
         } catch (e: KatharsisInitializationException) {
             val msg = e.message
             if (msg != null) {
@@ -53,8 +53,8 @@ class ResourceLookupTest {
 
     @Test
     fun testRelationshipRepostiroiesAreFound() {
-        val registry = DefaultResourceLookup(repoWithRelationships);
-        val repos: Map<String, Map<String, Any>> = registry.getRelationships()
+        val registry = DefaultResourceLookup();
+        val repos: Map<String, Map<String, Any>> = registry.scan(repoWithRelationships).getRelationships()
 
         assertFalse(repos.isEmpty())
 
