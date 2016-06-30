@@ -36,7 +36,7 @@ class RoutingIntegrationTest() : KatharsisIntegrationSupport() {
         val path = JsonApiPath.parsePathFromStringUrl("http://domain/tasks")
 
         val req = Request(path, "GET", null, paramProvider)
-        var res = requestDispatcher.dispatch(req)
+        var res = requestDispatcher.handle(req)
 
         assertNotNull(res)
         assertEquals(200, res.httpStatus)
@@ -50,7 +50,7 @@ class RoutingIntegrationTest() : KatharsisIntegrationSupport() {
         val path = JsonApiPath.parsePathFromStringUrl("http://domain/tasks/${task.uuid}")
 
         val req = Request(path, "GET", null, paramProvider)
-        var res = requestDispatcher.dispatch(req)
+        var res = requestDispatcher.handle(req)
 
         assertNotNull(res)
         assertEquals(200, res.httpStatus)
@@ -70,7 +70,7 @@ class RoutingIntegrationTest() : KatharsisIntegrationSupport() {
         val path = JsonApiPath.parsePathFromStringUrl("http://domain/tasks/${task.uuid}/relationships/project")
 
         val req = Request(path, "GET", null, paramProvider)
-        var res = requestDispatcher.dispatch(req)
+        var res = requestDispatcher.handle(req)
 
         assertNotNull(res)
         assertEquals(200, res.httpStatus)
@@ -89,7 +89,7 @@ class RoutingIntegrationTest() : KatharsisIntegrationSupport() {
         val path = JsonApiPath.parsePathFromStringUrl("http://domain/tasks")
 
         val req = Request(path, "POST", serialize(body), paramProvider)
-        var res = requestDispatcher.dispatch(req)
+        var res = requestDispatcher.handle(req)
 
         assertNotNull(res)
         assertEquals(201, res.httpStatus)

@@ -22,28 +22,27 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
     private Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipRepoAdapters;
 
     private String packages;
-    private String baseUrl;
+    private String apiMountUrl;
 
-    public RepositoryRegistryImpl(@NonNull String baseUrl,
+    public RepositoryRegistryImpl(@NonNull String apiMountUrl,
                                   @NonNull Map<String, AnnotatedResourceRepositoryAdapter> adapters,
                                   @NonNull Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters) {
-        this.baseUrl = baseUrl;
+        this.apiMountUrl = apiMountUrl;
         this.adapters = adapters;
         this.relationshipRepoAdapters = relationshipAdapters;
     }
 
-    public static RepositoryRegistryImpl build(String packages, String baseUrl) {
+    public static RepositoryRegistryImpl build(String packages, String apiMountUrl) {
         DefaultResourceLookup resourceLookup = new DefaultResourceLookup();
         ResourceRegistry holder = resourceLookup.scan(packages.split(","));
 
         RepositoryFactory factory = new NewInstanceRepositoryFactory(new ParametersFactory());
 
-
         Map<String, AnnotatedResourceRepositoryAdapter> adapters = buildAdapters(factory, holder.getRepositories());
         Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters =
                 buildRelationshipAdapters();
 
-        return new RepositoryRegistryImpl(baseUrl, adapters, relationshipAdapters);
+        return new RepositoryRegistryImpl(apiMountUrl, adapters, relationshipAdapters);
     }
 
     private static Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> buildRelationshipAdapters() {

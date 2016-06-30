@@ -27,6 +27,7 @@ public class JsonApiModuleBuilder {
 
         simpleModule
                 .addSerializer(new ErrorResponseSerializer())
+                .addSerializer(new ResponseContextSerializer())
                 .addSerializer(new DataResponseSerializer())
                 .addDeserializer(ResourceRelationships.class, new ResourceRelationshipsDeserializer())
                 .addDeserializer(RequestBody.class, new RequestBodyDeserializer());
