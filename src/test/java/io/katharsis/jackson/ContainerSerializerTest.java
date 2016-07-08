@@ -12,6 +12,7 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.response.Container;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import org.junit.Test;
@@ -83,6 +84,18 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("attributes.name").isAbsent();
+    }
+
+    @Test
+    public void onNullQueryParamsShouldSerializeCorrectly() throws Exception {
+        // GIVEN
+        Project project = new Project();
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(project, new ResourceResponseContext(buildResponse(null), HttpStatus.NO_CONTENT_204)));
+
+        // THEN
+        assertThatJson(result).isPresent();
     }
 
     @Test
