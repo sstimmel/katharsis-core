@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import io.katharsis.dispatcher.registry.AnnotationHelpers;
 import io.katharsis.domain.api.DataResponse;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.jackson.serializer.KatharsisFieldPropertyFilter;
@@ -92,6 +93,24 @@ public class DataResponseSerializer extends JsonSerializer<DataResponse> {
         //TODO: ieugen: we can use APT to generate a static transformation for files instead of using reflections
         // http://hannesdorfmann.com/annotation-processing/annotationprocessing101
 
+        String id = extractAttributesAndRelationshipsFromFields(resource, attributes, relationships);
+        gen.writeStringField("id", id);
+        writeAttributes(gen, attributes);
+        writeRelationships(gen, relationships);
+    }
+
+    /**
+     * Extract attributes, relationships and write {@link JsonApiId } .
+     *
+     * @param resource
+     * @param attributes
+     * @param relationships
+     * @throws IOException
+     */
+    private String extractAttributesAndRelationshipsFromFields(Object resource,
+                                                               Map<String, Object> attributes,
+                                                               Map<String, Object> relationships) throws IOException {
+        String id = null;
         for (Field field : resource.getClass().getDeclaredFields()) {
             JsonApiId jsonApiId = field.getAnnotation(JsonApiId.class);
 
@@ -102,7 +121,7 @@ public class DataResponseSerializer extends JsonSerializer<DataResponse> {
             JsonApiToMany toMany = field.getAnnotation(JsonApiToMany.class);
 
             if (jsonApiId != null) {
-                gen.writeStringField("id", String.valueOf(PropertyUtils.getProperty(resource, field.getName())));
+                id = String.valueOf(PropertyUtils.getProperty(resource, field.getName()));
             } else if (meta != null) {
                 //TODO: ieugen meta should be processed at this point as they are outside 'data:{}'
             } else if (links != null) {
@@ -113,9 +132,7 @@ public class DataResponseSerializer extends JsonSerializer<DataResponse> {
                 attributes.put(field.getName(), PropertyUtils.getProperty(resource, field.getName()));
             }
         }
-
-        writeAttributes(gen, attributes);
-        writeRelationships(gen, relationships);
+        return id;
     }
 
     private void writeAttributes(JsonGenerator gen, Map<String, Object> attributes) throws IOException {
@@ -135,11 +152,41 @@ public class DataResponseSerializer extends JsonSerializer<DataResponse> {
 
             for (Map.Entry<String, Object> relationship : relationships.entrySet()) {
                 gen.writeFieldName(relationship.getKey());
-//                gen.writeStartObject();
-                gen.writeObject(relationship.getValue());
-//                gen.writeEndObject();
+                gen.writeStartObject();
+                gen.writeFieldName("data");
+
+                writeResourceLinkage(gen, relationship.getValue());
+
+                gen.writeEndObject();
             }
 
+            gen.writeEndObject();
+        }
+    }
+
+    /**
+     * Resource linkage MUST be represented as one of the following:
+     * - null for empty to-one relationships.
+     * - an empty array ([]) for empty to-many relationships.
+     * - a single resource identifier object for non-empty to-one relationships.
+     * - an array of resource identifier objects for non-empty to-many relationships.
+     * <p/>
+     * http://jsonapi.org/format/#document-resource-object-linkage
+     *
+     * @param gen
+     * @param value
+     * @throws IOException
+     */
+    private void writeResourceLinkage(JsonGenerator gen, Object value) throws IOException {
+        if (value == null) {
+            gen.writeNull();
+        } else if (value instanceof Iterable) {
+
+        } else {
+            String resourceType = AnnotationHelpers.getResourceType(value);
+
+            gen.writeStartObject();
+            gen.writeObjectField(resourceType, "1");
             gen.writeEndObject();
         }
     }

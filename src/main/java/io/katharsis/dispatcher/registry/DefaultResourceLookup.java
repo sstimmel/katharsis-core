@@ -11,10 +11,12 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.reflections.Reflections;
 
-import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static io.katharsis.dispatcher.registry.AnnotationHelpers.getAnnotation;
+import static io.katharsis.dispatcher.registry.AnnotationHelpers.getResourceType;
 
 /**
  * Looks up and loads Json APi resource and repository classes.
@@ -64,7 +66,7 @@ public class DefaultResourceLookup implements ResourceLookup {
         for (Class repository : repositoryClasses) {
             JsonApiResourceRepository res = getAnnotation(repository, JsonApiResourceRepository.class);
 
-            String resourceName = getResourceName(res.value());
+            String resourceName = getResourceType(res.value());
             checkResourceIsRegistered(resources, resourceName);
 
             if (repositories.containsKey(resourceName)) {
@@ -92,8 +94,8 @@ public class DefaultResourceLookup implements ResourceLookup {
         for (Class relationshipRepo : relationshipRepositoryClasses) {
             JsonApiRelationshipRepository res = getAnnotation(relationshipRepo, JsonApiRelationshipRepository.class);
 
-            String source = getResourceName(res.source());
-            String target = getResourceName(res.target());
+            String source = getResourceType(res.source());
+            String target = getResourceType(res.target());
 
             checkResourceIsRegistered(resources, source);
             checkResourceIsRegistered(resources, target);
@@ -125,26 +127,11 @@ public class DefaultResourceLookup implements ResourceLookup {
         return resource;
     }
 
-
     private String checkResourceIsRegistered(Map<String, Class<?>> resources, String resourceName) {
         if (!resources.containsKey(resourceName)) {
             throw new KatharsisInitializationException("Resource is not known in this registry: " + resourceName);
         }
         return resourceName;
-    }
-
-    private String getResourceName(Class resourceClass) {
-        JsonApiResource annotation = getAnnotation(resourceClass, JsonApiResource.class);
-        return annotation.type();
-    }
-
-    private <T extends Annotation> T getAnnotation(Class classWithAnnotation, Class annotationToLookFor) {
-        Annotation annotation = classWithAnnotation.getAnnotation(annotationToLookFor);
-        if (annotation == null) {
-            throw new KatharsisInitializationException(String
-                    .format("Required annotation %s is missing from %s", annotationToLookFor, classWithAnnotation));
-        }
-        return (T) annotation;
     }
 
     protected Set<Class<?>> findResourceClasses(String[] packages) {
